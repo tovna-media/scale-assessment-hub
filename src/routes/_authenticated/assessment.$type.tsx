@@ -56,15 +56,17 @@ function AssessmentPage() {
     }
     setSubmitting(true);
     const { subcategoryScores, overall } = calculateScores(def.type, responses);
+    const insertPayload = {
+      user_id: user.id,
+      assessment_type: def.type,
+      responses: responses as unknown as Record<string, number>,
+      subcategory_scores: subcategoryScores as Record<string, number>,
+      overall_score: overall,
+    };
     const { data, error } = await supabase
       .from("assessment_sessions")
-      .insert({
-        user_id: user.id,
-        assessment_type: def.type,
-        responses: responses as unknown as Record<string, unknown>,
-        subcategory_scores: subcategoryScores,
-        overall_score: overall,
-      })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .insert(insertPayload as any)
       .select("id")
       .single();
     if (error || !data) {
