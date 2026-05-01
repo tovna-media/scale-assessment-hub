@@ -54,7 +54,12 @@ function ReportPage() {
       if (!s.gap_report) {
         setGenerating(true);
         try {
-          const result = await generate({ data: { sessionId } });
+          const { data: sess } = await supabase.auth.getSession();
+          const accessToken = sess.session?.access_token;
+          if (!accessToken) {
+            throw new Error("Your session expired. Please sign in again.");
+          }
+          const result = await generate({ data: { sessionId, accessToken } });
           if (cancelled) return;
           setSession((prev) => (prev ? { ...prev, gap_report: result.report } : prev));
         } catch (e) {
