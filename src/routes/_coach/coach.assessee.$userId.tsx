@@ -7,7 +7,7 @@ import { ArrowLeft, Mail, Phone, Calendar, Download, FileText } from "lucide-rea
 import { format } from "date-fns";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_coach/assessee/$userId")({
+export const Route = createFileRoute("/_coach/coach/assessee/$userId")({
   head: () => ({ meta: [{ title: "Assessee Detail — SCALE Coach" }] }),
   component: AssesseeDetail,
 });
