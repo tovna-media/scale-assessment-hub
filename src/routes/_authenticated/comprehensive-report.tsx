@@ -285,7 +285,19 @@ function Markdown({ text }: { text: string }) {
   }
   for (const raw of lines) {
     const line = raw.trimEnd();
-    if (/^# /.test(line)) {
+    if (/^#### /.test(line)) {
+      flushAll();
+      nodes.push(
+        <h5 key={nodes.length} className="mt-4 font-display text-sm font-semibold uppercase tracking-wider text-foreground"
+          dangerouslySetInnerHTML={{ __html: inline(line.replace(/^#### /, "")) }} />,
+      );
+    } else if (/^### /.test(line)) {
+      flushAll();
+      nodes.push(
+        <h4 key={nodes.length} className="mt-5 font-display text-base font-semibold text-foreground"
+          dangerouslySetInnerHTML={{ __html: inline(line.replace(/^### /, "")) }} />,
+      );
+    } else if (/^# /.test(line)) {
       flushAll();
       nodes.push(
         <h2 key={nodes.length} className="mt-8 font-display text-2xl font-semibold text-foreground">
