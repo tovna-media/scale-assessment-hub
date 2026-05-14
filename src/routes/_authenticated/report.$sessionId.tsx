@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { ASSESSMENTS, gapLabel, type AssessmentType } from "@/lib/assessments";
 import { generateGapReport } from "@/server/report.functions";
+import { generatePdfReport } from "@/lib/pdf-report.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, Download, Loader2, Calendar } from "lucide-react";
 import { toast } from "sonner";
@@ -28,9 +29,11 @@ function ReportPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const generate = useServerFn(generateGapReport);
+  const generatePdf = useServerFn(generatePdfReport);
   const [session, setSession] = useState<SessionFull | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -108,7 +111,28 @@ function ReportPage() {
     );
   }
 
-  return <ReportView session={session} />;
+  async function handleDownloadPdf() {
+    setDownloadingPdf(true);
+    try {
+      const { data: sess } = await supabase.auth.getSession();
+      const accessToken = sess.session?.access_token;
+      if (!accessToken) throw new Error("Your session expired. Please sign in again.");
+      const result = await generatePdf({ data: { sessionId, accessToken } });
+      window.open(result.pdfUrl, "_blank");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not generate PDF.");
+    } finally {
+      setDownloadingPdf(false);
+    }
+  }
+
+  return (
+    <ReportView
+      session={session}
+      onDownloadPdf={handleDownloadPdf}
+      downloadingPdf={downloadingPdf}
+    />
+  );
 }
 
 function ScoreRing({ score }: { score: number }) {
@@ -140,7 +164,15 @@ function ScoreRing({ score }: { score: number }) {
   );
 }
 
-function ReportView({ session }: { session: SessionFull }) {
+function ReportView({
+  session,
+  onDownloadPdf,
+  downloadingPdf,
+}: {
+  session: SessionFull;
+  onDownloadPdf: () => void;
+  downloadingPdf: boolean;
+}) {
   const def = ASSESSMENTS[session.assessment_type];
   return (
     <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6 print-bg-white">
@@ -151,8 +183,12 @@ function ReportView({ session }: { session: SessionFull }) {
           </Link>
         </Button>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => window.print()}>
-            <Download className="mr-2 h-4 w-4" /> Download PDF
+          <Button variant="outline" onClick={onDownloadPdf} disabled={downloadingPdf}>
+            {downloadingPdf ? (
+              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Preparing…</>
+            ) : (
+              <><Download className="mr-2 h-4 w-4" /> Download PDF</>
+            )}
           </Button>
           <Button asChild>
             <a href="https://calendly.com" target="_blank" rel="noopener noreferrer">
@@ -219,8 +255,8 @@ function ReportView({ session }: { session: SessionFull }) {
             Book a Strategy Call with Rich
           </a>
         </Button>
-        <Button variant="outline" size="lg" onClick={() => window.print()}>
-          Download My Report (PDF)
+        <Button variant="outline" size="lg" onClick={onDownloadPdf} disabled={downloadingPdf}>
+          {downloadingPdf ? "Preparing…" : "Download My Report (PDF)"}
         </Button>
       </div>
     </main>

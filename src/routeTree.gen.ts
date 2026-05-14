@@ -13,6 +13,7 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CoachSettingsRouteImport } from './routes/_coach/settings'
 import { Route as CoachCoachRouteImport } from './routes/_coach/coach'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedReportSessionIdRouteImport } from './routes/_authenticated/report.$sessionId'
@@ -35,6 +36,11 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoachSettingsRoute = CoachSettingsRouteImport.update({
+  id: '/_coach/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoachCoachRoute = CoachCoachRouteImport.update({
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/coach': typeof CoachCoachRoute
+  '/settings': typeof CoachSettingsRoute
   '/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
 }
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/coach': typeof CoachCoachRoute
+  '/settings': typeof CoachSettingsRoute
   '/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
 }
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_coach/coach': typeof CoachCoachRoute
+  '/_coach/settings': typeof CoachSettingsRoute
   '/_authenticated/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/_authenticated/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
 }
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/dashboard'
     | '/coach'
+    | '/settings'
     | '/assessment/$type'
     | '/report/$sessionId'
   fileRoutesByTo: FileRoutesByTo
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/dashboard'
     | '/coach'
+    | '/settings'
     | '/assessment/$type'
     | '/report/$sessionId'
   id:
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/_authenticated/dashboard'
     | '/_coach/coach'
+    | '/_coach/settings'
     | '/_authenticated/assessment/$type'
     | '/_authenticated/report/$sessionId'
   fileRoutesById: FileRoutesById
@@ -126,6 +138,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
   CoachCoachRoute: typeof CoachCoachRoute
+  CoachSettingsRoute: typeof CoachSettingsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -156,6 +169,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_coach/settings': {
+      id: '/_coach/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof CoachSettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_coach/coach': {
@@ -211,6 +231,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
   CoachCoachRoute: CoachCoachRoute,
+  CoachSettingsRoute: CoachSettingsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

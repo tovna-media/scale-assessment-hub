@@ -1,4 +1,4 @@
-export type AssessmentType = "inner_capacity" | "leadership" | "business_audit";
+export type AssessmentType = "inner_capacity" | "personal_leadership" | "business_audit";
 
 export interface Subcategory {
   name: string;
@@ -89,9 +89,9 @@ const innerCapacity: AssessmentDef = {
 
 /* ─── LEADERSHIP ─────────────────────────────────────────────── */
 const leadership: AssessmentDef = {
-  type: "leadership",
-  title: "Leadership Assessment",
-  shortTitle: "Leadership",
+  type: "personal_leadership",
+  title: "Personal Leadership Assessment",
+  shortTitle: "Personal Leadership",
   tagline: "Can you lead with clarity and consistency?",
   questions: [
     // Vision & Strategic Thinking (0-2)
@@ -188,7 +188,7 @@ const businessAudit: AssessmentDef = {
 
 export const ASSESSMENTS: Record<AssessmentType, AssessmentDef> = {
   inner_capacity: innerCapacity,
-  leadership,
+  personal_leadership: leadership,
   business_audit: businessAudit,
 };
 
@@ -599,7 +599,7 @@ export function calculateScores(
       overall_level: r.level,
     };
   }
-  if (type === "leadership") {
+  if (type === "personal_leadership") {
     const r = scoreLeadership(responses);
     const subs: Record<string, number> = {};
     r.categoryScores.forEach((c) => (subs[c.name] = c.score));
