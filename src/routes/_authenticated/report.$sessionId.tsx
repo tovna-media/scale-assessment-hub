@@ -191,7 +191,7 @@ function ReportView({
             )}
           </Button>
           <Button asChild>
-            <a href="https://calendly.com" target="_blank" rel="noopener noreferrer">
+            <a href="https://richlohman.com/strategy-call-with-rich" target="_blank" rel="noopener noreferrer">
               <Calendar className="mr-2 h-4 w-4" /> Book a Strategy Call
             </a>
           </Button>
@@ -251,7 +251,7 @@ function ReportView({
 
       <div className="mt-8 flex flex-wrap gap-3 no-print">
         <Button asChild size="lg">
-          <a href="https://calendly.com" target="_blank" rel="noopener noreferrer">
+          <a href="https://richlohman.com/strategy-call-with-rich" target="_blank" rel="noopener noreferrer">
             Book a Strategy Call with Rich
           </a>
         </Button>

@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Public can read reports" ON storage.objects;
