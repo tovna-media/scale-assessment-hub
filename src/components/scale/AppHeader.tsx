@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { LogOut, Shield } from "lucide-react";
 import { Logo } from "@/components/scale/Logo";
 
 export function AppHeader({ variant = "assessee" }: { variant?: "assessee" | "coach" }) {
@@ -30,6 +30,14 @@ export function AppHeader({ variant = "assessee" }: { variant?: "assessee" | "co
         <div className="flex items-center gap-3">
           {user && (
             <span className="hidden text-sm text-muted-foreground sm:inline">{user.email}</span>
+          )}
+          {role === "coach" && variant !== "coach" && (
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/coach">
+                <Shield className="mr-2 h-4 w-4" />
+                Admin Dashboard
+              </Link>
+            </Button>
           )}
           <Button variant="ghost" size="sm" onClick={handleSignOut}>
             <LogOut className="mr-2 h-4 w-4" />
