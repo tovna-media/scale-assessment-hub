@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import type { Database } from "@/integrations/supabase/types";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { assertSafeWebhookUrl } from "@/lib/webhook-url";
 
 const InputSchema = z.object({
   sessionId: z.string().uuid(),
@@ -333,7 +334,14 @@ export const generatePdfReport = createServerFn({ method: "POST" })
           pdf_url: publicUrl,
           generated_at: new Date().toISOString(),
         };
-        const res = await fetch(settings.ghl_webhook_url, {
+        let safeUrl: URL;
+        try {
+          safeUrl = assertSafeWebhookUrl(settings.ghl_webhook_url);
+        } catch (e) {
+          console.error("[GHL] Rejected webhook URL:", (e as Error).message);
+          throw e;
+        }
+        const res = await fetch(safeUrl.toString(), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
