@@ -2,6 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
+import { Logo } from "@/components/scale/Logo";
 
 export function AppHeader({ variant = "assessee" }: { variant?: "assessee" | "coach" }) {
   const { user, signOut, role } = useAuth();
@@ -15,15 +16,13 @@ export function AppHeader({ variant = "assessee" }: { variant?: "assessee" | "co
   return (
     <header className="border-b border-border bg-card no-print">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
-        <Link to={role === "coach" ? "/coach" : "/dashboard"} className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground font-display font-bold">
-            S
-          </div>
-          <div>
-            <div className="font-display text-base font-semibold leading-none text-foreground">
-              SCALE
+        <Link to={role === "coach" ? "/coach" : "/dashboard"} className="flex items-center gap-3">
+          <Logo className="h-9 w-auto" />
+          <div className="hidden sm:block border-l border-border pl-3">
+            <div className="font-display text-sm font-semibold leading-none text-foreground">
+              SCALE Gap Report
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="mt-1 text-xs text-muted-foreground">
               {variant === "coach" ? "Coach Dashboard" : "Assessment Hub"}
             </div>
           </div>
