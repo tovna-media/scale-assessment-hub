@@ -16,6 +16,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CoachSettingsRouteImport } from './routes/_coach/settings'
 import { Route as CoachCoachRouteImport } from './routes/_coach/coach'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedComprehensiveReportRouteImport } from './routes/_authenticated/comprehensive-report'
 import { Route as AuthenticatedReportSessionIdRouteImport } from './routes/_authenticated/report.$sessionId'
 import { Route as AuthenticatedAssessmentTypeRouteImport } from './routes/_authenticated/assessment.$type'
 
@@ -53,6 +54,12 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedComprehensiveReportRoute =
+  AuthenticatedComprehensiveReportRouteImport.update({
+    id: '/comprehensive-report',
+    path: '/comprehensive-report',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedReportSessionIdRoute =
   AuthenticatedReportSessionIdRouteImport.update({
     id: '/report/$sessionId',
@@ -70,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/comprehensive-report': typeof AuthenticatedComprehensiveReportRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/coach': typeof CoachCoachRoute
   '/settings': typeof CoachSettingsRoute
@@ -80,6 +88,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/comprehensive-report': typeof AuthenticatedComprehensiveReportRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/coach': typeof CoachCoachRoute
   '/settings': typeof CoachSettingsRoute
@@ -92,6 +101,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/_authenticated/comprehensive-report': typeof AuthenticatedComprehensiveReportRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_coach/coach': typeof CoachCoachRoute
   '/_coach/settings': typeof CoachSettingsRoute
@@ -104,6 +114,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/signup'
+    | '/comprehensive-report'
     | '/dashboard'
     | '/coach'
     | '/settings'
@@ -114,6 +125,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/signup'
+    | '/comprehensive-report'
     | '/dashboard'
     | '/coach'
     | '/settings'
@@ -125,6 +137,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/login'
     | '/signup'
+    | '/_authenticated/comprehensive-report'
     | '/_authenticated/dashboard'
     | '/_coach/coach'
     | '/_coach/settings'
@@ -192,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/comprehensive-report': {
+      id: '/_authenticated/comprehensive-report'
+      path: '/comprehensive-report'
+      fullPath: '/comprehensive-report'
+      preLoaderRoute: typeof AuthenticatedComprehensiveReportRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/report/$sessionId': {
       id: '/_authenticated/report/$sessionId'
       path: '/report/$sessionId'
@@ -210,12 +230,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedComprehensiveReportRoute: typeof AuthenticatedComprehensiveReportRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedAssessmentTypeRoute: typeof AuthenticatedAssessmentTypeRoute
   AuthenticatedReportSessionIdRoute: typeof AuthenticatedReportSessionIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedComprehensiveReportRoute: AuthenticatedComprehensiveReportRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedAssessmentTypeRoute: AuthenticatedAssessmentTypeRoute,
   AuthenticatedReportSessionIdRoute: AuthenticatedReportSessionIdRoute,
@@ -236,3 +258,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
