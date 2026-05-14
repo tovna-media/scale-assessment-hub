@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          ghl_enabled: boolean
+          ghl_webhook_url: string | null
+          id: number
+          updated_at: string
+        }
+        Insert: {
+          ghl_enabled?: boolean
+          ghl_webhook_url?: string | null
+          id?: number
+          updated_at?: string
+        }
+        Update: {
+          ghl_enabled?: boolean
+          ghl_webhook_url?: string | null
+          id?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       assessee_status: {
         Row: {
           assessee_id: string
@@ -41,8 +62,14 @@ export type Database = {
           created_at: string
           gap_report: string | null
           id: string
+          overall_level: string | null
           overall_score: number
+          primary_gap: string | null
+          primary_gap_level: string | null
+          primary_gap_score: number | null
           responses: Json
+          secondary_gap: string | null
+          secondary_gap_score: number | null
           subcategory_scores: Json
           user_id: string
         }
@@ -51,8 +78,14 @@ export type Database = {
           created_at?: string
           gap_report?: string | null
           id?: string
+          overall_level?: string | null
           overall_score?: number
+          primary_gap?: string | null
+          primary_gap_level?: string | null
+          primary_gap_score?: number | null
           responses?: Json
+          secondary_gap?: string | null
+          secondary_gap_score?: number | null
           subcategory_scores?: Json
           user_id: string
         }
@@ -61,8 +94,14 @@ export type Database = {
           created_at?: string
           gap_report?: string | null
           id?: string
+          overall_level?: string | null
           overall_score?: number
+          primary_gap?: string | null
+          primary_gap_level?: string | null
+          primary_gap_score?: number | null
           responses?: Json
+          secondary_gap?: string | null
+          secondary_gap_score?: number | null
           subcategory_scores?: Json
           user_id?: string
         }
@@ -95,24 +134,81 @@ export type Database = {
         }
         Relationships: []
       }
+      gap_reports: {
+        Row: {
+          business_score: number | null
+          created_at: string
+          generated_at: string
+          ghl_sent_at: string | null
+          id: string
+          inner_capacity_level: string | null
+          inner_capacity_score: number | null
+          leadership_score: number | null
+          pdf_path: string | null
+          primary_gap: string | null
+          primary_gap_level: string | null
+          report_data: Json
+          user_id: string
+        }
+        Insert: {
+          business_score?: number | null
+          created_at?: string
+          generated_at?: string
+          ghl_sent_at?: string | null
+          id?: string
+          inner_capacity_level?: string | null
+          inner_capacity_score?: number | null
+          leadership_score?: number | null
+          pdf_path?: string | null
+          primary_gap?: string | null
+          primary_gap_level?: string | null
+          report_data?: Json
+          user_id: string
+        }
+        Update: {
+          business_score?: number | null
+          created_at?: string
+          generated_at?: string
+          ghl_sent_at?: string | null
+          id?: string
+          inner_capacity_level?: string | null
+          inner_capacity_score?: number | null
+          leadership_score?: number | null
+          pdf_path?: string | null
+          primary_gap?: string | null
+          primary_gap_level?: string | null
+          report_data?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
           email: string
+          first_name: string | null
           full_name: string | null
           id: string
+          last_name: string | null
+          phone: string | null
         }
         Insert: {
           created_at?: string
           email: string
+          first_name?: string | null
           full_name?: string | null
           id: string
+          last_name?: string | null
+          phone?: string | null
         }
         Update: {
           created_at?: string
           email?: string
+          first_name?: string | null
           full_name?: string | null
           id?: string
+          last_name?: string | null
+          phone?: string | null
         }
         Relationships: []
       }
