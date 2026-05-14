@@ -35,9 +35,13 @@ export const Route = createRootRoute({
       { name: "description", content: "Leadership assessments and personalized gap reports from coach Rich Lohman." },
       { name: "author", content: "Rich Lohman" },
       { property: "og:title", content: "SCALE Assessment Hub" },
-      { property: "og:description", content: "Leadership assessments and personalized gap reports." },
+      { property: "og:description", content: "Leadership assessments and personalized gap reports from coach Rich Lohman." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "SCALE Assessment Hub" },
+      { name: "twitter:description", content: "Leadership assessments and personalized gap reports from coach Rich Lohman." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/Hq9pqwghFDN8HG0LTaiNzaNmoRT2/social-images/social-1778788212542-logo-RL.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/Hq9pqwghFDN8HG0LTaiNzaNmoRT2/social-images/social-1778788212542-logo-RL.webp" },
     ],
     links: [
       {
