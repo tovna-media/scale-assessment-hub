@@ -280,10 +280,13 @@ export const generatePdfReport = createServerFn({ method: "POST" })
       throw new Error("Could not save PDF to storage");
     }
 
-    const { data: signed, error: signErr } = await supabaseAdmin.storage
+    // The `reports` bucket is public — return a permanent URL that
+    // works for prospects clicking from email or GHL follow-ups.
+    const { data: publicUrlData } = supabaseAdmin.storage
       .from("reports")
-      .createSignedUrl(storagePath, 60 * 60); // 1 hour
-    if (signErr || !signed) throw new Error("Could not create download link");
+      .getPublicUrl(storagePath);
+    const publicUrl = publicUrlData.publicUrl;
+    if (!publicUrl) throw new Error("Could not create download link");
 
     // Upsert gap_reports record + fire GHL webhook
     await supabaseAdmin
@@ -327,7 +330,7 @@ export const generatePdfReport = createServerFn({ method: "POST" })
           secondary_gap: session.secondary_gap,
           secondary_gap_score: session.secondary_gap_score,
           subcategory_scores: session.subcategory_scores,
-          pdf_url: signed.signedUrl,
+          pdf_url: publicUrl,
           generated_at: new Date().toISOString(),
         };
         const res = await fetch(settings.ghl_webhook_url, {
@@ -348,5 +351,5 @@ export const generatePdfReport = createServerFn({ method: "POST" })
       console.error("GHL webhook failed", e);
     }
 
-    return { pdfUrl: signed.signedUrl, pdfPath: storagePath };
+    return { pdfUrl: publicUrl, pdfPath: storagePath };
   });
