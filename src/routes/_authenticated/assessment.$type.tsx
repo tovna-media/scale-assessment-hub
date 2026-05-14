@@ -1,12 +1,13 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { ASSESSMENTS, calculateScores, type AssessmentType } from "@/lib/assessments";
+import { ASSESSMENTS, type AssessmentType } from "@/lib/assessments";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { submitAssessment } from "@/lib/assessment.functions";
 
 export const Route = createFileRoute("/_authenticated/assessment/$type")({
   head: () => ({ meta: [{ title: "Take assessment — SCALE" }] }),
@@ -20,6 +21,7 @@ function AssessmentPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const def = ASSESSMENTS[type as AssessmentType];
+  const submit = useServerFn(submitAssessment);
 
   if (!def) {
     return (
@@ -55,26 +57,17 @@ function AssessmentPage() {
       return;
     }
     setSubmitting(true);
-    const { subcategoryScores, overall } = calculateScores(def.type, responses);
-    const insertPayload = {
-      user_id: user.id,
-      assessment_type: def.type,
-      responses: responses as unknown as Record<string, number>,
-      subcategory_scores: subcategoryScores as Record<string, number>,
-      overall_score: overall,
-    };
-    const { data, error } = await supabase
-      .from("assessment_sessions")
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .insert(insertPayload as any)
-      .select("id")
-      .single();
-    if (error || !data) {
+    try {
+      const stringKeyed: Record<string, number> = {};
+      for (const [k, v] of Object.entries(responses)) stringKeyed[k] = v;
+      const { sessionId } = await submit({
+        data: { assessment_type: def.type, responses: stringKeyed },
+      });
+      navigate({ to: "/report/$sessionId", params: { sessionId } });
+    } catch (e) {
       setSubmitting(false);
-      toast.error(error?.message ?? "Could not save your responses.");
-      return;
+      toast.error(e instanceof Error ? e.message : "Could not save your responses.");
     }
-    navigate({ to: "/report/$sessionId", params: { sessionId: data.id } });
   }
 
   return (
