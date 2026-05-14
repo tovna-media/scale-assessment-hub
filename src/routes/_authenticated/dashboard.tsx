@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { ASSESSMENT_LIST, ASSESSMENTS, type AssessmentType } from "@/lib/assessments";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, FileText } from "lucide-react";
+import { ArrowRight, FileText, Sparkles } from "lucide-react";
 import { format } from "date-fns";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -90,6 +90,28 @@ function DashboardPage() {
           );
         })}
       </div>
+
+      {sessions.length > 0 && (
+        <div className="mt-8 flex flex-col items-start justify-between gap-4 rounded-2xl border border-[var(--accent-blue)]/30 bg-primary/5 p-6 sm:flex-row sm:items-center">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-widest text-[var(--accent-blue)]">
+              Comprehensive view
+            </p>
+            <h2 className="mt-1 font-display text-xl font-semibold text-foreground">
+              See your full SCALE Gap Report across all assessments
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Combine your latest results into one unified report with cross-connection analysis.
+            </p>
+          </div>
+          <Button asChild size="lg">
+            <Link to="/comprehensive-report">
+              <Sparkles className="mr-2 h-4 w-4" />
+              View comprehensive report
+            </Link>
+          </Button>
+        </div>
+      )}
 
       <section className="mt-14">
         <h2 className="font-display text-xl font-semibold text-foreground">My history</h2>
