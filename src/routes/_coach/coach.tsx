@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ASSESSMENTS, type AssessmentType } from "@/lib/assessments";
 import { format } from "date-fns";
-import { Mail, ExternalLink } from "lucide-react";
+import { Mail, ExternalLink, Settings } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_coach/coach")({
@@ -118,8 +118,17 @@ function CoachDashboard() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <h1 className="font-display text-3xl font-semibold text-foreground">Coach Dashboard</h1>
-      <p className="mt-1 text-sm text-muted-foreground">All assessees, scores, and pipeline status.</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="font-display text-3xl font-semibold text-foreground">Coach Dashboard</h1>
+          <p className="mt-1 text-sm text-muted-foreground">All assessees, scores, and pipeline status.</p>
+        </div>
+        <Button variant="outline" asChild>
+          <Link to="/settings">
+            <Settings className="mr-2 h-4 w-4" /> Settings
+          </Link>
+        </Button>
+      </div>
 
       <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
         <StatCard label="Total assessments" value={stats.totalAssessments} />
