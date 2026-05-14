@@ -30,15 +30,20 @@ interface Row {
 
 function CoachDashboard() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+
+  if (pathname !== "/coach") {
+    return <Outlet />;
+  }
+
+  return <CoachDashboardIndex />;
+}
+
+function CoachDashboardIndex() {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
-
-  if (pathname !== "/coach") {
-    return <Outlet />;
-  }
 
   useEffect(() => {
     loadAll();
