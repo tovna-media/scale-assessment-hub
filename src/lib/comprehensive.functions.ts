@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import type { Database } from "@/integrations/supabase/types";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { assertSafeWebhookUrl } from "@/lib/webhook-url";
 
 const InputSchema = z.object({
   accessToken: z.string().min(1),
@@ -304,7 +305,8 @@ Recommend a path. Briefly describe these three options and which fits this asses
             pdf_url: pdfUrl,
             generated_at: new Date().toISOString(),
           };
-          const r = await fetch(settings.ghl_webhook_url, {
+          const safeUrl = assertSafeWebhookUrl(settings.ghl_webhook_url);
+          const r = await fetch(safeUrl.toString(), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
