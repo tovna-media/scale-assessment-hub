@@ -19,6 +19,7 @@ import { Route as CoachSettingsRouteImport } from './routes/_coach/settings'
 import { Route as CoachCoachRouteImport } from './routes/_coach/coach'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedComprehensiveReportRouteImport } from './routes/_authenticated/comprehensive-report'
+import { Route as CoachAssesseeUserIdRouteImport } from './routes/_coach/assessee.$userId'
 import { Route as AuthenticatedReportSessionIdRouteImport } from './routes/_authenticated/report.$sessionId'
 import { Route as AuthenticatedAssessmentTypeRouteImport } from './routes/_authenticated/assessment.$type'
 
@@ -71,6 +72,11 @@ const AuthenticatedComprehensiveReportRoute =
     path: '/comprehensive-report',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const CoachAssesseeUserIdRoute = CoachAssesseeUserIdRouteImport.update({
+  id: '/assessee/$userId',
+  path: '/assessee/$userId',
+  getParentRoute: () => CoachRoute,
+} as any)
 const AuthenticatedReportSessionIdRoute =
   AuthenticatedReportSessionIdRouteImport.update({
     id: '/report/$sessionId',
@@ -95,6 +101,7 @@ export interface FileRoutesByFullPath {
   '/coach/login': typeof CoachLoginRoute
   '/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
+  '/assessee/$userId': typeof CoachAssesseeUserIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -107,6 +114,7 @@ export interface FileRoutesByTo {
   '/coach/login': typeof CoachLoginRoute
   '/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
+  '/assessee/$userId': typeof CoachAssesseeUserIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -122,6 +130,7 @@ export interface FileRoutesById {
   '/coach/login': typeof CoachLoginRoute
   '/_authenticated/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/_authenticated/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
+  '/_coach/assessee/$userId': typeof CoachAssesseeUserIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -136,6 +145,7 @@ export interface FileRouteTypes {
     | '/coach/login'
     | '/assessment/$type'
     | '/report/$sessionId'
+    | '/assessee/$userId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -148,6 +158,7 @@ export interface FileRouteTypes {
     | '/coach/login'
     | '/assessment/$type'
     | '/report/$sessionId'
+    | '/assessee/$userId'
   id:
     | '__root__'
     | '/'
@@ -162,6 +173,7 @@ export interface FileRouteTypes {
     | '/coach/login'
     | '/_authenticated/assessment/$type'
     | '/_authenticated/report/$sessionId'
+    | '/_coach/assessee/$userId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -245,6 +257,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedComprehensiveReportRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_coach/assessee/$userId': {
+      id: '/_coach/assessee/$userId'
+      path: '/assessee/$userId'
+      fullPath: '/assessee/$userId'
+      preLoaderRoute: typeof CoachAssesseeUserIdRouteImport
+      parentRoute: typeof CoachRoute
+    }
     '/_authenticated/report/$sessionId': {
       id: '/_authenticated/report/$sessionId'
       path: '/report/$sessionId'
@@ -283,11 +302,13 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 interface CoachRouteChildren {
   CoachCoachRoute: typeof CoachCoachRoute
   CoachSettingsRoute: typeof CoachSettingsRoute
+  CoachAssesseeUserIdRoute: typeof CoachAssesseeUserIdRoute
 }
 
 const CoachRouteChildren: CoachRouteChildren = {
   CoachCoachRoute: CoachCoachRoute,
   CoachSettingsRoute: CoachSettingsRoute,
+  CoachAssesseeUserIdRoute: CoachAssesseeUserIdRoute,
 }
 
 const CoachRouteWithChildren = CoachRoute._addFileChildren(CoachRouteChildren)
