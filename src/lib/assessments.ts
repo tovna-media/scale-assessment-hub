@@ -561,3 +561,71 @@ export function diagnosisFor(primary: ScoredCategory, secondary: ScoredCategory 
   }
   return base;
 }
+
+/* ─── Legacy compatibility shims (used by older UI bits) ───── */
+
+export function gapLabel(score: number): GapLevel {
+  // Treat as percentage 0-100 for UI cards
+  if (score >= 80) return "Strength";
+  if (score >= 60) return "Moderate Gap";
+  return "Critical Gap";
+}
+
+export function calculateScores(
+  type: AssessmentType,
+  responses: Record<number, number>
+): {
+  subcategoryScores: Record<string, number>;
+  overall: number;
+  primary_gap: string | null;
+  primary_gap_score: number | null;
+  primary_gap_level: string | null;
+  secondary_gap: string | null;
+  secondary_gap_score: number | null;
+  overall_level: string | null;
+} {
+  if (type === "inner_capacity") {
+    const r = scoreInnerCapacity(responses);
+    const subs: Record<string, number> = {};
+    r.categories.forEach((c) => (subs[c.name] = c.score));
+    return {
+      subcategoryScores: subs,
+      overall: r.total,
+      primary_gap: r.primary.name,
+      primary_gap_score: r.primary.score,
+      primary_gap_level: r.primary.level,
+      secondary_gap: r.secondary?.name ?? null,
+      secondary_gap_score: r.secondary?.score ?? null,
+      overall_level: r.level,
+    };
+  }
+  if (type === "leadership") {
+    const r = scoreLeadership(responses);
+    const subs: Record<string, number> = {};
+    r.categoryScores.forEach((c) => (subs[c.name] = c.score));
+    return {
+      subcategoryScores: subs,
+      overall: r.total,
+      primary_gap: r.themeGroups[0]?.theme ?? null,
+      primary_gap_score: null,
+      primary_gap_level: r.themeGroups[0] ? "Moderate Gap" : null,
+      secondary_gap: r.themeGroups[1]?.theme ?? null,
+      secondary_gap_score: null,
+      overall_level: null,
+    };
+  }
+  // business_audit
+  const r = scoreBusiness(responses);
+  const subs: Record<string, number> = {};
+  r.categories.forEach((c) => (subs[c.name] = c.score));
+  return {
+    subcategoryScores: subs,
+    overall: r.total,
+    primary_gap: r.critical[0]?.name ?? r.moderate[0]?.name ?? null,
+    primary_gap_score: r.critical[0]?.score ?? r.moderate[0]?.score ?? null,
+    primary_gap_level: r.critical[0] ? "Critical Gap" : r.moderate[0] ? "Moderate Gap" : null,
+    secondary_gap: r.critical[1]?.name ?? r.moderate[1]?.name ?? null,
+    secondary_gap_score: r.critical[1]?.score ?? r.moderate[1]?.score ?? null,
+    overall_level: null,
+  };
+}
