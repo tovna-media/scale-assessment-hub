@@ -33,6 +33,8 @@ function ReportPage() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [statusMessage, setStatusMessage] = useState("Generating your report...");
 
   useEffect(() => {
     if (!user) return;
@@ -44,6 +46,8 @@ function ReportPage() {
       try {
         const result = await generate({ data: { sessionId } });
         if (cancelled) return;
+        setProgress(100);
+        setStatusMessage("Report ready!");
         setSession(result.session as SessionFull);
       } catch (e) {
         if (cancelled) return;
@@ -52,8 +56,12 @@ function ReportPage() {
         setSession(null);
       } finally {
         if (!cancelled) {
-          setGenerating(false);
-          setLoading(false);
+          // Small delay so user sees the bar fill to 100%
+          setTimeout(() => {
+            if (cancelled) return;
+            setGenerating(false);
+            setLoading(false);
+          }, 400);
         }
       }
     }
@@ -63,6 +71,34 @@ function ReportPage() {
     };
   }, [sessionId, user, generate]);
 
+  // Simulated progress + rotating status messages while generating
+  const isGenerating = loading || generating || (session && !session.gap_report);
+  useEffect(() => {
+    if (!isGenerating) return;
+    const startedAt = Date.now();
+    const messages = [
+      { at: 0, text: "Generating your report..." },
+      { at: 3000, text: "Analyzing your answers..." },
+      { at: 7000, text: "Building your personalized results..." },
+      { at: 13000, text: "Almost done..." },
+    ];
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startedAt;
+      // Fast 0 → 85 over ~6s, then slow asymptote toward 95
+      let next: number;
+      if (elapsed < 6000) {
+        next = (elapsed / 6000) * 85;
+      } else {
+        const extra = elapsed - 6000;
+        next = 85 + (1 - Math.exp(-extra / 8000)) * 10;
+      }
+      setProgress((prev) => (next > prev && prev < 95 ? next : prev));
+      const current = [...messages].reverse().find((m) => elapsed >= m.at);
+      if (current) setStatusMessage((prev) => (prev === "Report ready!" ? prev : current.text));
+    }, 200);
+    return () => clearInterval(interval);
+  }, [isGenerating]);
+
   if (loading || generating || (session && !session.gap_report)) {
     return (
       <main className="mx-auto max-w-2xl px-4 py-24 text-center">
@@ -70,13 +106,18 @@ function ReportPage() {
           <Loader2 className="h-8 w-8 animate-spin text-[var(--accent-blue)]" />
         </div>
         <h1 className="mt-6 font-display text-2xl font-semibold text-foreground">
-          Generating Report. Please wait.
+          {statusMessage}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">This takes about 15 seconds.</p>
         <div className="mx-auto mt-6 h-2 w-full max-w-sm overflow-hidden rounded-full bg-primary/10">
-          <div className="h-full w-1/3 animate-[loading_1.5s_ease-in-out_infinite] rounded-full bg-[var(--accent-blue)]" />
+          <div
+            className="h-full rounded-full bg-[var(--accent-blue)] transition-[width] duration-500 ease-out"
+            style={{ width: `${Math.min(100, Math.round(progress))}%` }}
+          />
         </div>
-        <style>{`@keyframes loading{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}`}</style>
+        <p className="mt-2 text-xs tabular-nums text-muted-foreground">
+          {Math.min(100, Math.round(progress))}%
+        </p>
       </main>
     );
   }
