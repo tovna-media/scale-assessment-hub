@@ -15,6 +15,7 @@ export const Route = createFileRoute("/_authenticated/assessment/$type")({
 });
 
 const SCALE_LABELS = ["Almost Never", "Rarely", "Sometimes", "Often", "Almost Always"];
+const SCALE_LABELS_SHORT = ["Never", "Rarely", "Some", "Often", "Always"];
 
 function AssessmentPage() {
   const { type } = Route.useParams();
@@ -95,12 +96,35 @@ function AssessmentPage() {
       </div>
 
       <div className="rounded-xl border border-border bg-card p-6 shadow-sm sm:p-8">
-        <h2 className="font-display text-lg font-semibold text-foreground">{currentSub.name}</h2>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="font-display text-lg font-semibold text-foreground">{currentSub.name}</h2>
+          {!isLastStep && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => { setStep((s) => s + 1); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+              disabled={!allAnsweredInStep}
+              className="sm:hidden"
+            >
+              Continue <ArrowRight className="ml-1 h-3.5 w-3.5" />
+            </Button>
+          )}
+          {isLastStep && (
+            <Button
+              size="sm"
+              onClick={handleGenerate}
+              disabled={!allAnswered || submitting}
+              className="sm:hidden"
+            >
+              {submitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <>Generate <ArrowRight className="ml-1 h-3.5 w-3.5" /></>}
+            </Button>
+          )}
+        </div>
         <div className="mt-6 space-y-8">
           {currentSub.questionIndices.map((qIdx) => (
             <div key={qIdx}>
               <p className="text-base text-foreground">{def.questions[qIdx]}</p>
-              <div className="mt-4 grid grid-cols-5 gap-2">
+              <div className="mt-4 grid grid-cols-5 gap-1.5 sm:gap-2">
                 {[1, 2, 3, 4, 5].map((v) => {
                   const selected = responses[qIdx] === v;
                   return (
@@ -109,15 +133,16 @@ function AssessmentPage() {
                       type="button"
                       onClick={() => setAnswer(qIdx, v)}
                       className={
-                        "rounded-lg border px-3 py-3 text-sm font-medium transition " +
+                        "rounded-lg border px-1 py-2 sm:px-3 sm:py-3 text-sm font-medium transition " +
                         (selected
                           ? "border-primary bg-primary text-primary-foreground"
                           : "border-border bg-background text-foreground hover:border-[var(--accent-blue)]")
                       }
                     >
                       <div className="font-display text-base">{v}</div>
-                      <div className={"mt-0.5 text-[10px] " + (selected ? "text-primary-foreground/80" : "text-muted-foreground")}>
-                        {SCALE_LABELS[v - 1]}
+                      <div className={"mt-0.5 text-[9px] leading-tight sm:text-[10px] " + (selected ? "text-primary-foreground/80" : "text-muted-foreground")}>
+                        <span className="sm:hidden">{SCALE_LABELS_SHORT[v - 1]}</span>
+                        <span className="hidden sm:inline">{SCALE_LABELS[v - 1]}</span>
                       </div>
                     </button>
                   );
