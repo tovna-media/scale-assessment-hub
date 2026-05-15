@@ -88,9 +88,13 @@ function ReportPage() {
           <Loader2 className="h-8 w-8 animate-spin text-[var(--accent-blue)]" />
         </div>
         <h1 className="mt-6 font-display text-2xl font-semibold text-foreground">
-          Analyzing your responses and building your personalized Gap Report…
+          Generating Report. Please wait.
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">This takes about 15 seconds.</p>
+        <div className="mx-auto mt-6 h-2 w-full max-w-sm overflow-hidden rounded-full bg-primary/10">
+          <div className="h-full w-1/3 animate-[loading_1.5s_ease-in-out_infinite] rounded-full bg-[var(--accent-blue)]" />
+        </div>
+        <style>{`@keyframes loading{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}`}</style>
       </main>
     );
   }
@@ -160,13 +164,13 @@ function ReportView({
   const def = ASSESSMENTS[session.assessment_type];
   return (
     <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6 print-bg-white">
-      <div className="mb-6 flex items-center justify-between no-print">
-        <Button variant="ghost" asChild>
+      <div className="mb-6 flex flex-col gap-3 no-print sm:flex-row sm:items-center sm:justify-between">
+        <Button variant="ghost" asChild className="self-start">
           <Link to="/dashboard">
             <ArrowLeft className="mr-2 h-4 w-4" /> Dashboard
           </Link>
         </Button>
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <Button variant="outline" onClick={onDownloadPdf} disabled={downloadingPdf}>
             {downloadingPdf ? (
               <>
