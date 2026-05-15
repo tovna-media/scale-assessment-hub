@@ -1,10 +1,10 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { ASSESSMENTS, gapLabel, type AssessmentType } from "@/lib/assessments";
-import { generateGapReport } from "@/server/report.functions";
+import { generateGapReport } from "@/lib/report.functions";
 import { generatePdfReport } from "@/lib/pdf-report.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, Download, Loader2, Calendar } from "lucide-react";
@@ -27,7 +27,6 @@ interface SessionFull {
 function ReportPage() {
   const { sessionId } = Route.useParams();
   const { user } = useAuth();
-  const navigate = useNavigate();
   const generate = useServerFn(generateGapReport);
   const generatePdf = useServerFn(generatePdfReport);
   const [session, setSession] = useState<SessionFull | null>(null);
@@ -40,48 +39,21 @@ function ReportPage() {
     let cancelled = false;
 
     async function load() {
-      // Retry briefly to absorb read-after-write replication lag (esp. on mobile)
-      let data: SessionFull | null = null;
-      let lastError: unknown = null;
-      for (let attempt = 0; attempt < 5; attempt++) {
-        const res = await supabase
-          .from("assessment_sessions")
-          .select("id, assessment_type, overall_score, subcategory_scores, gap_report, created_at")
-          .eq("id", sessionId)
-          .maybeSingle();
+      setLoading(true);
+      setGenerating(true);
+      try {
+        const result = await generate({ data: { sessionId } });
         if (cancelled) return;
-        if (res.data) {
-          data = res.data as unknown as SessionFull;
-          break;
-        }
-        lastError = res.error;
-        await new Promise((r) => setTimeout(r, 400));
-      }
-      if (!data) {
-        console.error("Could not load session", lastError);
-        toast.error("Could not load session.");
-        setLoading(false);
-        return;
-      }
-      const s = data;
-      setSession(s);
-      setLoading(false);
-      if (!s.gap_report) {
-        setGenerating(true);
-        try {
-          const { data: sess } = await supabase.auth.getSession();
-          const accessToken = sess.session?.access_token;
-          if (!accessToken) {
-            throw new Error("Your session expired. Please sign in again.");
-          }
-          const result = await generate({ data: { sessionId, accessToken } });
-          if (cancelled) return;
-          setSession((prev) => (prev ? { ...prev, gap_report: result.report } : prev));
-        } catch (e) {
-          if (cancelled) return;
-          toast.error(e instanceof Error ? e.message : "Could not generate report.");
-        } finally {
-          if (!cancelled) setGenerating(false);
+        setSession(result.session as SessionFull);
+      } catch (e) {
+        if (cancelled) return;
+        console.error("Could not load session", e);
+        toast.error(e instanceof Error ? e.message : "Could not load session.");
+        setSession(null);
+      } finally {
+        if (!cancelled) {
+          setGenerating(false);
+          setLoading(false);
         }
       }
     }
@@ -197,13 +169,21 @@ function ReportView({
         <div className="flex gap-2">
           <Button variant="outline" onClick={onDownloadPdf} disabled={downloadingPdf}>
             {downloadingPdf ? (
-              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Preparing…</>
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Preparing…
+              </>
             ) : (
-              <><Download className="mr-2 h-4 w-4" /> Download PDF</>
+              <>
+                <Download className="mr-2 h-4 w-4" /> Download PDF
+              </>
             )}
           </Button>
           <Button asChild>
-            <a href="https://richlohman.com/strategy-call-with-rich" target="_blank" rel="noopener noreferrer">
+            <a
+              href="https://richlohman.com/strategy-call-with-rich"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Calendar className="mr-2 h-4 w-4" /> Book a Strategy Call
             </a>
           </Button>
@@ -221,7 +201,8 @@ function ReportView({
           <div>
             <p className="text-sm text-muted-foreground">Overall SCALE Score</p>
             <p className="mt-1 max-w-md text-sm text-muted-foreground">
-              Your composite score for this assessment. Below 60 signals a critical gap; 60–79 a moderate gap; 80+ a strength.
+              Your composite score for this assessment. Below 60 signals a critical gap; 60–79 a
+              moderate gap; 80+ a strength.
             </p>
           </div>
           <ScoreRing score={session.overall_score} />
@@ -234,13 +215,20 @@ function ReportView({
               label === "Strength"
                 ? "bg-[var(--success)]/10 text-[var(--success)]"
                 : label === "Moderate Gap"
-                ? "bg-[var(--warning)]/15 text-[var(--warning)]"
-                : "bg-destructive/10 text-destructive";
+                  ? "bg-[var(--warning)]/15 text-[var(--warning)]"
+                  : "bg-destructive/10 text-destructive";
             return (
-              <div key={name} className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
+              <div
+                key={name}
+                className="flex items-center justify-between rounded-lg border border-border px-4 py-3"
+              >
                 <div>
                   <div className="text-sm font-medium text-foreground">{name}</div>
-                  <div className={"mt-1 inline-flex rounded-full px-2 py-0.5 text-xs font-medium " + tone}>
+                  <div
+                    className={
+                      "mt-1 inline-flex rounded-full px-2 py-0.5 text-xs font-medium " + tone
+                    }
+                  >
                     {label}
                   </div>
                 </div>
@@ -257,13 +245,24 @@ function ReportView({
 
       <div className="mt-10 grid gap-4 sm:grid-cols-3 no-print">
         <PathCard title="DIY Path" desc="Self-directed implementation using the SCALE framework." />
-        <PathCard title="Leaders Edge" desc="Group coaching program with peer leaders on the same journey." />
-        <PathCard title="1:1 Coaching with Rich" desc="Personalized executive coaching with Rich Lohman." recommended />
+        <PathCard
+          title="Leaders Edge"
+          desc="Group coaching program with peer leaders on the same journey."
+        />
+        <PathCard
+          title="1:1 Coaching with Rich"
+          desc="Personalized executive coaching with Rich Lohman."
+          recommended
+        />
       </div>
 
       <div className="mt-8 flex flex-wrap gap-3 no-print">
         <Button asChild size="lg">
-          <a href="https://richlohman.com/strategy-call-with-rich" target="_blank" rel="noopener noreferrer">
+          <a
+            href="https://richlohman.com/strategy-call-with-rich"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Book a Strategy Call with Rich
           </a>
         </Button>
@@ -275,7 +274,15 @@ function ReportView({
   );
 }
 
-function PathCard({ title, desc, recommended }: { title: string; desc: string; recommended?: boolean }) {
+function PathCard({
+  title,
+  desc,
+  recommended,
+}: {
+  title: string;
+  desc: string;
+  recommended?: boolean;
+}) {
   return (
     <div
       className={
@@ -290,10 +297,16 @@ function PathCard({ title, desc, recommended }: { title: string; desc: string; r
           Recommended
         </div>
       )}
-      <h3 className={"font-display text-lg font-semibold " + (recommended ? "" : "text-foreground")}>
+      <h3
+        className={"font-display text-lg font-semibold " + (recommended ? "" : "text-foreground")}
+      >
         {title}
       </h3>
-      <p className={"mt-1 text-sm " + (recommended ? "text-primary-foreground/80" : "text-muted-foreground")}>
+      <p
+        className={
+          "mt-1 text-sm " + (recommended ? "text-primary-foreground/80" : "text-muted-foreground")
+        }
+      >
         {desc}
       </p>
     </div>
@@ -312,7 +325,7 @@ function Markdown({ text }: { text: string }) {
           {listBuf.map((l, i) => (
             <li key={i} dangerouslySetInnerHTML={{ __html: inline(l) }} />
           ))}
-        </ul>
+        </ul>,
       );
       listBuf = [];
     }
@@ -331,14 +344,14 @@ function Markdown({ text }: { text: string }) {
       nodes.push(
         <h2 key={nodes.length} className="mt-8 font-display text-2xl font-semibold text-foreground">
           {line.replace(/^# /, "")}
-        </h2>
+        </h2>,
       );
     } else if (/^## /.test(line)) {
       flushList();
       nodes.push(
         <h3 key={nodes.length} className="mt-6 font-display text-lg font-semibold text-foreground">
           {line.replace(/^## /, "")}
-        </h3>
+        </h3>,
       );
     } else if (/^[-*] /.test(line)) {
       listBuf.push(line.replace(/^[-*] /, ""));
@@ -351,7 +364,7 @@ function Markdown({ text }: { text: string }) {
           key={nodes.length}
           className="my-3 leading-relaxed text-foreground"
           dangerouslySetInnerHTML={{ __html: inline(line) }}
-        />
+        />,
       );
     }
   }
