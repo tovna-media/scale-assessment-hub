@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
@@ -27,7 +27,6 @@ interface SessionFull {
 function ReportPage() {
   const { sessionId } = Route.useParams();
   const { user } = useAuth();
-  const navigate = useNavigate();
   const generate = useServerFn(generateGapReport);
   const generatePdf = useServerFn(generatePdfReport);
   const [session, setSession] = useState<SessionFull | null>(null);
