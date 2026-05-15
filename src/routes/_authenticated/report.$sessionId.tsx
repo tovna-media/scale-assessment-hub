@@ -170,13 +170,21 @@ function ReportView({
         <div className="flex gap-2">
           <Button variant="outline" onClick={onDownloadPdf} disabled={downloadingPdf}>
             {downloadingPdf ? (
-              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Preparing…</>
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Preparing…
+              </>
             ) : (
-              <><Download className="mr-2 h-4 w-4" /> Download PDF</>
+              <>
+                <Download className="mr-2 h-4 w-4" /> Download PDF
+              </>
             )}
           </Button>
           <Button asChild>
-            <a href="https://richlohman.com/strategy-call-with-rich" target="_blank" rel="noopener noreferrer">
+            <a
+              href="https://richlohman.com/strategy-call-with-rich"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Calendar className="mr-2 h-4 w-4" /> Book a Strategy Call
             </a>
           </Button>
@@ -194,7 +202,8 @@ function ReportView({
           <div>
             <p className="text-sm text-muted-foreground">Overall SCALE Score</p>
             <p className="mt-1 max-w-md text-sm text-muted-foreground">
-              Your composite score for this assessment. Below 60 signals a critical gap; 60–79 a moderate gap; 80+ a strength.
+              Your composite score for this assessment. Below 60 signals a critical gap; 60–79 a
+              moderate gap; 80+ a strength.
             </p>
           </div>
           <ScoreRing score={session.overall_score} />
@@ -207,13 +216,20 @@ function ReportView({
               label === "Strength"
                 ? "bg-[var(--success)]/10 text-[var(--success)]"
                 : label === "Moderate Gap"
-                ? "bg-[var(--warning)]/15 text-[var(--warning)]"
-                : "bg-destructive/10 text-destructive";
+                  ? "bg-[var(--warning)]/15 text-[var(--warning)]"
+                  : "bg-destructive/10 text-destructive";
             return (
-              <div key={name} className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
+              <div
+                key={name}
+                className="flex items-center justify-between rounded-lg border border-border px-4 py-3"
+              >
                 <div>
                   <div className="text-sm font-medium text-foreground">{name}</div>
-                  <div className={"mt-1 inline-flex rounded-full px-2 py-0.5 text-xs font-medium " + tone}>
+                  <div
+                    className={
+                      "mt-1 inline-flex rounded-full px-2 py-0.5 text-xs font-medium " + tone
+                    }
+                  >
                     {label}
                   </div>
                 </div>
@@ -230,13 +246,24 @@ function ReportView({
 
       <div className="mt-10 grid gap-4 sm:grid-cols-3 no-print">
         <PathCard title="DIY Path" desc="Self-directed implementation using the SCALE framework." />
-        <PathCard title="Leaders Edge" desc="Group coaching program with peer leaders on the same journey." />
-        <PathCard title="1:1 Coaching with Rich" desc="Personalized executive coaching with Rich Lohman." recommended />
+        <PathCard
+          title="Leaders Edge"
+          desc="Group coaching program with peer leaders on the same journey."
+        />
+        <PathCard
+          title="1:1 Coaching with Rich"
+          desc="Personalized executive coaching with Rich Lohman."
+          recommended
+        />
       </div>
 
       <div className="mt-8 flex flex-wrap gap-3 no-print">
         <Button asChild size="lg">
-          <a href="https://richlohman.com/strategy-call-with-rich" target="_blank" rel="noopener noreferrer">
+          <a
+            href="https://richlohman.com/strategy-call-with-rich"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Book a Strategy Call with Rich
           </a>
         </Button>
@@ -248,7 +275,15 @@ function ReportView({
   );
 }
 
-function PathCard({ title, desc, recommended }: { title: string; desc: string; recommended?: boolean }) {
+function PathCard({
+  title,
+  desc,
+  recommended,
+}: {
+  title: string;
+  desc: string;
+  recommended?: boolean;
+}) {
   return (
     <div
       className={
@@ -263,10 +298,16 @@ function PathCard({ title, desc, recommended }: { title: string; desc: string; r
           Recommended
         </div>
       )}
-      <h3 className={"font-display text-lg font-semibold " + (recommended ? "" : "text-foreground")}>
+      <h3
+        className={"font-display text-lg font-semibold " + (recommended ? "" : "text-foreground")}
+      >
         {title}
       </h3>
-      <p className={"mt-1 text-sm " + (recommended ? "text-primary-foreground/80" : "text-muted-foreground")}>
+      <p
+        className={
+          "mt-1 text-sm " + (recommended ? "text-primary-foreground/80" : "text-muted-foreground")
+        }
+      >
         {desc}
       </p>
     </div>
@@ -285,7 +326,7 @@ function Markdown({ text }: { text: string }) {
           {listBuf.map((l, i) => (
             <li key={i} dangerouslySetInnerHTML={{ __html: inline(l) }} />
           ))}
-        </ul>
+        </ul>,
       );
       listBuf = [];
     }
@@ -304,14 +345,14 @@ function Markdown({ text }: { text: string }) {
       nodes.push(
         <h2 key={nodes.length} className="mt-8 font-display text-2xl font-semibold text-foreground">
           {line.replace(/^# /, "")}
-        </h2>
+        </h2>,
       );
     } else if (/^## /.test(line)) {
       flushList();
       nodes.push(
         <h3 key={nodes.length} className="mt-6 font-display text-lg font-semibold text-foreground">
           {line.replace(/^## /, "")}
-        </h3>
+        </h3>,
       );
     } else if (/^[-*] /.test(line)) {
       listBuf.push(line.replace(/^[-*] /, ""));
@@ -324,7 +365,7 @@ function Markdown({ text }: { text: string }) {
           key={nodes.length}
           className="my-3 leading-relaxed text-foreground"
           dangerouslySetInnerHTML={{ __html: inline(line) }}
-        />
+        />,
       );
     }
   }

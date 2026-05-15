@@ -71,10 +71,13 @@ export const generateGapReport = createServerFn({ method: "POST" })
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
-    const latestByType: Record<string, {
-      overall_score: number;
-      subcategory_scores: Record<string, number>;
-    }> = {};
+    const latestByType: Record<
+      string,
+      {
+        overall_score: number;
+        subcategory_scores: Record<string, number>;
+      }
+    > = {};
 
     for (const row of allSessions ?? []) {
       if (!latestByType[row.assessment_type]) {
