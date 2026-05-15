@@ -63,25 +63,7 @@ function ReportPage() {
     };
   }, [sessionId, user, generate]);
 
-  if (loading) {
-    return (
-      <main className="mx-auto max-w-3xl px-4 py-20 text-center text-muted-foreground">
-        Loading report…
-      </main>
-    );
-  }
-  if (!session) {
-    return (
-      <main className="mx-auto max-w-3xl px-4 py-20 text-center">
-        <p className="text-muted-foreground">Session not found.</p>
-        <Button asChild className="mt-4">
-          <Link to="/dashboard">Back to dashboard</Link>
-        </Button>
-      </main>
-    );
-  }
-
-  if (generating || !session.gap_report) {
+  if (loading || generating || (session && !session.gap_report)) {
     return (
       <main className="mx-auto max-w-2xl px-4 py-24 text-center">
         <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary/5">
@@ -95,6 +77,16 @@ function ReportPage() {
           <div className="h-full w-1/3 animate-[loading_1.5s_ease-in-out_infinite] rounded-full bg-[var(--accent-blue)]" />
         </div>
         <style>{`@keyframes loading{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}`}</style>
+      </main>
+    );
+  }
+  if (!session) {
+    return (
+      <main className="mx-auto max-w-3xl px-4 py-20 text-center">
+        <p className="text-muted-foreground">Session not found.</p>
+        <Button asChild className="mt-4">
+          <Link to="/dashboard">Back to dashboard</Link>
+        </Button>
       </main>
     );
   }
