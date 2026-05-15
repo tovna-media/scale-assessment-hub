@@ -40,18 +40,30 @@ function ReportPage() {
     let cancelled = false;
 
     async function load() {
-      const { data, error } = await supabase
-        .from("assessment_sessions")
-        .select("id, assessment_type, overall_score, subcategory_scores, gap_report, created_at")
-        .eq("id", sessionId)
-        .maybeSingle();
-      if (cancelled) return;
-      if (error || !data) {
+      // Retry briefly to absorb read-after-write replication lag (esp. on mobile)
+      let data: SessionFull | null = null;
+      let lastError: unknown = null;
+      for (let attempt = 0; attempt < 5; attempt++) {
+        const res = await supabase
+          .from("assessment_sessions")
+          .select("id, assessment_type, overall_score, subcategory_scores, gap_report, created_at")
+          .eq("id", sessionId)
+          .maybeSingle();
+        if (cancelled) return;
+        if (res.data) {
+          data = res.data as unknown as SessionFull;
+          break;
+        }
+        lastError = res.error;
+        await new Promise((r) => setTimeout(r, 400));
+      }
+      if (!data) {
+        console.error("Could not load session", lastError);
         toast.error("Could not load session.");
         setLoading(false);
         return;
       }
-      const s = data as unknown as SessionFull;
+      const s = data;
       setSession(s);
       setLoading(false);
       if (!s.gap_report) {
