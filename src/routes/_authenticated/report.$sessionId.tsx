@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { ASSESSMENTS, gapLabel, type AssessmentType } from "@/lib/assessments";
-import { generateGapReport } from "@/server/report.functions";
+import { generateGapReport } from "@/lib/report.functions";
 import { generatePdfReport } from "@/lib/pdf-report.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, Download, Loader2, Calendar } from "lucide-react";
@@ -40,48 +40,21 @@ function ReportPage() {
     let cancelled = false;
 
     async function load() {
-      // Retry briefly to absorb read-after-write replication lag (esp. on mobile)
-      let data: SessionFull | null = null;
-      let lastError: unknown = null;
-      for (let attempt = 0; attempt < 5; attempt++) {
-        const res = await supabase
-          .from("assessment_sessions")
-          .select("id, assessment_type, overall_score, subcategory_scores, gap_report, created_at")
-          .eq("id", sessionId)
-          .maybeSingle();
+      setLoading(true);
+      setGenerating(true);
+      try {
+        const result = await generate({ data: { sessionId } });
         if (cancelled) return;
-        if (res.data) {
-          data = res.data as unknown as SessionFull;
-          break;
-        }
-        lastError = res.error;
-        await new Promise((r) => setTimeout(r, 400));
-      }
-      if (!data) {
-        console.error("Could not load session", lastError);
-        toast.error("Could not load session.");
-        setLoading(false);
-        return;
-      }
-      const s = data;
-      setSession(s);
-      setLoading(false);
-      if (!s.gap_report) {
-        setGenerating(true);
-        try {
-          const { data: sess } = await supabase.auth.getSession();
-          const accessToken = sess.session?.access_token;
-          if (!accessToken) {
-            throw new Error("Your session expired. Please sign in again.");
-          }
-          const result = await generate({ data: { sessionId, accessToken } });
-          if (cancelled) return;
-          setSession((prev) => (prev ? { ...prev, gap_report: result.report } : prev));
-        } catch (e) {
-          if (cancelled) return;
-          toast.error(e instanceof Error ? e.message : "Could not generate report.");
-        } finally {
-          if (!cancelled) setGenerating(false);
+        setSession(result.session as SessionFull);
+      } catch (e) {
+        if (cancelled) return;
+        console.error("Could not load session", e);
+        toast.error(e instanceof Error ? e.message : "Could not load session.");
+        setSession(null);
+      } finally {
+        if (!cancelled) {
+          setGenerating(false);
+          setLoading(false);
         }
       }
     }
