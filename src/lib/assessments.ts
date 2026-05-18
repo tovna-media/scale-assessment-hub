@@ -576,6 +576,18 @@ export function gapLabel(score: number): GapLevel {
   return "Critical Gap";
 }
 
+/* Combined SCALE score = IC + Personal Leadership + Business Audit totals.
+   Max: 250 + 135 + 60 = 445. Levels mirror the IC overall thresholds
+   (≈49.6%, 71.6%, 87.6%) proportionally. */
+export const COMBINED_MAX = 445;
+
+export function combinedScaleLevel(total: number): InnerCapacityResult["level"] {
+  if (total <= 221) return "Capacity Lagging";
+  if (total <= 319) return "Emerging Capacity";
+  if (total <= 390) return "Stable and Growing";
+  return "Strong Internal Capacity";
+}
+
 export function calculateScores(
   type: AssessmentType,
   responses: Record<number, number>

@@ -5,6 +5,13 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import type { Database } from "@/integrations/supabase/types";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { assertSafeWebhookUrl } from "@/lib/webhook-url";
+import {
+  combinedScaleLevel,
+  scoreBusiness,
+  scoreInnerCapacity,
+  scoreLeadership,
+  type AssessmentType,
+} from "@/lib/assessments";
 
 const InputSchema = z.object({
   sessionId: z.string().uuid(),
@@ -70,6 +77,32 @@ export const generatePdfReport = createServerFn({ method: "POST" })
       .select("full_name, first_name, last_name, email, phone")
       .eq("id", userId)
       .maybeSingle();
+
+    // Combined SCALE score across all 3 latest sessions (for cover)
+    const { data: allSessions } = await supabase
+      .from("assessment_sessions")
+      .select("assessment_type, responses, created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+
+    const latestResp: Partial<Record<AssessmentType, Record<number, number>>> = {};
+    for (const row of allSessions ?? []) {
+      const t = row.assessment_type as AssessmentType;
+      if (!latestResp[t]) {
+        const m: Record<number, number> = {};
+        for (const [k, v] of Object.entries(
+          (row.responses as Record<string, number> | null) ?? {},
+        )) {
+          m[Number(k)] = Number(v);
+        }
+        latestResp[t] = m;
+      }
+    }
+    const icR = scoreInnerCapacity(latestResp.inner_capacity ?? {});
+    const ldR = scoreLeadership(latestResp.personal_leadership ?? {});
+    const bzR = scoreBusiness(latestResp.business_audit ?? {});
+    const combinedTotal = icR.total + ldR.total + bzR.total;
+    const combinedLevelLabel = combinedScaleLevel(combinedTotal);
 
     // Build the PDF
     const pdfDoc = await PDFDocument.create();
@@ -204,22 +237,26 @@ export const generatePdfReport = createServerFn({ method: "POST" })
       font: bold,
       color: RL_PURPLE,
     });
-    page.drawText(String(session.overall_score), {
+    page.drawText(String(combinedTotal), {
       x: MARGIN + 24,
       y: cursorY - 82,
       size: 44,
       font: bold,
       color: RL_DARK,
     });
-    if (session.overall_level) {
-      page.drawText(session.overall_level, {
-        x: MARGIN + 24,
-        y: cursorY - 100,
-        size: 11,
-        font: body,
-        color: RL_MUTED,
-      });
-    }
+    page.drawText(`${combinedLevelLabel} · out of 445`, {
+      x: MARGIN + 24,
+      y: cursorY - 100,
+      size: 11,
+      font: body,
+      color: RL_MUTED,
+    });
+    // Per-assessment breakdown on the right side of the score box
+    const bx = MARGIN + CONTENT_W - 200;
+    page.drawText("BREAKDOWN", { x: bx, y: cursorY - 32, size: 9, font: bold, color: RL_MUTED });
+    page.drawText(`Inner Capacity: ${icR.total}`, { x: bx, y: cursorY - 52, size: 10, font: body, color: RL_DARK });
+    page.drawText(`Personal Leadership: ${ldR.total}`, { x: bx, y: cursorY - 70, size: 10, font: body, color: RL_DARK });
+    page.drawText(`Business Audit: ${bzR.total}`, { x: bx, y: cursorY - 88, size: 10, font: body, color: RL_DARK });
 
     drawFooter(page);
 
@@ -331,6 +368,11 @@ export const generatePdfReport = createServerFn({ method: "POST" })
           secondary_gap: session.secondary_gap,
           secondary_gap_score: session.secondary_gap_score,
           subcategory_scores: session.subcategory_scores,
+          combined_scale_score: combinedTotal,
+          combined_scale_level: combinedLevelLabel,
+          inner_capacity_score: icR.total,
+          personal_leadership_score: ldR.total,
+          business_audit_score: bzR.total,
           pdf_url: publicUrl,
           generated_at: new Date().toISOString(),
         };
