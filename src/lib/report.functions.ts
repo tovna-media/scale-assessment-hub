@@ -182,7 +182,7 @@ function buildRecommendation(ai: AIPayload): string {
 }
 
 function buildExecutive(ai: AIPayload): string {
-  return [
+  const parts: string[] = [
     "# Executive Summary",
     "",
     ai.executive_summary,
@@ -192,10 +192,13 @@ function buildExecutive(ai: AIPayload): string {
     "**You have:**",
     fmtList(ai.capacity_have),
     "",
-    "**But you lack:**",
-    fmtList(ai.capacity_lack),
-    "",
-  ].join("\n");
+  ];
+  if (ai.capacity_lack && ai.capacity_lack.length > 0) {
+    parts.push("**But you lack:**", fmtList(ai.capacity_lack), "");
+  } else if (ai.capacity_closing) {
+    parts.push(ai.capacity_closing, "");
+  }
+  return parts.join("\n");
 }
 
 /* ---------- Server function ---------- */
