@@ -39,7 +39,8 @@ function toNumberMap(raw: Record<string, number> | null | undefined): Record<num
 const AISchema = z.object({
   executive_summary: z.string().min(1),
   capacity_have: z.array(z.string().min(1)).min(2).max(5),
-  capacity_lack: z.array(z.string().min(1)).min(2).max(5),
+  capacity_lack: z.array(z.string().min(1)).max(5).optional().default([]),
+  capacity_closing: z.string().optional().default(""),
   leadership_what_this_means: z.string().min(1),
   business_what_this_means: z.string().min(1),
   patterns: z
@@ -181,7 +182,7 @@ function buildRecommendation(ai: AIPayload): string {
 }
 
 function buildExecutive(ai: AIPayload): string {
-  return [
+  const parts: string[] = [
     "# Executive Summary",
     "",
     ai.executive_summary,
@@ -191,10 +192,13 @@ function buildExecutive(ai: AIPayload): string {
     "**You have:**",
     fmtList(ai.capacity_have),
     "",
-    "**But you lack:**",
-    fmtList(ai.capacity_lack),
-    "",
-  ].join("\n");
+  ];
+  if (ai.capacity_lack && ai.capacity_lack.length > 0) {
+    parts.push("**But you lack:**", fmtList(ai.capacity_lack), "");
+  } else if (ai.capacity_closing) {
+    parts.push(ai.capacity_closing, "");
+  }
+  return parts.join("\n");
 }
 
 /* ---------- Server function ---------- */
@@ -317,6 +321,7 @@ VOICE — non-negotiable:
 - Use contractions ("you're", "it's", "won't"). Real speech rhythm.
 - Reference the specific scores and gap categories you're given — never speak in the abstract.
 - The leader is not failing on effort. Name the actual structural constraint.
+- Never use the arrow character "→". Use "->" instead.
 
 You are writing the NARRATIVE pieces of the report. The deterministic scoring sections are assembled separately — do not produce them.
 
@@ -325,23 +330,24 @@ Return ONLY valid JSON matching this exact shape (no markdown, no commentary):
 {
   "executive_summary": "2 short paragraphs. Name the combined score and level. State the one core pattern you see across all three assessments. Set up what the rest of the report will show.",
   "capacity_have": ["3-4 short bullet phrases of what this leader genuinely has (strengths the scores show)"],
-  "capacity_lack": ["3-4 short bullet phrases of what's actually missing (the real constraints)"],
+  "capacity_lack": ["3-4 short bullet phrases of what's actually missing. OMIT this field entirely (or return []) if the leader has NO Critical or Moderate gaps across Inner Capacity and Business Audit."],
+  "capacity_closing": "Only include when capacity_lack is empty: 1 short sentence affirming the strong result and pointing to what's next (e.g. compounding, scaling, or sustaining the strength). Omit otherwise.",
   "leadership_what_this_means": "1 paragraph. Connect the flagged leadership themes back to the Inner Capacity primary gap. Show how the inner gap is what's producing the leadership inconsistency.",
   "business_what_this_means": "1 paragraph. Show how the business gaps trace back to the leadership inconsistency and the inner capacity gap. Name the cascade.",
   "patterns": [
     {
       "name": "Short, punchy name for the pattern (≤6 words)",
-      "arrows": ["Inner Capacity primary gap → specific leadership impact", "→ specific business impact"],
+      "arrows": ["Inner Capacity primary gap -> specific leadership impact", "-> specific business impact"],
       "summary": "One sentence naming what this pattern actually costs the leader."
     },
     {
       "name": "Compounding dynamic name",
-      "arrows": ["How one gap reinforces another", "→ second-order effect"],
+      "arrows": ["How one gap reinforces another", "-> second-order effect"],
       "summary": "One sentence on why this gets worse without intervention."
     },
     {
       "name": "Strength being undermined",
-      "arrows": ["A real strength they have → being eroded by the primary constraint"],
+      "arrows": ["A real strength they have -> being eroded by the primary constraint"],
       "summary": "One sentence on what's being wasted."
     }
   ],
