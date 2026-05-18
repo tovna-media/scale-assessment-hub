@@ -70,7 +70,7 @@ function DashboardPage() {
                     <div className="text-muted-foreground">Last score</div>
                     <div className="mt-1 font-display text-2xl font-semibold text-foreground">
                       {last.overall_score}
-                      <span className="text-sm text-muted-foreground">/100</span>
+                      <span className="text-sm text-muted-foreground">/{maxScoreFor(a.type)}</span>
                     </div>
                     <div className="mt-1 text-xs text-muted-foreground">
                       Taken {format(new Date(last.created_at), "MMM d, yyyy")}
@@ -143,7 +143,7 @@ function DashboardPage() {
                     </td>
                     <td className="px-4 py-3">
                       <span className="font-display font-semibold">{s.overall_score}</span>
-                      <span className="text-muted-foreground">/100</span>
+                      <span className="text-muted-foreground">/{maxScoreFor(s.assessment_type)}</span>
                     </td>
                     <td className="px-4 py-3 text-right">
                       <Button variant="ghost" size="sm" asChild>
