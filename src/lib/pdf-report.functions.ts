@@ -237,22 +237,26 @@ export const generatePdfReport = createServerFn({ method: "POST" })
       font: bold,
       color: RL_PURPLE,
     });
-    page.drawText(String(session.overall_score), {
+    page.drawText(String(combinedTotal), {
       x: MARGIN + 24,
       y: cursorY - 82,
       size: 44,
       font: bold,
       color: RL_DARK,
     });
-    if (session.overall_level) {
-      page.drawText(session.overall_level, {
-        x: MARGIN + 24,
-        y: cursorY - 100,
-        size: 11,
-        font: body,
-        color: RL_MUTED,
-      });
-    }
+    page.drawText(`${combinedLevelLabel} · out of 445`, {
+      x: MARGIN + 24,
+      y: cursorY - 100,
+      size: 11,
+      font: body,
+      color: RL_MUTED,
+    });
+    // Per-assessment breakdown on the right side of the score box
+    const bx = MARGIN + CONTENT_W - 200;
+    page.drawText("BREAKDOWN", { x: bx, y: cursorY - 32, size: 9, font: bold, color: RL_MUTED });
+    page.drawText(`Inner Capacity: ${icR.total}`, { x: bx, y: cursorY - 52, size: 10, font: body, color: RL_DARK });
+    page.drawText(`Personal Leadership: ${ldR.total}`, { x: bx, y: cursorY - 70, size: 10, font: body, color: RL_DARK });
+    page.drawText(`Business Audit: ${bzR.total}`, { x: bx, y: cursorY - 88, size: 10, font: body, color: RL_DARK });
 
     drawFooter(page);
 
