@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { useServerFn } from "@tanstack/react-start";
 import { generateComprehensiveReport } from "@/lib/comprehensive.functions";
-import { ASSESSMENTS, gapLabel, type AssessmentType } from "@/lib/assessments";
+import { ASSESSMENTS, gapLabel, maxScoreFor, type AssessmentType } from "@/lib/assessments";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, Download, Loader2, RefreshCcw } from "lucide-react";
 import { toast } from "sonner";
@@ -128,7 +128,7 @@ function ComprehensivePage() {
                   <>
                     <div className="mt-3 font-display text-4xl font-semibold text-foreground">
                       {s.overall_score}
-                      <span className="text-base text-muted-foreground">/100</span>
+                      <span className="text-base text-muted-foreground">/{maxScoreFor(t)}</span>
                     </div>
                     {s.overall_level && (
                       <div className="mt-1 text-sm text-muted-foreground">{s.overall_level}</div>
