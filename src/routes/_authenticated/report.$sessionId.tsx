@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
-import { ASSESSMENTS, gapLabel, type AssessmentType } from "@/lib/assessments";
+import { ASSESSMENTS, gapLabel, maxScoreFor, type AssessmentType } from "@/lib/assessments";
 import { generateGapReport } from "@/lib/report.functions";
 import { generatePdfReport } from "@/lib/pdf-report.functions";
 import { useServerFn } from "@tanstack/react-start";
@@ -156,8 +156,8 @@ function ReportPage() {
   );
 }
 
-function ScoreRing({ score }: { score: number }) {
-  const pct = Math.max(0, Math.min(100, score));
+function ScoreRing({ score, max }: { score: number; max: number }) {
+  const pct = Math.max(0, Math.min(100, Math.round((score / max) * 100)));
   const r = 56;
   const c = 2 * Math.PI * r;
   const offset = c - (pct / 100) * c;
@@ -179,7 +179,7 @@ function ScoreRing({ score }: { score: number }) {
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <div className="font-display text-4xl font-semibold text-foreground">{score}</div>
-        <div className="text-xs text-muted-foreground">/ 100</div>
+        <div className="text-xs text-muted-foreground">/ {max}</div>
       </div>
     </div>
   );
@@ -242,7 +242,7 @@ function ReportView({
               moderate gap; 80+ a strength.
             </p>
           </div>
-          <ScoreRing score={session.overall_score} />
+          <ScoreRing score={session.overall_score} max={maxScoreFor(session.assessment_type)} />
         </div>
 
         <div className="mt-8 grid gap-3 sm:grid-cols-2">
