@@ -184,85 +184,9 @@ If a section's assessment was not taken, write a single line under that heading:
 
     if (updateError) throw new Error(updateError.message);
 
-    // GHL webhook (fire-and-forget; errors logged but don't block the report).
-    // Fires as soon as the report is generated, so coaches get the lead in
-    // GHL even if the assessee never downloads the PDF.
-    try {
-      const { data: settings } = await supabaseAdmin
-        .from("app_settings")
-        .select("ghl_enabled, ghl_webhook_url")
-        .eq("id", 1)
-        .maybeSingle();
-
-      if (settings?.ghl_enabled && settings.ghl_webhook_url) {
-        const { data: fullProfile } = await supabaseAdmin
-          .from("profiles")
-          .select("email, first_name, last_name, full_name, phone")
-          .eq("id", userId)
-          .maybeSingle();
-
-        const { data: fullSession } = await supabaseAdmin
-          .from("assessment_sessions")
-          .select(
-            "assessment_type, overall_score, overall_level, primary_gap, primary_gap_score, primary_gap_level, secondary_gap, secondary_gap_score, subcategory_scores",
-          )
-          .eq("id", data.sessionId)
-          .maybeSingle();
-
-        if (fullProfile && fullSession) {
-          const payload = {
-            email: fullProfile.email,
-            first_name: fullProfile.first_name,
-            last_name: fullProfile.last_name,
-            full_name: fullProfile.full_name,
-            phone: fullProfile.phone,
-            assessment_type: fullSession.assessment_type,
-            overall_score: fullSession.overall_score,
-            overall_level: fullSession.overall_level,
-            primary_gap: fullSession.primary_gap,
-            primary_gap_score: fullSession.primary_gap_score,
-            primary_gap_level: fullSession.primary_gap_level,
-            secondary_gap: fullSession.secondary_gap,
-            secondary_gap_score: fullSession.secondary_gap_score,
-            subcategory_scores: fullSession.subcategory_scores,
-            pdf_url: null,
-            generated_at: new Date().toISOString(),
-          };
-          try {
-            const safeUrl = assertSafeWebhookUrl(settings.ghl_webhook_url);
-            const res = await fetch(safeUrl.toString(), {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payload),
-            });
-            if (!res.ok) {
-              console.error("[GHL] webhook non-OK", res.status, await res.text().catch(() => ""));
-            } else {
-              await supabaseAdmin
-                .from("gap_reports")
-                .upsert(
-                  {
-                    user_id: userId,
-                    report_data: {
-                      session_id: data.sessionId,
-                      assessment_type: fullSession.assessment_type,
-                      subcategory_scores: fullSession.subcategory_scores,
-                    } as never,
-                    primary_gap: fullSession.primary_gap,
-                    primary_gap_level: fullSession.primary_gap_level,
-                    ghl_sent_at: new Date().toISOString(),
-                  },
-                  { onConflict: "user_id" },
-                );
-            }
-          } catch (e) {
-            console.error("[GHL] webhook send failed", (e as Error).message);
-          }
-        }
-      }
-    } catch (e) {
-      console.error("[GHL] webhook setup failed", e);
-    }
+    // NOTE: GHL webhook is intentionally NOT fired here. It is fired from
+    // generatePdfReport AFTER the PDF is uploaded and a permanent public URL
+    // exists, so the payload always carries a real pdf_url (never null).
 
     return {
       session: {
