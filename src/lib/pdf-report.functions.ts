@@ -368,6 +368,11 @@ export const generatePdfReport = createServerFn({ method: "POST" })
           secondary_gap: session.secondary_gap,
           secondary_gap_score: session.secondary_gap_score,
           subcategory_scores: session.subcategory_scores,
+          combined_scale_score: combinedTotal,
+          combined_scale_level: combinedLevelLabel,
+          inner_capacity_score: icR.total,
+          personal_leadership_score: ldR.total,
+          business_audit_score: bzR.total,
           pdf_url: publicUrl,
           generated_at: new Date().toISOString(),
         };
