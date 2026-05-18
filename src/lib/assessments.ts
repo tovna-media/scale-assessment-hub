@@ -194,6 +194,11 @@ export const ASSESSMENTS: Record<AssessmentType, AssessmentDef> = {
 
 export const ASSESSMENT_LIST: AssessmentDef[] = [innerCapacity, leadership, businessAudit];
 
+export function maxScoreFor(type: AssessmentType): number {
+  const def = ASSESSMENTS[type];
+  return def.questions.length * 5;
+}
+
 function range(a: number, b: number): number[] {
   const out: number[] = [];
   for (let i = a; i <= b; i++) out.push(i);
