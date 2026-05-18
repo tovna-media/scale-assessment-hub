@@ -216,6 +216,7 @@ function ReportPage() {
     return (
       <ReportView
         session={session}
+        latestResponses={latestResponses}
         onDownloadPdf={handleDownloadPdf}
         downloadingPdf={downloadingPdf}
       />
@@ -474,14 +475,29 @@ function ScoreRing({ score }: { score: number }) {
 
 function ReportView({
   session,
+  latestResponses,
   onDownloadPdf,
   downloadingPdf,
 }: {
   session: SessionFull;
+  latestResponses: LatestResponses;
   onDownloadPdf: () => void;
   downloadingPdf: boolean;
 }) {
-  const def = ASSESSMENTS[session.assessment_type];
+  const ic = useMemo(
+    () => scoreInnerCapacity(latestResponses.inner_capacity ?? {}),
+    [latestResponses.inner_capacity],
+  );
+  const lead = useMemo(
+    () => scoreLeadership(latestResponses.personal_leadership ?? {}),
+    [latestResponses.personal_leadership],
+  );
+  const biz = useMemo(
+    () => scoreBusiness(latestResponses.business_audit ?? {}),
+    [latestResponses.business_audit],
+  );
+  const combinedTotal = ic.total + lead.total + biz.total;
+  const combinedLevel = combinedScaleLevel(combinedTotal);
   return (
     <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6 print-bg-white">
       <div className="mb-6 flex flex-col gap-3 no-print sm:flex-row sm:items-center sm:justify-between">
@@ -516,51 +532,26 @@ function ReportView({
 
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-10 print-break-inside-avoid">
         <p className="text-xs font-medium uppercase tracking-widest text-[var(--accent-blue)]">
-          {def.shortTitle} · SCALE Gap Report
+          SCALE Gap Report
         </p>
         <h1 className="mt-2 font-display text-3xl font-semibold text-foreground sm:text-4xl">
           Your SCALE Gap Report
         </h1>
         <div className="mt-8 flex flex-col items-center gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm text-muted-foreground">Overall SCALE Score</p>
-            {session.overall_level && (
-              <p className="mt-1 font-display text-lg font-semibold text-foreground">
-                {session.overall_level}
-              </p>
-            )}
+            <p className="text-sm text-muted-foreground">Combined SCALE Score</p>
+            <p className="mt-1 font-display text-lg font-semibold text-foreground">
+              {combinedLevel}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">out of {COMBINED_MAX}</p>
           </div>
-          <ScoreRing score={session.overall_score} />
+          <ScoreRing score={combinedTotal} />
         </div>
 
-        <div className="mt-8 grid gap-3 sm:grid-cols-2">
-          {Object.entries(session.subcategory_scores).map(([name, score]) => {
-            const label = gapLabel(score);
-            const tone =
-              label === "Strength"
-                ? "bg-[var(--success)]/10 text-[var(--success)]"
-                : label === "Moderate Gap"
-                  ? "bg-[var(--warning)]/15 text-[var(--warning)]"
-                  : "bg-destructive/10 text-destructive";
-            return (
-              <div
-                key={name}
-                className="flex items-center justify-between rounded-lg border border-border px-4 py-3"
-              >
-                <div>
-                  <div className="text-sm font-medium text-foreground">{name}</div>
-                  <div
-                    className={
-                      "mt-1 inline-flex rounded-full px-2 py-0.5 text-xs font-medium " + tone
-                    }
-                  >
-                    {label}
-                  </div>
-                </div>
-                <div className="font-display text-lg font-semibold">{score}</div>
-              </div>
-            );
-          })}
+        <div className="mt-8 grid gap-3 sm:grid-cols-3">
+          <BreakdownTile label="Inner Capacity" score={ic.total} />
+          <BreakdownTile label="Personal Leadership" score={lead.total} />
+          <BreakdownTile label="Business Audit" score={biz.total} />
         </div>
       </div>
 
