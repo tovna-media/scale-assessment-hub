@@ -44,7 +44,16 @@ function wrapText(text: string, font: any, fontSize: number, maxWidth: number): 
 
 // Strip simple inline markdown (**bold**, _em_) for plain PDF text
 function stripInline(s: string): string {
-  return s.replace(/\*\*(.+?)\*\*/g, "$1").replace(/_(.+?)_/g, "$1");
+  return s
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/_(.+?)_/g, "$1")
+    // WinAnsi-safe replacements for glyphs StandardFonts cannot encode
+    .replace(/→/g, "->")
+    .replace(/←/g, "<-")
+    .replace(/↔/g, "<->")
+    .replace(/[""]/g, '"')
+    .replace(/['']/g, "'")
+    .replace(/…/g, "...");
 }
 
 export const generatePdfReport = createServerFn({ method: "POST" })
