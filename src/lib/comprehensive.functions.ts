@@ -70,6 +70,9 @@ export const generateComprehensiveReport = createServerFn({ method: "POST" })
     }
     const taken = Object.keys(latestByType);
     if (taken.length === 0) throw new Error("Take at least one assessment first.");
+    if (taken.length < 3) {
+      throw new Error("Complete all three assessments to generate your Gap Report.");
+    }
 
     // Try cached comprehensive markdown
     const { data: existing } = await supabase

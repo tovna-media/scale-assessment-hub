@@ -1,17 +1,25 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
-import { ASSESSMENTS, gapLabel, maxScoreFor, type AssessmentType } from "@/lib/assessments";
+import {
+  ASSESSMENTS,
+  gapLabel,
+  maxScoreFor,
+  scoreInnerCapacity,
+  scoreLeadership,
+  scoreBusiness,
+  type AssessmentType,
+} from "@/lib/assessments";
 import { generateGapReport } from "@/lib/report.functions";
 import { generatePdfReport } from "@/lib/pdf-report.functions";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, Download, Loader2, Calendar } from "lucide-react";
+import { ArrowLeft, ArrowRight, Download, Loader2, Calendar, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/report/$sessionId")({
-  head: () => ({ meta: [{ title: "Your SCALE Gap Report" }] }),
+  head: () => ({ meta: [{ title: "Your assessment results" }] }),
   component: ReportPage,
 });
 
@@ -19,10 +27,18 @@ interface SessionFull {
   id: string;
   assessment_type: AssessmentType;
   overall_score: number;
+  overall_level: string | null;
   subcategory_scores: Record<string, number>;
+  responses: Record<string, number>;
   gap_report: string | null;
   created_at: string;
 }
+
+const ALL_TYPES: AssessmentType[] = [
+  "inner_capacity",
+  "personal_leadership",
+  "business_audit",
+];
 
 function ReportPage() {
   const { sessionId } = Route.useParams();
@@ -30,6 +46,7 @@ function ReportPage() {
   const generate = useServerFn(generateGapReport);
   const generatePdf = useServerFn(generatePdfReport);
   const [session, setSession] = useState<SessionFull | null>(null);
+  const [takenTypes, setTakenTypes] = useState<Set<AssessmentType>>(new Set());
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
@@ -39,42 +56,45 @@ function ReportPage() {
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
-
-    async function load() {
+    (async () => {
       setLoading(true);
-      setGenerating(true);
       try {
-        const result = await generate({ data: { sessionId } });
-        if (cancelled) return;
-        setProgress(100);
-        setStatusMessage("Report ready!");
-        setSession(result.session as SessionFull);
-      } catch (e) {
-        if (cancelled) return;
-        console.error("Could not load session", e);
-        toast.error(e instanceof Error ? e.message : "Could not load session.");
-        setSession(null);
-      } finally {
-        if (!cancelled) {
-          // Small delay so user sees the bar fill to 100%
-          setTimeout(() => {
-            if (cancelled) return;
-            setGenerating(false);
-            setLoading(false);
-          }, 400);
+        // Retry briefly — the session may have just been inserted.
+        let sess: SessionFull | null = null;
+        for (let i = 0; i < 8 && !sess; i++) {
+          const { data } = await supabase
+            .from("assessment_sessions")
+            .select(
+              "id, assessment_type, overall_score, overall_level, subcategory_scores, responses, gap_report, created_at",
+            )
+            .eq("id", sessionId)
+            .maybeSingle();
+          if (data) sess = data as unknown as SessionFull;
+          else await new Promise((r) => setTimeout(r, 300));
         }
+        const { data: all } = await supabase
+          .from("assessment_sessions")
+          .select("assessment_type")
+          .eq("user_id", user.id);
+        if (cancelled) return;
+        setSession(sess);
+        setTakenTypes(new Set((all ?? []).map((r) => r.assessment_type as AssessmentType)));
+      } catch (e) {
+        if (!cancelled) {
+          toast.error(e instanceof Error ? e.message : "Could not load session.");
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-    }
-    load();
+    })();
     return () => {
       cancelled = true;
     };
-  }, [sessionId, user, generate]);
+  }, [sessionId, user]);
 
-  // Simulated progress + rotating status messages while generating
-  const isGenerating = loading || generating || (session && !session.gap_report);
+  // Animated progress while generating gap report
   useEffect(() => {
-    if (!isGenerating) return;
+    if (!generating) return;
     const startedAt = Date.now();
     const messages = [
       { at: 0, text: "Generating your report..." },
@@ -84,22 +104,67 @@ function ReportPage() {
     ];
     const interval = setInterval(() => {
       const elapsed = Date.now() - startedAt;
-      // Fast 0 → 85 over ~6s, then slow asymptote toward 95
       let next: number;
-      if (elapsed < 6000) {
-        next = (elapsed / 6000) * 85;
-      } else {
-        const extra = elapsed - 6000;
-        next = 85 + (1 - Math.exp(-extra / 8000)) * 10;
-      }
+      if (elapsed < 6000) next = (elapsed / 6000) * 85;
+      else next = 85 + (1 - Math.exp(-(elapsed - 6000) / 8000)) * 10;
       setProgress((prev) => (next > prev && prev < 95 ? next : prev));
       const current = [...messages].reverse().find((m) => elapsed >= m.at);
-      if (current) setStatusMessage((prev) => (prev === "Report ready!" ? prev : current.text));
+      if (current) setStatusMessage((p) => (p === "Report ready!" ? p : current.text));
     }, 200);
     return () => clearInterval(interval);
-  }, [isGenerating]);
+  }, [generating]);
 
-  if (loading || generating || (session && !session.gap_report)) {
+  async function handleGenerateGapReport() {
+    setGenerating(true);
+    setProgress(0);
+    setStatusMessage("Generating your report...");
+    try {
+      const result = await generate({ data: { sessionId } });
+      setProgress(100);
+      setStatusMessage("Report ready!");
+      setSession(result.session as SessionFull);
+      setTimeout(() => setGenerating(false), 400);
+    } catch (e) {
+      setGenerating(false);
+      toast.error(e instanceof Error ? e.message : "Could not generate report.");
+    }
+  }
+
+  async function handleDownloadPdf() {
+    setDownloadingPdf(true);
+    try {
+      const { data: sess } = await supabase.auth.getSession();
+      const accessToken = sess.session?.access_token;
+      if (!accessToken) throw new Error("Your session expired. Please sign in again.");
+      const result = await generatePdf({ data: { sessionId, accessToken } });
+      window.open(result.pdfUrl, "_blank");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not generate PDF.");
+    } finally {
+      setDownloadingPdf(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <main className="mx-auto max-w-2xl px-4 py-24 text-center">
+        <Loader2 className="mx-auto h-8 w-8 animate-spin text-[var(--accent-blue)]" />
+        <p className="mt-4 text-sm text-muted-foreground">Loading your results…</p>
+      </main>
+    );
+  }
+  if (!session) {
+    return (
+      <main className="mx-auto max-w-3xl px-4 py-20 text-center">
+        <p className="text-muted-foreground">Session not found.</p>
+        <Button asChild className="mt-4">
+          <Link to="/dashboard">Back to dashboard</Link>
+        </Button>
+      </main>
+    );
+  }
+
+  if (generating) {
     return (
       <main className="mx-auto max-w-2xl px-4 py-24 text-center">
         <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary/5">
@@ -121,66 +186,264 @@ function ReportPage() {
       </main>
     );
   }
-  if (!session) {
+
+  // Gap report is ready → show it
+  if (session.gap_report) {
     return (
-      <main className="mx-auto max-w-3xl px-4 py-20 text-center">
-        <p className="text-muted-foreground">Session not found.</p>
-        <Button asChild className="mt-4">
-          <Link to="/dashboard">Back to dashboard</Link>
-        </Button>
-      </main>
+      <ReportView
+        session={session}
+        onDownloadPdf={handleDownloadPdf}
+        downloadingPdf={downloadingPdf}
+      />
     );
   }
 
-  async function handleDownloadPdf() {
-    setDownloadingPdf(true);
-    try {
-      const { data: sess } = await supabase.auth.getSession();
-      const accessToken = sess.session?.access_token;
-      if (!accessToken) throw new Error("Your session expired. Please sign in again.");
-      const result = await generatePdf({ data: { sessionId, accessToken } });
-      window.open(result.pdfUrl, "_blank");
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not generate PDF.");
-    } finally {
-      setDownloadingPdf(false);
-    }
-  }
-
+  // Otherwise → single-assessment results screen
   return (
-    <ReportView
+    <AssessmentResultView
       session={session}
-      onDownloadPdf={handleDownloadPdf}
-      downloadingPdf={downloadingPdf}
+      takenTypes={takenTypes}
+      onGenerateGapReport={handleGenerateGapReport}
     />
   );
 }
 
-function ScoreRing({ score, max }: { score: number; max: number }) {
-  const pct = Math.max(0, Math.min(100, Math.round((score / max) * 100)));
-  const r = 56;
-  const c = 2 * Math.PI * r;
-  const offset = c - (pct / 100) * c;
+/* ───────────────── Per-assessment results screen ───────────────── */
+
+function AssessmentResultView({
+  session,
+  takenTypes,
+  onGenerateGapReport,
+}: {
+  session: SessionFull;
+  takenTypes: Set<AssessmentType>;
+  onGenerateGapReport: () => void;
+}) {
+  const def = ASSESSMENTS[session.assessment_type];
+  const max = maxScoreFor(session.assessment_type);
+  const allComplete = ALL_TYPES.every((t) => takenTypes.has(t));
+  const missing = ALL_TYPES.filter((t) => !takenTypes.has(t));
+
+  // Re-derive structured result from stored raw responses
+  const numericResponses = useMemo(() => {
+    const r: Record<number, number> = {};
+    for (const [k, v] of Object.entries(session.responses ?? {})) {
+      r[Number(k)] = Number(v);
+    }
+    return r;
+  }, [session.responses]);
+
   return (
-    <div className="relative h-36 w-36">
-      <svg viewBox="0 0 140 140" className="h-full w-full -rotate-90">
-        <circle cx="70" cy="70" r={r} fill="none" stroke="oklch(0.93 0.02 250)" strokeWidth="10" />
-        <circle
-          cx="70"
-          cy="70"
-          r={r}
-          fill="none"
-          stroke="var(--accent-blue)"
-          strokeWidth="10"
-          strokeDasharray={c}
-          strokeDashoffset={offset}
-          strokeLinecap="round"
-        />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <div className="font-display text-4xl font-semibold text-foreground">{score}</div>
-        <div className="text-xs text-muted-foreground">/ {max}</div>
+    <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+      <div className="mb-6">
+        <Button variant="ghost" asChild className="self-start">
+          <Link to="/dashboard">
+            <ArrowLeft className="mr-2 h-4 w-4" /> Dashboard
+          </Link>
+        </Button>
       </div>
+
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-10">
+        <p className="text-xs font-medium uppercase tracking-widest text-[var(--accent-blue)]">
+          {def.shortTitle} · Your results
+        </p>
+        <h1 className="mt-2 font-display text-3xl font-semibold text-foreground sm:text-4xl">
+          {def.title} complete
+        </h1>
+
+        <div className="mt-8 flex flex-col items-start gap-2">
+          <div className="font-display text-5xl font-semibold text-foreground">
+            {session.overall_score}
+            <span className="ml-1 text-2xl text-muted-foreground">/ {max}</span>
+          </div>
+          {session.overall_level && (
+            <div className="text-base font-medium text-[var(--accent-blue)]">
+              {session.overall_level}
+            </div>
+          )}
+        </div>
+
+        <div className="mt-8">
+          {session.assessment_type === "inner_capacity" && (
+            <InnerCapacityBreakdown responses={numericResponses} />
+          )}
+          {session.assessment_type === "personal_leadership" && (
+            <LeadershipBreakdown responses={numericResponses} />
+          )}
+          {session.assessment_type === "business_audit" && (
+            <BusinessBreakdown responses={numericResponses} />
+          )}
+        </div>
+      </div>
+
+      {/* Next-step nudge */}
+      <div className="mt-8 rounded-2xl border border-[var(--accent-blue)]/30 bg-primary/5 p-6 sm:p-8">
+        {allComplete ? (
+          <>
+            <p className="text-xs font-medium uppercase tracking-widest text-[var(--accent-blue)]">
+              You're ready
+            </p>
+            <h2 className="mt-1 font-display text-2xl font-semibold text-foreground">
+              All three assessments complete — generate your Gap Report
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Combine Inner Capacity, Personal Leadership, and Business Audit into a single,
+              personalized SCALE Gap Report with cross-connection analysis.
+            </p>
+            <Button size="lg" className="mt-5" onClick={onGenerateGapReport}>
+              <Sparkles className="mr-2 h-4 w-4" /> Generate Gap Report
+            </Button>
+          </>
+        ) : (
+          <>
+            <p className="text-xs font-medium uppercase tracking-widest text-[var(--accent-blue)]">
+              Your next step
+            </p>
+            <h2 className="mt-1 font-display text-xl font-semibold text-foreground">
+              {missing.length === 1
+                ? `Take the ${ASSESSMENTS[missing[0]].shortTitle} assessment next`
+                : `Take the ${ASSESSMENTS[missing[0]].shortTitle} and ${ASSESSMENTS[missing[1]].shortTitle} assessments next`}
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {missing.length === 1
+                ? "One assessment left. Complete it to unlock your full SCALE Gap Report."
+                : "Complete both to unlock your full SCALE Gap Report — they're designed to work together."}
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              {missing.map((t) => (
+                <Button key={t} asChild>
+                  <Link to="/assessment/$type" params={{ type: t }}>
+                    Take {ASSESSMENTS[t].shortTitle}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    </main>
+  );
+}
+
+function InnerCapacityBreakdown({ responses }: { responses: Record<number, number> }) {
+  const r = scoreInnerCapacity(responses);
+  return (
+    <div>
+      <h3 className="font-display text-lg font-semibold text-foreground">Category breakdown</h3>
+      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+        {r.categories.map((c) => (
+          <CategoryRow key={c.name} name={c.name} score={c.score} max={c.max} level={c.level} />
+        ))}
+      </div>
+      <p className="mt-4 text-sm text-muted-foreground">
+        Lowest area: <span className="font-medium text-foreground">{r.primary.name}</span>
+        {r.secondary ? (
+          <>
+            {" "}
+            · Also watch: <span className="font-medium text-foreground">{r.secondary.name}</span>
+          </>
+        ) : null}
+      </p>
+    </div>
+  );
+}
+
+function LeadershipBreakdown({ responses }: { responses: Record<number, number> }) {
+  const r = scoreLeadership(responses);
+  return (
+    <div className="space-y-5">
+      <div>
+        <h3 className="font-display text-lg font-semibold text-foreground">Areas to develop</h3>
+        {r.themeGroups.length === 0 ? (
+          <p className="mt-2 text-sm text-muted-foreground">
+            No flagged areas — strong performance across the board.
+          </p>
+        ) : (
+          <ul className="mt-3 space-y-1.5 text-sm">
+            {r.themeGroups.map((g) => (
+              <li key={g.theme}>
+                <span className="font-medium text-foreground">{g.theme}</span>
+                <span className="text-muted-foreground"> — {g.descriptors.length} signal{g.descriptors.length === 1 ? "" : "s"}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      {r.strengthCategories.length > 0 && (
+        <div>
+          <h3 className="font-display text-lg font-semibold text-foreground">Your strengths</h3>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {r.strengthCategories.join(" · ")}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function BusinessBreakdown({ responses }: { responses: Record<number, number> }) {
+  const r = scoreBusiness(responses);
+  const Group = ({ title, items, tone }: { title: string; items: typeof r.critical; tone: string }) =>
+    items.length === 0 ? null : (
+      <div>
+        <div className={"text-xs font-semibold uppercase tracking-wider " + tone}>{title}</div>
+        <ul className="mt-1.5 text-sm text-foreground">
+          {items.map((c) => (
+            <li key={c.name}>• {c.name}</li>
+          ))}
+        </ul>
+      </div>
+    );
+  return (
+    <div className="grid gap-5 sm:grid-cols-2">
+      <Group title="Critical gaps" items={r.critical} tone="text-destructive" />
+      <Group title="Moderate gaps" items={r.moderate} tone="text-[var(--warning)]" />
+      <Group title="Developing" items={r.developing} tone="text-muted-foreground" />
+      <Group title="Strengths" items={r.strengths} tone="text-[var(--success)]" />
+    </div>
+  );
+}
+
+function CategoryRow({
+  name,
+  score,
+  max,
+  level,
+}: {
+  name: string;
+  score: number;
+  max: number;
+  level: string;
+}) {
+  const tone =
+    level === "Strength"
+      ? "bg-[var(--success)]/10 text-[var(--success)]"
+      : level === "Moderate Gap"
+        ? "bg-[var(--warning)]/15 text-[var(--warning)]"
+        : "bg-destructive/10 text-destructive";
+  return (
+    <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
+      <div>
+        <div className="text-sm font-medium text-foreground">{name}</div>
+        <div className={"mt-1 inline-flex rounded-full px-2 py-0.5 text-xs font-medium " + tone}>
+          {level}
+        </div>
+      </div>
+      <div className="font-display text-base font-semibold">
+        {score}
+        <span className="ml-0.5 text-xs text-muted-foreground">/ {max}</span>
+      </div>
+    </div>
+  );
+}
+
+/* ───────────────── Gap report view (only when all 3 done) ───────────────── */
+
+function ScoreRing({ score }: { score: number }) {
+  return (
+    <div className="relative flex h-36 w-36 items-center justify-center rounded-full border-4 border-[var(--accent-blue)]/30 bg-primary/5">
+      <div className="font-display text-4xl font-semibold text-foreground">{score}</div>
     </div>
   );
 }
@@ -237,12 +500,13 @@ function ReportView({
         <div className="mt-8 flex flex-col items-center gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm text-muted-foreground">Overall SCALE Score</p>
-            <p className="mt-1 max-w-md text-sm text-muted-foreground">
-              Your composite score for this assessment. Below 60 signals a critical gap; 60–79 a
-              moderate gap; 80+ a strength.
-            </p>
+            {session.overall_level && (
+              <p className="mt-1 font-display text-lg font-semibold text-foreground">
+                {session.overall_level}
+              </p>
+            )}
           </div>
-          <ScoreRing score={session.overall_score} max={maxScoreFor(session.assessment_type)} />
+          <ScoreRing score={session.overall_score} />
         </div>
 
         <div className="mt-8 grid gap-3 sm:grid-cols-2">
@@ -350,7 +614,6 @@ function PathCard({
   );
 }
 
-// Minimal markdown renderer (headings, bold, italics, lists, paragraphs)
 function Markdown({ text }: { text: string }) {
   const lines = text.split("\n");
   const nodes: React.ReactNode[] = [];

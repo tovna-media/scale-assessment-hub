@@ -33,6 +33,20 @@ export const generateGapReport = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
+    // Gate: only allow gap report when all 3 assessments have been completed.
+    {
+      const { data: typesRows } = await supabase
+        .from("assessment_sessions")
+        .select("assessment_type")
+        .eq("user_id", userId);
+      const distinct = new Set((typesRows ?? []).map((r) => r.assessment_type));
+      if (distinct.size < 3) {
+        throw new Error(
+          "Complete all three assessments to generate your Gap Report.",
+        );
+      }
+    }
+
     let session: SessionRow | null = null;
     let lastError: { message?: string } | null = null;
 
