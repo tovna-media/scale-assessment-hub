@@ -5,7 +5,6 @@ import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import {
   ASSESSMENTS,
-  gapLabel,
   maxScoreFor,
   scoreInnerCapacity,
   scoreLeadership,
