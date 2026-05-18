@@ -5,6 +5,13 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import type { Database } from "@/integrations/supabase/types";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { assertSafeWebhookUrl } from "@/lib/webhook-url";
+import {
+  combinedScaleLevel,
+  scoreBusiness,
+  scoreInnerCapacity,
+  scoreLeadership,
+  type AssessmentType,
+} from "@/lib/assessments";
 
 const InputSchema = z.object({
   sessionId: z.string().uuid(),
@@ -70,6 +77,32 @@ export const generatePdfReport = createServerFn({ method: "POST" })
       .select("full_name, first_name, last_name, email, phone")
       .eq("id", userId)
       .maybeSingle();
+
+    // Combined SCALE score across all 3 latest sessions (for cover)
+    const { data: allSessions } = await supabase
+      .from("assessment_sessions")
+      .select("assessment_type, responses, created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+
+    const latestResp: Partial<Record<AssessmentType, Record<number, number>>> = {};
+    for (const row of allSessions ?? []) {
+      const t = row.assessment_type as AssessmentType;
+      if (!latestResp[t]) {
+        const m: Record<number, number> = {};
+        for (const [k, v] of Object.entries(
+          (row.responses as Record<string, number> | null) ?? {},
+        )) {
+          m[Number(k)] = Number(v);
+        }
+        latestResp[t] = m;
+      }
+    }
+    const icR = scoreInnerCapacity(latestResp.inner_capacity ?? {});
+    const ldR = scoreLeadership(latestResp.personal_leadership ?? {});
+    const bzR = scoreBusiness(latestResp.business_audit ?? {});
+    const combinedTotal = icR.total + ldR.total + bzR.total;
+    const combinedLevelLabel = combinedScaleLevel(combinedTotal);
 
     // Build the PDF
     const pdfDoc = await PDFDocument.create();
