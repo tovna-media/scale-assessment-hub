@@ -154,14 +154,35 @@ function ReportPage() {
   }
 
   async function handleDownloadPdf() {
+    // Open a tab synchronously inside the click handler so mobile Safari /
+    // Chrome don't block it as a popup once the await resolves. We then
+    // redirect that tab to the PDF URL when ready (or fall back to same-tab
+    // navigation if the browser still blocked it).
+    const pdfWindow = typeof window !== "undefined" ? window.open("", "_blank") : null;
+    if (pdfWindow) {
+      try {
+        pdfWindow.document.write(
+          "<title>Preparing your report…</title><p style='font-family:sans-serif;padding:24px'>Preparing your report…</p>",
+        );
+      } catch {
+        // some mobile browsers disallow document.write on the new window — ignore
+      }
+    }
     setDownloadingPdf(true);
     try {
       const { data: sess } = await supabase.auth.getSession();
       const accessToken = sess.session?.access_token;
       if (!accessToken) throw new Error("Your session expired. Please sign in again.");
       const result = await generatePdf({ data: { sessionId, accessToken } });
-      window.open(result.pdfUrl, "_blank");
+      if (pdfWindow && !pdfWindow.closed) {
+        pdfWindow.location.href = result.pdfUrl;
+      } else {
+        // Popup was blocked — navigate the current tab instead so mobile users
+        // still get the PDF.
+        window.location.href = result.pdfUrl;
+      }
     } catch (e) {
+      if (pdfWindow && !pdfWindow.closed) pdfWindow.close();
       toast.error(e instanceof Error ? e.message : "Could not generate PDF.");
     } finally {
       setDownloadingPdf(false);
