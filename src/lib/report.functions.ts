@@ -39,7 +39,8 @@ function toNumberMap(raw: Record<string, number> | null | undefined): Record<num
 const AISchema = z.object({
   executive_summary: z.string().min(1),
   capacity_have: z.array(z.string().min(1)).min(2).max(5),
-  capacity_lack: z.array(z.string().min(1)).min(2).max(5),
+  capacity_lack: z.array(z.string().min(1)).max(5).optional().default([]),
+  capacity_closing: z.string().optional().default(""),
   leadership_what_this_means: z.string().min(1),
   business_what_this_means: z.string().min(1),
   patterns: z
