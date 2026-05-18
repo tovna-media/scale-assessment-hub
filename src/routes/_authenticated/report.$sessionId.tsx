@@ -10,6 +10,8 @@ import {
   scoreInnerCapacity,
   scoreLeadership,
   scoreBusiness,
+  combinedScaleLevel,
+  COMBINED_MAX,
   type AssessmentType,
 } from "@/lib/assessments";
 import { generateGapReport } from "@/lib/report.functions";
@@ -34,6 +36,12 @@ interface SessionFull {
   created_at: string;
 }
 
+interface LatestResponses {
+  inner_capacity?: Record<number, number>;
+  personal_leadership?: Record<number, number>;
+  business_audit?: Record<number, number>;
+}
+
 const ALL_TYPES: AssessmentType[] = [
   "inner_capacity",
   "personal_leadership",
@@ -47,6 +55,7 @@ function ReportPage() {
   const generatePdf = useServerFn(generatePdfReport);
   const [session, setSession] = useState<SessionFull | null>(null);
   const [takenTypes, setTakenTypes] = useState<Set<AssessmentType>>(new Set());
+  const [latestResponses, setLatestResponses] = useState<LatestResponses>({});
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
@@ -74,11 +83,26 @@ function ReportPage() {
         }
         const { data: all } = await supabase
           .from("assessment_sessions")
-          .select("assessment_type")
-          .eq("user_id", user.id);
+          .select("assessment_type, responses, created_at")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false });
         if (cancelled) return;
         setSession(sess);
         setTakenTypes(new Set((all ?? []).map((r) => r.assessment_type as AssessmentType)));
+        const latest: LatestResponses = {};
+        for (const row of all ?? []) {
+          const t = row.assessment_type as AssessmentType;
+          if (!latest[t]) {
+            const r: Record<number, number> = {};
+            for (const [k, v] of Object.entries(
+              (row.responses as Record<string, number> | null) ?? {},
+            )) {
+              r[Number(k)] = Number(v);
+            }
+            latest[t] = r;
+          }
+        }
+        setLatestResponses(latest);
       } catch (e) {
         if (!cancelled) {
           toast.error(e instanceof Error ? e.message : "Could not load session.");
