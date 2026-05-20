@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ASSESSMENTS, gapLabel, type AssessmentType } from "@/lib/assessments";
+import { ASSESSMENTS, gapLabel, maxScoreFor, type AssessmentType } from "@/lib/assessments";
 import { ArrowLeft, Mail, Phone, Calendar, Download, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -121,7 +121,7 @@ function AssesseeDetail() {
                 <div className="text-xs font-medium uppercase tracking-wider text-[var(--accent-blue)]">{def.shortTitle}</div>
                 {s ? (
                   <>
-                    <div className="mt-3 font-display text-4xl font-semibold text-foreground">{s.overall_score}<span className="text-base text-muted-foreground">/100</span></div>
+                    <div className="mt-3 font-display text-4xl font-semibold text-foreground">{s.overall_score}<span className="text-base text-muted-foreground">/{maxScoreFor(t)}</span></div>
                     {s.overall_level && <div className="mt-1 text-sm text-muted-foreground">{s.overall_level}</div>}
                     <div className="mt-2 text-xs text-muted-foreground">{format(new Date(s.created_at), "MMM d, yyyy")}</div>
                   </>
@@ -140,7 +140,7 @@ function AssesseeDetail() {
           <section key={t} className="rounded-2xl border border-border bg-card p-6 shadow-sm">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h3 className="font-display text-lg font-semibold text-foreground">{ASSESSMENTS[t].shortTitle}</h3>
-              <span className="text-sm text-muted-foreground">Score {s.overall_score}/100 · {format(new Date(s.created_at), "MMM d, yyyy")}</span>
+              <span className="text-sm text-muted-foreground">Score {s.overall_score}/{maxScoreFor(t)} · {format(new Date(s.created_at), "MMM d, yyyy")}</span>
             </div>
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
               {Object.entries(s.subcategory_scores ?? {}).map(([name, score]) => {

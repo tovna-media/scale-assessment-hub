@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ASSESSMENTS, type AssessmentType } from "@/lib/assessments";
+import { ASSESSMENTS, maxScoreFor, type AssessmentType } from "@/lib/assessments";
 import { format } from "date-fns";
 import { Mail, ExternalLink, Settings } from "lucide-react";
 import { toast } from "sonner";
@@ -24,6 +24,7 @@ interface Row {
   created_at: string;
   types: Set<AssessmentType>;
   latestScore: number | null;
+  latestType: AssessmentType | null;
   lastActive: string | null;
   status: Status;
 }
@@ -86,6 +87,7 @@ function CoachDashboardIndex() {
           created_at: p.created_at,
           types,
           latestScore: sess.length ? sess[0].score : null,
+          latestType: sess.length ? sess[0].type : null,
           lastActive: sess.length ? sess[0].created : null,
           status: statusMap.get(p.id) ?? "New",
         };
@@ -197,8 +199,8 @@ function CoachDashboardIndex() {
                   <td className="px-4 py-3 text-muted-foreground">{r.email}</td>
                   <td className="px-4 py-3 text-muted-foreground">{r.types.size} of 3</td>
                   <td className="px-4 py-3">
-                    {r.latestScore !== null ? (
-                      <><span className="font-display font-semibold">{r.latestScore}</span><span className="text-muted-foreground">/100</span></>
+                    {r.latestScore !== null && r.latestType ? (
+                      <><span className="font-display font-semibold">{r.latestScore}</span><span className="text-muted-foreground">/{maxScoreFor(r.latestType)}</span></>
                     ) : (
                       <span className="text-muted-foreground">—</span>
                     )}
