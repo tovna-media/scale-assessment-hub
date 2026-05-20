@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ASSESSMENTS, gapLabel, type AssessmentType } from "@/lib/assessments";
+import { ASSESSMENTS, gapLabel, maxScoreFor, type AssessmentType } from "@/lib/assessments";
 import { ArrowLeft, Mail, Phone, Calendar, Download, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
