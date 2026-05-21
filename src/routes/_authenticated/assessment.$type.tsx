@@ -169,7 +169,7 @@ function AssessmentPage() {
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving…
               </>
             ) : (
-              <>Generate my Gap Report <ArrowRight className="ml-2 h-4 w-4" /></>
+              <>Generate my Report <ArrowRight className="ml-2 h-4 w-4" /></>
             )}
           </Button>
         ) : (
