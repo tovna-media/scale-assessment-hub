@@ -67,6 +67,37 @@ const AISchema = z.object({
 });
 type AIPayload = z.infer<typeof AISchema>;
 
+function extractJson(text: string): unknown {
+  let cleaned = text.replace(/```json\s*/gi, "").replace(/```\s*/g, "").trim();
+  const start = cleaned.search(/[\{\[]/);
+  if (start === -1) throw new Error("No JSON in response");
+  const openChar = cleaned[start];
+  const closeChar = openChar === "{" ? "}" : "]";
+  const end = cleaned.lastIndexOf(closeChar);
+  cleaned = end > start ? cleaned.substring(start, end + 1) : cleaned.substring(start);
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    // repair: balance braces/brackets
+    let braces = 0, brackets = 0, inStr = false, esc = false;
+    for (const c of cleaned) {
+      if (esc) { esc = false; continue; }
+      if (c === "\\") { esc = true; continue; }
+      if (c === '"') { inStr = !inStr; continue; }
+      if (inStr) continue;
+      if (c === "{") braces++;
+      else if (c === "}") braces--;
+      else if (c === "[") brackets++;
+      else if (c === "]") brackets--;
+    }
+    let repaired = cleaned.replace(/,\s*([}\]])/g, "$1");
+    if (inStr) repaired += '"';
+    while (brackets-- > 0) repaired += "]";
+    while (braces-- > 0) repaired += "}";
+    return JSON.parse(repaired);
+  }
+}
+
 /* ---------- Markdown assembly ---------- */
 
 function fmtList(items: string[]): string {
