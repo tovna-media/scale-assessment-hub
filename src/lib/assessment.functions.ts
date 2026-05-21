@@ -2,6 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { ASSESSMENTS, calculateScores, type AssessmentType } from "@/lib/assessments";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { assertSafeWebhookUrl } from "@/lib/webhook-url";
 
 const InputSchema = z.object({
   assessment_type: z.enum(["inner_capacity", "personal_leadership", "business_audit"]),
@@ -53,5 +55,52 @@ export const submitAssessment = createServerFn({ method: "POST" })
       .single();
 
     if (error || !row) throw new Error(error?.message ?? "Could not save responses");
+
+    // Per-assessment GHL webhook (fire-and-forget; never blocks the user)
+    try {
+      const { data: settings } = await supabaseAdmin
+        .from("app_settings")
+        .select("ghl_enabled, ghl_webhook_url")
+        .eq("id", 1)
+        .maybeSingle();
+
+      if (settings?.ghl_enabled && settings.ghl_webhook_url) {
+        const { data: profile } = await supabaseAdmin
+          .from("profiles")
+          .select("first_name, last_name, full_name, email, phone")
+          .eq("id", userId)
+          .maybeSingle();
+
+        if (profile) {
+          const payload = {
+            event: "assessment_completed",
+            first_name: profile.first_name,
+            last_name: profile.last_name,
+            full_name: profile.full_name,
+            email: profile.email,
+            phone: profile.phone,
+            assessment_type: data.assessment_type,
+            score: scored.overall,
+            completed_at: new Date().toISOString(),
+          };
+          try {
+            const safeUrl = assertSafeWebhookUrl(settings.ghl_webhook_url);
+            const res = await fetch(safeUrl.toString(), {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+            if (!res.ok) {
+              console.error("[GHL] per-assessment webhook non-OK", res.status);
+            }
+          } catch (e) {
+            console.error("[GHL] Rejected webhook URL:", (e as Error).message);
+          }
+        }
+      }
+    } catch (e) {
+      console.error("[GHL] per-assessment webhook failed", e);
+    }
+
     return { sessionId: row.id as string };
   });
