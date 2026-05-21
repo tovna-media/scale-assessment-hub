@@ -146,17 +146,8 @@ function ReportPage() {
       setProgress(100);
       setStatusMessage("Report ready!");
       setSession(result.session as SessionFull);
-      // Build the PDF immediately so the GHL webhook fires with the
-      // public report URL. Fire-and-forget — failures here shouldn't
-      // block the user from seeing their report on screen.
-      try {
-        const { data: sess } = await supabase.auth.getSession();
-        const accessToken = sess.session?.access_token;
-        if (accessToken) {
-          await generatePdf({ data: { sessionId, accessToken } });
-        }
-      } catch (pdfErr) {
-        console.error("Background PDF/webhook generation failed", pdfErr);
+      if (result.delivery && "error" in result.delivery) {
+        toast.error(`Report generated, but GHL delivery failed: ${result.delivery.error}`);
       }
       setTimeout(() => setGenerating(false), 400);
     } catch (e) {
