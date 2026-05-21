@@ -363,6 +363,7 @@ export const generatePdfReport = createServerFn({ method: "POST" })
 
       if (settings?.ghl_enabled && settings.ghl_webhook_url && profile) {
         const payload = {
+          event: "gap_report_generated",
           email: profile.email,
           first_name: profile.first_name,
           last_name: profile.last_name,
@@ -382,7 +383,18 @@ export const generatePdfReport = createServerFn({ method: "POST" })
           inner_capacity_score: icR.total,
           personal_leadership_score: ldR.total,
           business_audit_score: bzR.total,
+          inner_capacity_primary_gap: icR.primary?.name ?? null,
+          inner_capacity_primary_gap_level: icR.primary?.level ?? null,
+          leadership_gaps: ldR.themeGroups.map((g) => ({
+            theme: g.theme,
+            signals: g.descriptors,
+          })),
+          business_gaps: {
+            critical: bzR.critical.map((c) => c.name),
+            moderate: bzR.moderate.map((c) => c.name),
+          },
           pdf_url: publicUrl,
+          report_url: publicUrl,
           generated_at: new Date().toISOString(),
         };
         let safeUrl: URL;
