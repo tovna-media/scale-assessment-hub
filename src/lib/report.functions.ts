@@ -240,7 +240,20 @@ export const generateGapReport = createServerFn({ method: "POST" })
       await wait(300);
     }
     if (!session) throw new Error(lastError?.message ?? "Session not found");
-    if (session.gap_report) return { session };
+    if (session.gap_report) {
+      let delivery:
+        | Awaited<ReturnType<typeof generateGapReportPdfAndNotify>>
+        | { webhookSent: false; error: string }
+        | null = null;
+      try {
+        delivery = await generateGapReportPdfAndNotify(userId, session.id);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Unknown delivery error";
+        console.error("Gap report PDF/GHL delivery failed", error);
+        delivery = { webhookSent: false, error: message };
+      }
+      return { session, delivery };
+    }
 
     // Profile (for personalized greeting)
     const { data: profile } = await supabase
