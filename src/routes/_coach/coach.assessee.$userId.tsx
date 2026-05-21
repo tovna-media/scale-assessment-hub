@@ -84,9 +84,6 @@ function AssesseeDetail() {
     if (!latestByType.has(s.assessment_type)) latestByType.set(s.assessment_type, s);
   }
 
-  const reportData = (gapReport?.report_data ?? {}) as Record<string, unknown>;
-  const comprehensiveMarkdown = typeof reportData.comprehensive_markdown === "string" ? (reportData.comprehensive_markdown as string) : null;
-
   let pdfPublicUrl: string | null = null;
   if (gapReport?.pdf_path) {
     const { data } = supabase.storage.from("reports").getPublicUrl(gapReport.pdf_path);
@@ -172,22 +169,15 @@ function AssesseeDetail() {
         ))}
       </div>
 
-      {/* Comprehensive report */}
-      {(comprehensiveMarkdown || pdfPublicUrl) && (
+      {/* SCALE Gap Report */}
+      {pdfPublicUrl && (
         <section className="mt-10 rounded-2xl border border-border bg-card p-6 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="font-display text-xl font-semibold text-foreground inline-flex items-center gap-2"><FileText className="h-5 w-5" /> Comprehensive Gap Report</h2>
-            {pdfPublicUrl && (
-              <Button variant="outline" asChild>
-                <a href={pdfPublicUrl} target="_blank" rel="noopener noreferrer"><Download className="mr-2 h-4 w-4" /> PDF</a>
-              </Button>
-            )}
+            <h2 className="font-display text-xl font-semibold text-foreground inline-flex items-center gap-2"><FileText className="h-5 w-5" /> SCALE Gap Report</h2>
+            <Button variant="outline" asChild>
+              <a href={pdfPublicUrl} target="_blank" rel="noopener noreferrer"><Download className="mr-2 h-4 w-4" /> PDF</a>
+            </Button>
           </div>
-          {comprehensiveMarkdown && (
-            <article className="prose mt-6 max-w-none">
-              <Markdown text={comprehensiveMarkdown} />
-            </article>
-          )}
         </section>
       )}
     </main>
