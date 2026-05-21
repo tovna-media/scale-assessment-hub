@@ -39,8 +39,8 @@ function toNumberMap(raw: Record<string, number> | null | undefined): Record<num
 
 const AISchema = z.object({
   executive_summary: z.string().min(1),
-  capacity_have: z.array(z.string().min(1)).min(2).max(5),
-  capacity_lack: z.array(z.string().min(1)).max(5).optional().default([]),
+  capacity_have: z.array(z.string().min(1)).min(1),
+  capacity_lack: z.array(z.string().min(1)).optional().default([]),
   capacity_closing: z.string().optional().default(""),
   leadership_what_this_means: z.string().min(1),
   business_what_this_means: z.string().min(1),
@@ -48,24 +48,55 @@ const AISchema = z.object({
     .array(
       z.object({
         name: z.string().min(1),
-        arrows: z.array(z.string().min(1)).min(2).max(3),
+        arrows: z.array(z.string().min(1)).min(1),
         summary: z.string().min(1),
       }),
     )
-    .length(3),
+    .min(1),
   real_problem: z.string().min(1),
   recommendation_reframe: z.string().min(1),
-  you_already_have: z.array(z.string().min(1)).min(2).max(4),
-  now_you_need: z.array(z.string().min(1)).min(2).max(4),
+  you_already_have: z.array(z.string().min(1)).min(1),
+  now_you_need: z.array(z.string().min(1)).min(1),
   diy_pitch: z.string().min(1),
-  diy_bullets: z.array(z.string().min(1)).min(2).max(4),
+  diy_bullets: z.array(z.string().min(1)).min(1),
   leaders_edge_pitch: z.string().min(1),
-  leaders_edge_bullets: z.array(z.string().min(1)).min(2).max(4),
+  leaders_edge_bullets: z.array(z.string().min(1)).min(1),
   coaching_pitch: z.string().min(1),
-  coaching_bullets: z.array(z.string().min(1)).min(2).max(4),
+  coaching_bullets: z.array(z.string().min(1)).min(1),
   final_thought: z.string().min(1),
 });
 type AIPayload = z.infer<typeof AISchema>;
+
+function extractJson(text: string): unknown {
+  let cleaned = text.replace(/```json\s*/gi, "").replace(/```\s*/g, "").trim();
+  const start = cleaned.search(/[\{\[]/);
+  if (start === -1) throw new Error("No JSON in response");
+  const openChar = cleaned[start];
+  const closeChar = openChar === "{" ? "}" : "]";
+  const end = cleaned.lastIndexOf(closeChar);
+  cleaned = end > start ? cleaned.substring(start, end + 1) : cleaned.substring(start);
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    // repair: balance braces/brackets
+    let braces = 0, brackets = 0, inStr = false, esc = false;
+    for (const c of cleaned) {
+      if (esc) { esc = false; continue; }
+      if (c === "\\") { esc = true; continue; }
+      if (c === '"') { inStr = !inStr; continue; }
+      if (inStr) continue;
+      if (c === "{") braces++;
+      else if (c === "}") braces--;
+      else if (c === "[") brackets++;
+      else if (c === "]") brackets--;
+    }
+    let repaired = cleaned.replace(/,\s*([}\]])/g, "$1");
+    if (inStr) repaired += '"';
+    while (brackets-- > 0) repaired += "]";
+    while (braces-- > 0) repaired += "}";
+    return JSON.parse(repaired);
+  }
+}
 
 /* ---------- Markdown assembly ---------- */
 
@@ -413,9 +444,9 @@ Return ONLY valid JSON matching this exact shape (no markdown, no commentary):
 
     let aiParsed: AIPayload;
     try {
-      aiParsed = AISchema.parse(JSON.parse(rawText));
+      aiParsed = AISchema.parse(extractJson(rawText));
     } catch (e) {
-      console.error("AI payload validation failed:", e, "\nRaw:", rawText.slice(0, 500));
+      console.error("AI payload validation failed:", e, "\nRaw:", rawText.slice(0, 2000));
       throw new Error("The AI returned an unexpected format. Please try again.");
     }
 
