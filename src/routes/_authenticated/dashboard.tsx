@@ -17,6 +17,7 @@ interface SessionRow {
   assessment_type: AssessmentType;
   overall_score: number;
   created_at: string;
+  gap_report: string | null;
 }
 
 function DashboardPage() {
@@ -28,7 +29,7 @@ function DashboardPage() {
     if (!user) return;
     supabase
       .from("assessment_sessions")
-      .select("id, assessment_type, overall_score, created_at")
+      .select("id, assessment_type, overall_score, created_at, gap_report")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .then(({ data }) => {
@@ -40,6 +41,14 @@ function DashboardPage() {
   function lastFor(type: AssessmentType) {
     return sessions.find((s) => s.assessment_type === type);
   }
+
+  const completedTypes = new Set(sessions.map((s) => s.assessment_type));
+  const completedCount = completedTypes.size;
+  const allThreeDone = completedCount === 3;
+  const hasGapReport = sessions.some((s) => !!s.gap_report);
+  const showGapBanner = !hasGapReport;
+  const nextIncomplete = ASSESSMENT_LIST.find((a) => !completedTypes.has(a.type));
+  const latestSession = sessions[0];
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
@@ -91,25 +100,46 @@ function DashboardPage() {
         })}
       </div>
 
-      {sessions.length > 0 && (
-        <div className="mt-8 flex flex-col items-start justify-between gap-4 rounded-2xl border border-[var(--accent-blue)]/30 bg-primary/5 p-6 sm:flex-row sm:items-center">
+      {showGapBanner && (
+        <div className="mt-8 flex flex-col items-start justify-between gap-4 rounded-2xl border border-border bg-muted/40 p-6 sm:flex-row sm:items-center">
           <div>
-            <p className="text-xs font-medium uppercase tracking-widest text-[var(--accent-blue)]">
-              Comprehensive view
+            <p className="text-xs font-medium uppercase tracking-widest text-[#433993]">
+              SCALE Gap Report
             </p>
             <h2 className="mt-1 font-display text-xl font-semibold text-foreground">
-              See your full SCALE Gap Report across all assessments
+              {allThreeDone
+                ? "You're ready to generate your full SCALE Gap Report"
+                : `Complete all 3 assessments to unlock your Gap Report (${completedCount}/3 done)`}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Combine your latest results into one unified report with cross-connection analysis.
+              {allThreeDone
+                ? "Combine your results into one unified report with cross-connection analysis."
+                : "Your personalized report ties together Inner Capacity, Personal Leadership, and Business Audit."}
             </p>
           </div>
-          <Button asChild size="lg">
-            <Link to="/comprehensive-report">
-              <Sparkles className="mr-2 h-4 w-4" />
-              View comprehensive report
-            </Link>
-          </Button>
+          {allThreeDone && latestSession ? (
+            <Button
+              asChild
+              size="lg"
+              className="bg-[#433993] text-white hover:bg-[#433993]/90"
+            >
+              <Link to="/report/$sessionId" params={{ sessionId: latestSession.id }}>
+                <Sparkles className="mr-2 h-4 w-4" />
+                Generate Gap Report
+              </Link>
+            </Button>
+          ) : (
+            <Button
+              asChild
+              size="lg"
+              className="bg-[#433993] text-white hover:bg-[#433993]/90"
+            >
+              <Link to="/assessment/$type" params={{ type: (nextIncomplete ?? ASSESSMENT_LIST[0]).type }}>
+                <ArrowRight className="mr-2 h-4 w-4" />
+                {nextIncomplete ? `Take ${nextIncomplete.shortTitle}` : "Continue"}
+              </Link>
+            </Button>
+          )}
         </div>
       )}
 
