@@ -9,6 +9,7 @@ import {
   scoreLeadership,
   type AssessmentType,
 } from "@/lib/assessments";
+import { generateGapReportPdfAndNotify } from "@/lib/gap-report-delivery.server";
 
 const InputSchema = z.object({
   sessionId: z.string().uuid(),
@@ -433,12 +434,23 @@ Return ONLY valid JSON matching this exact shape (no markdown, no commentary):
 
     if (updateError) throw new Error(updateError.message);
 
-    // NOTE: GHL webhook fires from generatePdfReport, after PDF upload.
+    let delivery:
+      | Awaited<ReturnType<typeof generateGapReportPdfAndNotify>>
+      | { webhookSent: false; error: string }
+      | null = null;
+    try {
+      delivery = await generateGapReportPdfAndNotify(userId, session.id);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown delivery error";
+      console.error("Gap report PDF/GHL delivery failed", error);
+      delivery = { webhookSent: false, error: message };
+    }
 
     return {
       session: {
         ...session,
         gap_report: finalMarkdown,
       },
+      delivery,
     };
   });
