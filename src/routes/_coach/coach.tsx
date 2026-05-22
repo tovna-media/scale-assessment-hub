@@ -174,13 +174,13 @@ function CoachDashboardIndex() {
         </Select>
       </div>
 
-      <div className="mt-4 overflow-hidden rounded-xl border border-border bg-card">
+      <div className="mt-4 overflow-x-auto rounded-xl border border-border bg-card">
         {loading ? (
           <div className="px-6 py-10 text-center text-sm text-muted-foreground">Loading…</div>
         ) : filtered.length === 0 ? (
           <div className="px-6 py-10 text-center text-sm text-muted-foreground">No assessees match.</div>
         ) : (
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[900px] text-sm">
             <thead className="border-b border-border bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
                 <th className="px-4 py-3 font-medium">Name</th>
