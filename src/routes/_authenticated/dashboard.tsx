@@ -145,7 +145,7 @@ function DashboardPage() {
 
       <section className="mt-14">
         <h2 className="font-display text-xl font-semibold text-foreground">My history</h2>
-        <div className="mt-4 overflow-hidden rounded-xl border border-border bg-card">
+        <div className="mt-4 overflow-x-auto rounded-xl border border-border bg-card">
           {loading ? (
             <div className="px-6 py-10 text-center text-sm text-muted-foreground">Loading…</div>
           ) : sessions.length === 0 ? (
@@ -153,7 +153,7 @@ function DashboardPage() {
               No assessments taken yet. Start with one above.
             </div>
           ) : (
-            <table className="w-full text-sm">
+            <table className="w-full min-w-[640px] text-sm">
               <thead className="border-b border-border bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
                 <tr>
                   <th className="px-4 py-3 font-medium">Assessment</th>
