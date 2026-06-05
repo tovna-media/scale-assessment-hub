@@ -576,6 +576,24 @@ export function gapLabel(score: number): GapLevel {
   return "Critical Gap";
 }
 
+/* Per-type subcategory classifier — operates on the raw stored score so
+   coach UI badges match the report's actual gap levels. */
+export function subcategoryGapLabel(
+  type: AssessmentType,
+  name: string,
+  score: number,
+): GapLevel {
+  if (type === "inner_capacity") return classifyIC(score);
+  if (type === "business_audit") return classifyBiz(score);
+  // personal_leadership: raw sum vs subcategory max (≥80% = Strength)
+  const sub = leadership.subcategories.find((s) => s.name === name);
+  const max = (sub?.questionIndices.length ?? 1) * 5;
+  const pct = max > 0 ? score / max : 0;
+  if (pct >= 0.8) return "Strength";
+  if (pct >= 0.6) return "Moderate Gap";
+  return "Critical Gap";
+}
+
 /* Combined SCALE score = IC + Personal Leadership + Business Audit totals.
    Max: 250 + 135 + 60 = 445. Levels mirror the IC overall thresholds
    (≈49.6%, 71.6%, 87.6%) proportionally. */

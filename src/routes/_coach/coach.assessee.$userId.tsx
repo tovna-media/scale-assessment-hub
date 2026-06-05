@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ASSESSMENTS, gapLabel, maxScoreFor, type AssessmentType } from "@/lib/assessments";
+import { ASSESSMENTS, subcategoryGapLabel, maxScoreFor, type AssessmentType } from "@/lib/assessments";
 import { ArrowLeft, Mail, Phone, Calendar, Download, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -141,10 +141,11 @@ function AssesseeDetail() {
             </div>
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
               {Object.entries(s.subcategory_scores ?? {}).map(([name, score]) => {
-                const label = gapLabel(score);
+                const label = subcategoryGapLabel(t, name, score);
                 const tone =
                   label === "Strength" ? "bg-[var(--success)]/10 text-[var(--success)]"
                   : label === "Moderate Gap" ? "bg-[var(--warning)]/15 text-[var(--warning)]"
+                  : label === "Developing" ? "bg-[var(--accent-blue)]/10 text-[var(--accent-blue)]"
                   : "bg-destructive/10 text-destructive";
                 return (
                   <div key={name} className="flex items-center justify-between rounded-md border border-border px-3 py-2 text-sm">
