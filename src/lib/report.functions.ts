@@ -402,9 +402,9 @@ Return ONLY valid JSON matching this exact shape (no markdown, no commentary):
   "now_you_need": ["3 short bullets — what to install next, gap-specific"],
   "diy_pitch": "1-2 sentence pitch for self-directed implementation, honest about who it fits.",
   "diy_bullets": ["3 bullets specific to this leader's gaps"],
-  "leaders_edge_pitch": "1-2 sentence pitch for the group program.",
+  "leaders_edge_pitch": "1-2 sentence pitch for the group program. Include this link: https://richlohman.com/the-leaders-edge",
   "leaders_edge_bullets": ["3 bullets specific to this leader's gaps"],
-  "coaching_pitch": "1-2 sentence pitch for 1:1 coaching, recommended for high-impact gaps.",
+  "coaching_pitch": "1-2 sentence pitch for 1:1 coaching, recommended for high-impact gaps. Include this link: https://richlohman.com/strategy-call-with-rich",
   "coaching_bullets": ["3 bullets specific to this leader's gaps"],
   "final_thought": "1 short paragraph. Direct. Warm. End on what's actually possible if they close the constraint."
 }`;
