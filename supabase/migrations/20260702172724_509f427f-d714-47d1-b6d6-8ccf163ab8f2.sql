@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "users update own sessions" ON public.assessment_sessions; DROP POLICY IF EXISTS "users update own report" ON public.gap_reports;
