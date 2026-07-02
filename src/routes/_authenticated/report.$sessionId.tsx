@@ -594,14 +594,19 @@ function ReportView({
       </article>
 
       <div className="mt-10 grid gap-4 sm:grid-cols-3 no-print">
-        <PathCard title="DIY Path" desc="Self-directed implementation using the SCALE framework." />
+        <PathCard
+          title="DIY Path"
+          desc="Self-directed implementation using the SCALE framework."
+        />
         <PathCard
           title="Leaders Edge"
           desc="Group coaching program with peer leaders on the same journey."
+          href="https://richlohman.com/the-leaders-edge"
         />
         <PathCard
           title="1:1 Coaching with Rich"
           desc="Personalized executive coaching with Rich Lohman."
+          href="https://richlohman.com/strategy-call-with-rich"
           recommended
         />
       </div>
@@ -628,20 +633,21 @@ function PathCard({
   title,
   desc,
   recommended,
+  href,
 }: {
   title: string;
   desc: string;
   recommended?: boolean;
+  href?: string;
 }) {
-  return (
-    <div
-      className={
-        "rounded-xl border p-5 " +
-        (recommended
-          ? "border-[var(--accent-blue)] bg-primary text-primary-foreground shadow-md"
-          : "border-border bg-card")
-      }
-    >
+  const classes =
+    "rounded-xl border p-5 " +
+    (recommended
+      ? "border-[var(--accent-blue)] bg-primary text-primary-foreground shadow-md"
+      : "border-border bg-card") +
+    (href ? " hover:shadow-md transition-shadow" : "");
+  const content = (
+    <>
       {recommended && (
         <div className="mb-2 inline-flex rounded-full bg-primary-foreground/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider">
           Recommended
@@ -659,8 +665,21 @@ function PathCard({
       >
         {desc}
       </p>
-    </div>
+    </>
   );
+  if (href) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={classes + " block"}
+      >
+        {content}
+      </a>
+    );
+  }
+  return <div className={classes}>{content}</div>;
 }
 
 function Markdown({ text }: { text: string }) {
@@ -684,7 +703,8 @@ function Markdown({ text }: { text: string }) {
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-      .replace(/_(.+?)_/g, "<em>$1</em>");
+      .replace(/_(.+?)_/g, "<em>$1</em>")
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="underline hover:opacity-80">$1</a>');
   }
   for (const raw of lines) {
     const line = raw.trimEnd();
