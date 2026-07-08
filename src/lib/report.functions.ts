@@ -470,7 +470,10 @@ Return ONLY valid JSON matching this exact shape (no markdown, no commentary):
       "",
     ].join("\n");
 
-    const { error: updateError } = await supabase
+    // RLS blocks client-side updates to assessment_sessions by design;
+    // persist the generated report with the service-role client.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error: updateError } = await supabaseAdmin
       .from("assessment_sessions")
       .update({ gap_report: finalMarkdown })
       .eq("id", data.sessionId)
