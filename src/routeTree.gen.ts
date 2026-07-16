@@ -20,6 +20,7 @@ import { Route as CoachCoachRouteImport } from './routes/_coach/coach'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedReportSessionIdRouteImport } from './routes/_authenticated/report.$sessionId'
 import { Route as AuthenticatedAssessmentTypeRouteImport } from './routes/_authenticated/assessment.$type'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as CoachCoachAssesseeUserIdRouteImport } from './routes/_coach/coach.assessee.$userId'
 
 const SignupRoute = SignupRouteImport.update({
@@ -77,6 +78,12 @@ const AuthenticatedAssessmentTypeRoute =
     path: '/assessment/$type',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const CoachCoachAssesseeUserIdRoute =
   CoachCoachAssesseeUserIdRouteImport.update({
     id: '/assessee/$userId',
@@ -95,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
   '/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -107,6 +115,7 @@ export interface FileRoutesByTo {
   '/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
   '/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -122,6 +131,7 @@ export interface FileRoutesById {
   '/_authenticated/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/_authenticated/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
   '/_coach/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/assessment/$type'
     | '/report/$sessionId'
     | '/coach/assessee/$userId'
+    | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -148,6 +159,7 @@ export interface FileRouteTypes {
     | '/assessment/$type'
     | '/report/$sessionId'
     | '/coach/assessee/$userId'
+    | '/api/public/payments/webhook'
   id:
     | '__root__'
     | '/'
@@ -162,6 +174,7 @@ export interface FileRouteTypes {
     | '/_authenticated/assessment/$type'
     | '/_authenticated/report/$sessionId'
     | '/_coach/coach/assessee/$userId'
+    | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -171,6 +184,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
   CoachLoginRoute: typeof CoachLoginRoute
+  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -252,6 +266,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAssessmentTypeRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_coach/coach/assessee/$userId': {
       id: '/_coach/coach/assessee/$userId'
       path: '/assessee/$userId'
@@ -309,6 +330,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
   CoachLoginRoute: CoachLoginRoute,
+  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
