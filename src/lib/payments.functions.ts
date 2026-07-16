@@ -68,14 +68,10 @@ export const createSubscriptionCheckout = createServerFn({ method: 'POST' })
       } = await supabase.auth.getUser();
       const email = user?.email ?? undefined;
 
-      const prices = await stripe.prices.list({ lookup_keys: [data.priceId], limit: 1 });
-      if (!prices.data.length) return { error: 'Price not found' };
-      const price = prices.data[0];
-
       const customerId = await resolveOrCreateCustomer(stripe, { email, userId });
 
       const session = await stripe.checkout.sessions.create({
-        line_items: [{ price: price.id, quantity: 1 }],
+        line_items: [{ price: data.priceId, quantity: 1 }],
         mode: 'subscription',
         ui_mode: 'embedded_page',
         return_url: data.returnUrl,

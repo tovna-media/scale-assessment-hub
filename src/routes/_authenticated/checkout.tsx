@@ -14,7 +14,7 @@ export const Route = createFileRoute('/_authenticated/checkout')({
   component: CheckoutPage,
 });
 
-const PRICE_ID = 'fully_resourced_monthly';
+const PRICE_ID = 'price_1TtwYbKi9kEwbRKQKPBRgXw7';
 
 function CheckoutPage() {
   const create = useServerFn(createSubscriptionCheckout);
