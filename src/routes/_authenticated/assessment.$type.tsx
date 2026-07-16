@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ASSESSMENTS, type AssessmentType } from "@/lib/assessments";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -9,7 +9,6 @@ import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { submitAssessment } from "@/lib/assessment.functions";
 import { logFunnelEvent } from "@/lib/funnel.functions";
-import { useEffect } from "react";
 
 export const Route = createFileRoute("/_authenticated/assessment/$type")({
   head: () => ({ meta: [{ title: "Take assessment — SCALE" }] }),
