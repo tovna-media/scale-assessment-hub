@@ -599,7 +599,7 @@ function ReportView({
         <Markdown text={session.gap_report ?? ""} />
       </article>
 
-      <div className="mt-10 grid gap-4 sm:grid-cols-3 no-print">
+      <div className="mt-10 grid gap-4 sm:grid-cols-2 no-print">
         <PathCard
           title="DIY Path"
           desc="Self-directed implementation using the SCALE framework."
@@ -609,11 +609,6 @@ function ReportView({
           desc="The full SCALE system: guided 90-day plan, Coach Rich AI, live dashboard, digital book, and unlimited assessments."
           to="/fully-resourced"
           recommended
-        />
-        <PathCard
-          title="1:1 Coaching with Rich"
-          desc="Personalized executive coaching with Rich Lohman."
-          href="https://richlohman.com/strategy-call-with-rich"
         />
       </div>
 
