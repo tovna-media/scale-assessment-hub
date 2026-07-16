@@ -80,8 +80,6 @@ export const createSubscriptionCheckout = createServerFn({ method: 'POST' })
         ui_mode: 'embedded_page',
         return_url: data.returnUrl,
         customer: customerId,
-        automatic_tax: { enabled: true },
-        customer_update: { address: 'auto', name: 'auto' },
         metadata: {
           userId,
           accepted_terms_at: new Date().toISOString(),
