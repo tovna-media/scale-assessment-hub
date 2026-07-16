@@ -129,3 +129,27 @@ export const submitAssessment = createServerFn({ method: "POST" })
 
     return { sessionId: row.id as string };
   });
+
+// Lightweight access check used by the assessment page loader/effect so the
+// UI can bounce a paywalled user before they fill anything in. The real
+// enforcement lives in submitAssessment + generateGapReport (which also
+// re-check server-side and cannot be bypassed by refreshing).
+export const checkAssessmentAccess = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { data: prof } = await supabase
+      .from("profiles")
+      .select("free_pass_used, subscribed")
+      .eq("id", userId)
+      .maybeSingle();
+    const freePassUsed = Boolean((prof as { free_pass_used?: boolean } | null)?.free_pass_used);
+    const subscribed = Boolean((prof as { subscribed?: boolean } | null)?.subscribed);
+    const allowed = !freePassUsed || subscribed;
+    return {
+      allowed,
+      reason: allowed
+        ? null
+        : ("You've used your free SCALE report. Subscribe to continue." as const),
+    };
+  });
