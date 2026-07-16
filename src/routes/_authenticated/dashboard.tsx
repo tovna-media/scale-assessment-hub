@@ -167,7 +167,8 @@ function DashboardPage() {
             asChild
           >
             <Link to="/fully-resourced">
-              Get Fully Resourced <ArrowRight className="ml-2 h-4 w-4" />
+              Get Fully Resourced <span className="ml-2 text-sm opacity-80">$97/mo</span>
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
         </div>
