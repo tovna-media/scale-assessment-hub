@@ -4,8 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { ASSESSMENT_LIST, ASSESSMENTS, maxScoreFor, type AssessmentType } from "@/lib/assessments";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, FileText, Sparkles } from "lucide-react";
+import { ArrowRight, FileText, Lock, Sparkles } from "lucide-react";
 import { format } from "date-fns";
+import { logFunnelEvent } from "@/lib/funnel.functions";
+import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Your dashboard — SCALE" }] }),
@@ -24,6 +26,9 @@ function DashboardPage() {
   const { user } = useAuth();
   const [sessions, setSessions] = useState<SessionRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [freePassUsed, setFreePassUsed] = useState(false);
+  const [subscribed, setSubscribed] = useState(false);
+  const logEvent = useServerFn(logFunnelEvent);
 
   useEffect(() => {
     if (!user) return;
@@ -36,7 +41,23 @@ function DashboardPage() {
         setSessions((data ?? []) as SessionRow[]);
         setLoading(false);
       });
+    supabase
+      .from("profiles")
+      .select("free_pass_used, subscribed")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        const p = data as { free_pass_used?: boolean; subscribed?: boolean } | null;
+        setFreePassUsed(Boolean(p?.free_pass_used));
+        setSubscribed(Boolean(p?.subscribed));
+      });
   }, [user]);
+
+  const paywalled = freePassUsed && !subscribed;
+
+  function handleSubscribeClick() {
+    void logEvent({ data: { event_type: "clicked_subscribe" } }).catch(() => {});
+  }
 
   function lastFor(type: AssessmentType) {
     return sessions.find((s) => s.assessment_type === type);
@@ -99,6 +120,35 @@ function DashboardPage() {
           );
         })}
       </div>
+
+      {paywalled && (
+        <div className="mt-8 flex flex-col items-start justify-between gap-4 rounded-2xl border border-amber-300 bg-amber-50 p-6 sm:flex-row sm:items-center">
+          <div className="flex items-start gap-3">
+            <Lock className="mt-0.5 h-5 w-5 text-amber-700" />
+            <div>
+              <p className="text-xs font-medium uppercase tracking-widest text-amber-800">
+                Free pass used
+              </p>
+              <h2 className="mt-1 font-display text-xl font-semibold text-foreground">
+                You've used your one free SCALE report.
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Subscribe to retake assessments and generate new Gap Reports.
+              </p>
+            </div>
+          </div>
+          <Button
+            size="lg"
+            className="bg-[#433993] text-white hover:bg-[#433993]/90"
+            onClick={handleSubscribeClick}
+            asChild
+          >
+            <a href="https://richlohman.com/the-leaders-edge" target="_blank" rel="noreferrer">
+              Subscribe <ArrowRight className="ml-2 h-4 w-4" />
+            </a>
+          </Button>
+        </div>
+      )}
 
       {showGapBanner && (
         <div className="mt-8 flex flex-col items-start justify-between gap-4 rounded-2xl border border-border bg-muted/40 p-6 sm:flex-row sm:items-center">
