@@ -17,7 +17,7 @@ import { generateGapReport } from "@/lib/report.functions";
 import { generatePdfReport } from "@/lib/pdf-report.functions";
 import { logFunnelEvent } from "@/lib/funnel.functions";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, ArrowRight, Download, Loader2, Calendar, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Download, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/report/$sessionId")({
@@ -562,14 +562,10 @@ function ReportView({
               </>
             )}
           </Button>
-          <Button asChild>
-            <a
-              href="https://richlohman.com/strategy-call-with-rich"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Calendar className="mr-2 h-4 w-4" /> Book a Strategy Call
-            </a>
+          <Button asChild className="bg-[#433993] text-white hover:bg-[#433993]/90">
+            <Link to="/fully-resourced">
+              Get Fully Resourced <span className="ml-2 text-sm opacity-80">$97/mo</span>
+            </Link>
           </Button>
         </div>
       </div>
@@ -609,27 +605,23 @@ function ReportView({
           desc="Self-directed implementation using the SCALE framework."
         />
         <PathCard
-          title="Leaders Edge"
-          desc="Group coaching program with peer leaders on the same journey."
-          href="https://richlohman.com/the-leaders-edge"
+          title="Fully Resourced"
+          desc="The full SCALE system: guided 90-day plan, Coach Rich AI, live dashboard, digital book, and unlimited assessments."
+          to="/fully-resourced"
+          recommended
         />
         <PathCard
           title="1:1 Coaching with Rich"
           desc="Personalized executive coaching with Rich Lohman."
           href="https://richlohman.com/strategy-call-with-rich"
-          recommended
         />
       </div>
 
       <div className="mt-8 flex flex-wrap gap-3 no-print">
-        <Button asChild size="lg">
-          <a
-            href="https://richlohman.com/strategy-call-with-rich"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Book a Strategy Call with Rich
-          </a>
+        <Button asChild size="lg" className="bg-[#433993] text-white hover:bg-[#433993]/90">
+          <Link to="/fully-resourced">
+            Get Fully Resourced — $97/month
+          </Link>
         </Button>
         <Button variant="outline" size="lg" onClick={onDownloadPdf} disabled={downloadingPdf}>
           {downloadingPdf ? "Preparing…" : "Download My Report (PDF)"}
@@ -644,18 +636,20 @@ function PathCard({
   desc,
   recommended,
   href,
+  to,
 }: {
   title: string;
   desc: string;
   recommended?: boolean;
   href?: string;
+  to?: "/fully-resourced";
 }) {
   const classes =
     "rounded-xl border p-5 " +
     (recommended
       ? "border-[var(--accent-blue)] bg-primary text-primary-foreground shadow-md"
       : "border-border bg-card") +
-    (href ? " hover:shadow-md transition-shadow" : "");
+    (href || to ? " hover:shadow-md transition-shadow" : "");
   const content = (
     <>
       {recommended && (
@@ -677,6 +671,13 @@ function PathCard({
       </p>
     </>
   );
+  if (to) {
+    return (
+      <Link to={to} className={classes + " block"}>
+        {content}
+      </Link>
+    );
+  }
   if (href) {
     return (
       <a
