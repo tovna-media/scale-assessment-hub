@@ -9,8 +9,11 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as FullyResourcedRouteImport } from './routes/fully-resourced'
 import { Route as CoachRouteImport } from './routes/_coach'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
@@ -23,14 +26,29 @@ import { Route as AuthenticatedAssessmentTypeRouteImport } from './routes/_authe
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as CoachCoachAssesseeUserIdRouteImport } from './routes/_coach/coach.assessee.$userId'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FullyResourcedRoute = FullyResourcedRouteImport.update({
+  id: '/fully-resourced',
+  path: '/fully-resourced',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoachRoute = CoachRouteImport.update({
@@ -93,8 +111,11 @@ const CoachCoachAssesseeUserIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/fully-resourced': typeof FullyResourcedRoute
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
+  '/terms': typeof TermsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/coach': typeof CoachCoachRouteWithChildren
   '/settings': typeof CoachSettingsRoute
@@ -106,8 +127,11 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/fully-resourced': typeof FullyResourcedRoute
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
+  '/terms': typeof TermsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/coach': typeof CoachCoachRouteWithChildren
   '/settings': typeof CoachSettingsRoute
@@ -122,8 +146,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_coach': typeof CoachRouteWithChildren
+  '/fully-resourced': typeof FullyResourcedRoute
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
+  '/terms': typeof TermsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_coach/coach': typeof CoachCoachRouteWithChildren
   '/_coach/settings': typeof CoachSettingsRoute
@@ -137,8 +164,11 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/fully-resourced'
     | '/login'
+    | '/privacy'
     | '/signup'
+    | '/terms'
     | '/dashboard'
     | '/coach'
     | '/settings'
@@ -150,8 +180,11 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/fully-resourced'
     | '/login'
+    | '/privacy'
     | '/signup'
+    | '/terms'
     | '/dashboard'
     | '/coach'
     | '/settings'
@@ -165,8 +198,11 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/_coach'
+    | '/fully-resourced'
     | '/login'
+    | '/privacy'
     | '/signup'
+    | '/terms'
     | '/_authenticated/dashboard'
     | '/_coach/coach'
     | '/_coach/settings'
@@ -181,14 +217,24 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   CoachRoute: typeof CoachRouteWithChildren
+  FullyResourcedRoute: typeof FullyResourcedRoute
   LoginRoute: typeof LoginRoute
+  PrivacyRoute: typeof PrivacyRoute
   SignupRoute: typeof SignupRoute
+  TermsRoute: typeof TermsRoute
   CoachLoginRoute: typeof CoachLoginRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signup': {
       id: '/signup'
       path: '/signup'
@@ -196,11 +242,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fully-resourced': {
+      id: '/fully-resourced'
+      path: '/fully-resourced'
+      fullPath: '/fully-resourced'
+      preLoaderRoute: typeof FullyResourcedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_coach': {
@@ -327,8 +387,11 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   CoachRoute: CoachRouteWithChildren,
+  FullyResourcedRoute: FullyResourcedRoute,
   LoginRoute: LoginRoute,
+  PrivacyRoute: PrivacyRoute,
   SignupRoute: SignupRoute,
+  TermsRoute: TermsRoute,
   CoachLoginRoute: CoachLoginRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
