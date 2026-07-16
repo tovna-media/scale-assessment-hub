@@ -1,7 +1,6 @@
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
-import { logFunnelEvent } from '@/lib/funnel.functions';
 
 const StripeEnvSchema = z.enum(['sandbox', 'live']);
 
@@ -226,7 +225,3 @@ export const logCheckoutReturn = createServerFn({ method: 'POST' })
     } as never);
     return { ok: true };
   });
-
-// Silence unused import warning — logFunnelEvent isn't called directly but
-// keeping the import documents that funnel events are written from this file.
-void logFunnelEvent;
