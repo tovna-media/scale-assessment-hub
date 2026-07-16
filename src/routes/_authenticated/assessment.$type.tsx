@@ -66,14 +66,6 @@ function AssessmentPage() {
   const [responses, setResponses] = useState<Record<number, number>>({});
   const [submitting, setSubmitting] = useState(false);
 
-  if (!accessChecked) {
-    return (
-      <main className="mx-auto max-w-3xl px-4 py-10">
-        <p className="text-muted-foreground">Loading…</p>
-      </main>
-    );
-  }
-
   const totalSteps = def.subcategories.length;
   const currentSub = def.subcategories[step];
   const progress = useMemo(() => {
@@ -107,6 +99,14 @@ function AssessmentPage() {
       setSubmitting(false);
       toast.error(e instanceof Error ? e.message : "Could not save your responses.");
     }
+  }
+
+  if (!accessChecked) {
+    return (
+      <main className="mx-auto max-w-3xl px-4 py-10">
+        <p className="text-muted-foreground">Loading…</p>
+      </main>
+    );
   }
 
   return (
