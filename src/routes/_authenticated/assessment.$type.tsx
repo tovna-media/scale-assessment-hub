@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ASSESSMENTS, type AssessmentType } from "@/lib/assessments";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { submitAssessment } from "@/lib/assessment.functions";
+import { logFunnelEvent } from "@/lib/funnel.functions";
 
 export const Route = createFileRoute("/_authenticated/assessment/$type")({
   head: () => ({ meta: [{ title: "Take assessment — SCALE" }] }),
@@ -23,6 +24,14 @@ function AssessmentPage() {
   const { user } = useAuth();
   const def = ASSESSMENTS[type as AssessmentType];
   const submit = useServerFn(submitAssessment);
+  const logEvent = useServerFn(logFunnelEvent);
+
+  useEffect(() => {
+    if (!user || !def) return;
+    void logEvent({
+      data: { event_type: "started_assessment", metadata: { assessment_type: def.type } },
+    }).catch(() => {});
+  }, [user, def, logEvent]);
 
   if (!def) {
     return (

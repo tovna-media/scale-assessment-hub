@@ -18,6 +18,20 @@ export const submitAssessment = createServerFn({ method: "POST" })
     const def = ASSESSMENTS[data.assessment_type as AssessmentType];
     if (!def) throw new Error("Unknown assessment type");
 
+    // Free-pass gate: after the free pass is used, only subscribers can start/submit assessments.
+    {
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("free_pass_used, subscribed")
+        .eq("id", userId)
+        .maybeSingle();
+      const freePassUsed = Boolean((prof as { free_pass_used?: boolean } | null)?.free_pass_used);
+      const subscribed = Boolean((prof as { subscribed?: boolean } | null)?.subscribed);
+      if (freePassUsed && !subscribed) {
+        throw new Error("PAYWALL: You've used your free SCALE report. Subscribe to continue.");
+      }
+    }
+
     // Re-derive scores on the server from raw responses (never trust client values)
     const numericResponses: Record<number, number> = {};
     for (const [k, v] of Object.entries(data.responses)) {
@@ -55,6 +69,17 @@ export const submitAssessment = createServerFn({ method: "POST" })
       .single();
 
     if (error || !row) throw new Error(error?.message ?? "Could not save responses");
+
+    // Funnel: assessment finished
+    try {
+      await supabase.from("funnel_events").insert({
+        user_id: userId,
+        event_type: "finished_assessment",
+        metadata: { assessment_type: data.assessment_type, session_id: row.id, score: scored.overall } as Record<string, unknown>,
+      } as never);
+    } catch (e) {
+      console.error("[funnel] finished_assessment insert failed", e);
+    }
 
     // Per-assessment GHL webhook (fire-and-forget; never blocks the user)
     try {
