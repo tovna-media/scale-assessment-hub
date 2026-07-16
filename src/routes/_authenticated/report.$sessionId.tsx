@@ -610,11 +610,6 @@ function ReportView({
           to="/fully-resourced"
           recommended
         />
-        <PathCard
-          title="1:1 Coaching with Rich"
-          desc="Personalized executive coaching with Rich Lohman."
-          href="https://richlohman.com/strategy-call-with-rich"
-        />
       </div>
 
       <div className="mt-8 flex flex-wrap gap-3 no-print">
