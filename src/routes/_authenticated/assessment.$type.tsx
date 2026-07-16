@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
-import { submitAssessment } from "@/lib/assessment.functions";
+import { submitAssessment, checkAssessmentAccess } from "@/lib/assessment.functions";
 import { logFunnelEvent } from "@/lib/funnel.functions";
 
 export const Route = createFileRoute("/_authenticated/assessment/$type")({
@@ -25,13 +25,34 @@ function AssessmentPage() {
   const def = ASSESSMENTS[type as AssessmentType];
   const submit = useServerFn(submitAssessment);
   const logEvent = useServerFn(logFunnelEvent);
+  const checkAccess = useServerFn(checkAssessmentAccess);
+  const [accessChecked, setAccessChecked] = useState(false);
 
   useEffect(() => {
     if (!user || !def) return;
+    let cancelled = false;
+    void checkAccess()
+      .then((res) => {
+        if (cancelled) return;
+        if (!res.allowed) {
+          toast.error(res.reason ?? "You've used your free SCALE report.");
+          navigate({ to: "/dashboard" });
+          return;
+        }
+        setAccessChecked(true);
+      })
+      .catch(() => {
+        if (!cancelled) setAccessChecked(true);
+      });
+    return () => { cancelled = true; };
+  }, [user, def, checkAccess, navigate]);
+
+  useEffect(() => {
+    if (!user || !def || !accessChecked) return;
     void logEvent({
       data: { event_type: "started_assessment", metadata: { assessment_type: def.type } },
     }).catch(() => {});
-  }, [user, def, logEvent]);
+  }, [user, def, logEvent, accessChecked]);
 
   if (!def) {
     return (
@@ -44,6 +65,14 @@ function AssessmentPage() {
   const [step, setStep] = useState(0);
   const [responses, setResponses] = useState<Record<number, number>>({});
   const [submitting, setSubmitting] = useState(false);
+
+  if (!accessChecked) {
+    return (
+      <main className="mx-auto max-w-3xl px-4 py-10">
+        <p className="text-muted-foreground">Loading…</p>
+      </main>
+    );
+  }
 
   const totalSteps = def.subcategories.length;
   const currentSub = def.subcategories[step];
