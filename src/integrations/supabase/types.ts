@@ -134,6 +134,30 @@ export type Database = {
         }
         Relationships: []
       }
+      funnel_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       gap_reports: {
         Row: {
           business_score: number | null
@@ -187,28 +211,34 @@ export type Database = {
           created_at: string
           email: string
           first_name: string | null
+          free_pass_used: boolean
           full_name: string | null
           id: string
           last_name: string | null
           phone: string | null
+          subscribed: boolean
         }
         Insert: {
           created_at?: string
           email: string
           first_name?: string | null
+          free_pass_used?: boolean
           full_name?: string | null
           id: string
           last_name?: string | null
           phone?: string | null
+          subscribed?: boolean
         }
         Update: {
           created_at?: string
           email?: string
           first_name?: string | null
+          free_pass_used?: boolean
           full_name?: string | null
           id?: string
           last_name?: string | null
           phone?: string | null
+          subscribed?: boolean
         }
         Relationships: []
       }
