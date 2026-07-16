@@ -1,5 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { verifyWebhook, type StripeEnv } from '@/lib/stripe.server';
+import type { supabaseAdmin as SupabaseAdminType } from '@/integrations/supabase/client.server';
+
+type Admin = typeof SupabaseAdminType;
 
 type StripeObj = Record<string, unknown> & { id?: string };
 type StripeSubscription = StripeObj & {
@@ -34,7 +37,7 @@ function priceIdOf(sub: StripeSubscription): string | null {
 }
 
 async function resolveUserId(
-  admin: ReturnType<typeof getAdmin>,
+  admin: Admin,
   sub: StripeSubscription,
 ): Promise<string | null> {
   if (sub.metadata?.userId) return sub.metadata.userId;
@@ -47,18 +50,8 @@ async function resolveUserId(
   return (data as { user_id?: string } | null)?.user_id ?? null;
 }
 
-let _admin: ReturnType<typeof createAdmin> | null = null;
-function createAdmin() {
-  // Load inside the handler to keep server-only import out of the client graph.
-  // Called from route module scope only via the getter below.
-  throw new Error('use getAdmin() inside the handler');
-}
-function getAdmin() {
-  return _admin!;
-}
-
 async function handleSubscriptionUpsert(
-  admin: ReturnType<typeof getAdmin>,
+  admin: Admin,
   sub: StripeSubscription,
   env: StripeEnv,
 ) {
@@ -126,7 +119,7 @@ async function handleSubscriptionUpsert(
 }
 
 async function handleInvoicePaymentFailed(
-  admin: ReturnType<typeof getAdmin>,
+  admin: Admin,
   invoice: StripeObj & { subscription?: string; customer?: string },
   _env: StripeEnv,
 ) {
@@ -155,7 +148,7 @@ async function handleInvoicePaymentFailed(
 }
 
 async function handleInvoicePaymentSucceeded(
-  admin: ReturnType<typeof getAdmin>,
+  admin: Admin,
   invoice: StripeObj & { subscription?: string },
 ) {
   const subId = invoice.subscription;
@@ -189,7 +182,6 @@ export const Route = createFileRoute('/api/public/payments/webhook')({
         }
 
         const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
-        _admin = supabaseAdmin;
 
         // Idempotency: reject duplicate event ids
         const { error: insertErr } = await supabaseAdmin
