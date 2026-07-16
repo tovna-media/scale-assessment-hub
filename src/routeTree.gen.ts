@@ -9,8 +9,11 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as FullyResourcedRouteImport } from './routes/fully-resourced'
 import { Route as CoachRouteImport } from './routes/_coach'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
@@ -18,18 +21,36 @@ import { Route as CoachLoginRouteImport } from './routes/coach.login'
 import { Route as CoachSettingsRouteImport } from './routes/_coach/settings'
 import { Route as CoachCoachRouteImport } from './routes/_coach/coach'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
 import { Route as AuthenticatedReportSessionIdRouteImport } from './routes/_authenticated/report.$sessionId'
+import { Route as AuthenticatedCheckoutActivatingRouteImport } from './routes/_authenticated/checkout.activating'
 import { Route as AuthenticatedAssessmentTypeRouteImport } from './routes/_authenticated/assessment.$type'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as CoachCoachAssesseeUserIdRouteImport } from './routes/_coach/coach.assessee.$userId'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FullyResourcedRoute = FullyResourcedRouteImport.update({
+  id: '/fully-resourced',
+  path: '/fully-resourced',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoachRoute = CoachRouteImport.update({
@@ -65,17 +86,34 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedReportSessionIdRoute =
   AuthenticatedReportSessionIdRouteImport.update({
     id: '/report/$sessionId',
     path: '/report/$sessionId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedCheckoutActivatingRoute =
+  AuthenticatedCheckoutActivatingRouteImport.update({
+    id: '/activating',
+    path: '/activating',
+    getParentRoute: () => AuthenticatedCheckoutRoute,
+  } as any)
 const AuthenticatedAssessmentTypeRoute =
   AuthenticatedAssessmentTypeRouteImport.update({
     id: '/assessment/$type',
     path: '/assessment/$type',
     getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const CoachCoachAssesseeUserIdRoute =
   CoachCoachAssesseeUserIdRouteImport.update({
@@ -86,95 +124,142 @@ const CoachCoachAssesseeUserIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/fully-resourced': typeof FullyResourcedRoute
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
+  '/terms': typeof TermsRoute
+  '/checkout': typeof AuthenticatedCheckoutRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/coach': typeof CoachCoachRouteWithChildren
   '/settings': typeof CoachSettingsRoute
   '/coach/login': typeof CoachLoginRoute
   '/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
+  '/checkout/activating': typeof AuthenticatedCheckoutActivatingRoute
   '/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
   '/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/fully-resourced': typeof FullyResourcedRoute
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
+  '/terms': typeof TermsRoute
+  '/checkout': typeof AuthenticatedCheckoutRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/coach': typeof CoachCoachRouteWithChildren
   '/settings': typeof CoachSettingsRoute
   '/coach/login': typeof CoachLoginRoute
   '/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
+  '/checkout/activating': typeof AuthenticatedCheckoutActivatingRoute
   '/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
   '/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_coach': typeof CoachRouteWithChildren
+  '/fully-resourced': typeof FullyResourcedRoute
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
+  '/terms': typeof TermsRoute
+  '/_authenticated/checkout': typeof AuthenticatedCheckoutRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_coach/coach': typeof CoachCoachRouteWithChildren
   '/_coach/settings': typeof CoachSettingsRoute
   '/coach/login': typeof CoachLoginRoute
   '/_authenticated/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
+  '/_authenticated/checkout/activating': typeof AuthenticatedCheckoutActivatingRoute
   '/_authenticated/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
   '/_coach/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/fully-resourced'
     | '/login'
+    | '/privacy'
     | '/signup'
+    | '/terms'
+    | '/checkout'
     | '/dashboard'
     | '/coach'
     | '/settings'
     | '/coach/login'
     | '/assessment/$type'
+    | '/checkout/activating'
     | '/report/$sessionId'
     | '/coach/assessee/$userId'
+    | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/fully-resourced'
     | '/login'
+    | '/privacy'
     | '/signup'
+    | '/terms'
+    | '/checkout'
     | '/dashboard'
     | '/coach'
     | '/settings'
     | '/coach/login'
     | '/assessment/$type'
+    | '/checkout/activating'
     | '/report/$sessionId'
     | '/coach/assessee/$userId'
+    | '/api/public/payments/webhook'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/_coach'
+    | '/fully-resourced'
     | '/login'
+    | '/privacy'
     | '/signup'
+    | '/terms'
+    | '/_authenticated/checkout'
     | '/_authenticated/dashboard'
     | '/_coach/coach'
     | '/_coach/settings'
     | '/coach/login'
     | '/_authenticated/assessment/$type'
+    | '/_authenticated/checkout/activating'
     | '/_authenticated/report/$sessionId'
     | '/_coach/coach/assessee/$userId'
+    | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   CoachRoute: typeof CoachRouteWithChildren
+  FullyResourcedRoute: typeof FullyResourcedRoute
   LoginRoute: typeof LoginRoute
+  PrivacyRoute: typeof PrivacyRoute
   SignupRoute: typeof SignupRoute
+  TermsRoute: typeof TermsRoute
   CoachLoginRoute: typeof CoachLoginRoute
+  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signup': {
       id: '/signup'
       path: '/signup'
@@ -182,11 +267,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fully-resourced': {
+      id: '/fully-resourced'
+      path: '/fully-resourced'
+      fullPath: '/fully-resourced'
+      preLoaderRoute: typeof FullyResourcedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_coach': {
@@ -238,6 +337,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/checkout': {
+      id: '/_authenticated/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof AuthenticatedCheckoutRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/report/$sessionId': {
       id: '/_authenticated/report/$sessionId'
       path: '/report/$sessionId'
@@ -245,12 +351,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReportSessionIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/checkout/activating': {
+      id: '/_authenticated/checkout/activating'
+      path: '/activating'
+      fullPath: '/checkout/activating'
+      preLoaderRoute: typeof AuthenticatedCheckoutActivatingRouteImport
+      parentRoute: typeof AuthenticatedCheckoutRoute
+    }
     '/_authenticated/assessment/$type': {
       id: '/_authenticated/assessment/$type'
       path: '/assessment/$type'
       fullPath: '/assessment/$type'
       preLoaderRoute: typeof AuthenticatedAssessmentTypeRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_coach/coach/assessee/$userId': {
       id: '/_coach/coach/assessee/$userId'
@@ -262,13 +382,28 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedCheckoutRouteChildren {
+  AuthenticatedCheckoutActivatingRoute: typeof AuthenticatedCheckoutActivatingRoute
+}
+
+const AuthenticatedCheckoutRouteChildren: AuthenticatedCheckoutRouteChildren = {
+  AuthenticatedCheckoutActivatingRoute: AuthenticatedCheckoutActivatingRoute,
+}
+
+const AuthenticatedCheckoutRouteWithChildren =
+  AuthenticatedCheckoutRoute._addFileChildren(
+    AuthenticatedCheckoutRouteChildren,
+  )
+
 interface AuthenticatedRouteChildren {
+  AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedAssessmentTypeRoute: typeof AuthenticatedAssessmentTypeRoute
   AuthenticatedReportSessionIdRoute: typeof AuthenticatedReportSessionIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedCheckoutRoute: AuthenticatedCheckoutRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedAssessmentTypeRoute: AuthenticatedAssessmentTypeRoute,
   AuthenticatedReportSessionIdRoute: AuthenticatedReportSessionIdRoute,
@@ -306,9 +441,13 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   CoachRoute: CoachRouteWithChildren,
+  FullyResourcedRoute: FullyResourcedRoute,
   LoginRoute: LoginRoute,
+  PrivacyRoute: PrivacyRoute,
   SignupRoute: SignupRoute,
+  TermsRoute: TermsRoute,
   CoachLoginRoute: CoachLoginRoute,
+  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
