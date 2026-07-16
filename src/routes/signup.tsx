@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
+import { logFunnelEvent } from "@/lib/funnel.functions";
+import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/signup")({
   head: () => ({ meta: [{ title: "Create your account — SCALE Assessment Hub" }] }),
@@ -15,6 +17,7 @@ export const Route = createFileRoute("/signup")({
 function SignupPage() {
   const navigate = useNavigate();
   const { session, role, loading } = useAuth();
+  const logEvent = useServerFn(logFunnelEvent);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
@@ -52,6 +55,8 @@ function SignupPage() {
       return;
     }
     toast.success("Account created. Welcome to SCALE.");
+    // Fire-and-forget funnel event.
+    void logEvent({ data: { event_type: "signed_up" } }).catch(() => {});
     // Session is set automatically; redirect via useEffect
   }
 
