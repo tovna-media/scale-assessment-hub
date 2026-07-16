@@ -241,6 +241,20 @@ export const generateGapReport = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
+    // Free-pass gate: only allow gap report generation if free pass unused or user is subscribed.
+    // Note: an existing gap_report on the session is allowed to re-deliver (see below).
+    let freePassAlreadyUsed = false;
+    let subscribed = false;
+    {
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("free_pass_used, subscribed")
+        .eq("id", userId)
+        .maybeSingle();
+      freePassAlreadyUsed = Boolean((prof as { free_pass_used?: boolean } | null)?.free_pass_used);
+      subscribed = Boolean((prof as { subscribed?: boolean } | null)?.subscribed);
+    }
+
     // Gate: require all three assessments
     {
       const { data: typesRows } = await supabase
@@ -284,6 +298,12 @@ export const generateGapReport = createServerFn({ method: "POST" })
         delivery = { webhookSent: false, error: message };
       }
       return { session, delivery };
+    }
+
+    // No existing report on this session — we're about to generate a NEW one.
+    // Block non-subscribers who have already used their free pass.
+    if (freePassAlreadyUsed && !subscribed) {
+      throw new Error("PAYWALL: You've used your free SCALE report. Subscribe to generate another.");
     }
 
     // Profile (for personalized greeting)
@@ -480,6 +500,27 @@ Return ONLY valid JSON matching this exact shape (no markdown, no commentary):
       .eq("user_id", userId);
 
     if (updateError) throw new Error(updateError.message);
+
+    // Flip the free-pass flag on the user's profile (service-role write to bypass RLS on UPDATE).
+    try {
+      await supabaseAdmin
+        .from("profiles")
+        .update({ free_pass_used: true })
+        .eq("id", userId);
+    } catch (e) {
+      console.error("[free-pass] flag update failed", e);
+    }
+
+    // Funnel: generated gap report
+    try {
+      await supabase.from("funnel_events").insert({
+        user_id: userId,
+        event_type: "generated_gap_report",
+        metadata: { session_id: session.id, combined_score: combinedTotal } as Record<string, unknown>,
+      } as never);
+    } catch (e) {
+      console.error("[funnel] generated_gap_report insert failed", e);
+    }
 
     let delivery:
       | Awaited<ReturnType<typeof generateGapReportPdfAndNotify>>
