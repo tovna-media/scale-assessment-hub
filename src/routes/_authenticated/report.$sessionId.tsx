@@ -15,6 +15,7 @@ import {
 } from "@/lib/assessments";
 import { generateGapReport } from "@/lib/report.functions";
 import { generatePdfReport } from "@/lib/pdf-report.functions";
+import { logFunnelEvent } from "@/lib/funnel.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, ArrowRight, Download, Loader2, Calendar, Sparkles } from "lucide-react";
 import { toast } from "sonner";
@@ -52,6 +53,7 @@ function ReportPage() {
   const { user } = useAuth();
   const generate = useServerFn(generateGapReport);
   const generatePdf = useServerFn(generatePdfReport);
+  const logEvent = useServerFn(logFunnelEvent);
   const [session, setSession] = useState<SessionFull | null>(null);
   const [takenTypes, setTakenTypes] = useState<Set<AssessmentType>>(new Set());
   const [latestResponses, setLatestResponses] = useState<LatestResponses>({});
@@ -114,6 +116,14 @@ function ReportPage() {
       cancelled = true;
     };
   }, [sessionId, user]);
+
+  // Funnel: track when the user actually views their generated gap report.
+  useEffect(() => {
+    if (!user || !session?.gap_report) return;
+    void logEvent({
+      data: { event_type: "viewed_gap_report", metadata: { session_id: session.id } },
+    }).catch(() => {});
+  }, [user, session?.id, session?.gap_report, logEvent]);
 
   // Animated progress while generating gap report
   useEffect(() => {
