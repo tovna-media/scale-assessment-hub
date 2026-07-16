@@ -53,8 +53,7 @@ function OfferPage() {
 
   function handleSubscribe() {
     if (!session) {
-      // Send them to sign-up first, then bring them back here.
-      navigate({ to: '/signup', search: { redirect: '/fully-resourced' } as never });
+      navigate({ to: '/signup' });
       return;
     }
     navigate({ to: '/checkout' });
