@@ -7,7 +7,10 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, FileText, Lock, Sparkles } from "lucide-react";
 import { format } from "date-fns";
 import { logFunnelEvent } from "@/lib/funnel.functions";
+import { createBillingPortalSession } from "@/lib/payments.functions";
+import { getStripeEnvironment, isStripeConfigured } from "@/lib/stripe";
 import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Your dashboard — SCALE" }] }),
@@ -29,6 +32,7 @@ function DashboardPage() {
   const [freePassUsed, setFreePassUsed] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
   const logEvent = useServerFn(logFunnelEvent);
+  const openPortal = useServerFn(createBillingPortalSession);
 
   useEffect(() => {
     if (!user) return;
@@ -57,6 +61,25 @@ function DashboardPage() {
 
   function handleSubscribeClick() {
     void logEvent({ data: { event_type: "clicked_subscribe" } }).catch(() => {});
+  }
+
+  async function handleManageBilling() {
+    if (!isStripeConfigured()) {
+      toast.error("Payments are not configured yet.");
+      return;
+    }
+    try {
+      const result = await openPortal({
+        data: {
+          returnUrl: `${window.location.origin}/dashboard`,
+          environment: getStripeEnvironment(),
+        },
+      });
+      if ("error" in result) throw new Error(result.error);
+      window.open(result.url, "_blank", "noopener,noreferrer");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not open billing portal.");
+    }
   }
 
   function lastFor(type: AssessmentType) {
@@ -130,10 +153,10 @@ function DashboardPage() {
                 Free pass used
               </p>
               <h2 className="mt-1 font-display text-xl font-semibold text-foreground">
-                You've used your one free SCALE report.
+                You've used your 1-free gap report
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Subscribe to retake assessments and generate new Gap Reports.
+                Get the full system for $97/month: your 90-day guided leadership plan, Coach Rich AI, a live dashboard that tracks your growth, the digital "Fully Resourced" book, and unlimited assessments and gap reports.
               </p>
             </div>
           </div>
@@ -143,9 +166,28 @@ function DashboardPage() {
             onClick={handleSubscribeClick}
             asChild
           >
-            <a href="https://richlohman.com/the-leaders-edge" target="_blank" rel="noreferrer">
-              Subscribe <ArrowRight className="ml-2 h-4 w-4" />
-            </a>
+            <Link to="/fully-resourced">
+              Get Fully Resourced <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
+      )}
+
+      {subscribed && (
+        <div className="mt-8 flex flex-col items-start justify-between gap-4 rounded-2xl border border-border bg-muted/40 p-6 sm:flex-row sm:items-center">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-widest text-[#433993]">
+              Fully Resourced Member
+            </p>
+            <h2 className="mt-1 font-display text-lg font-semibold text-foreground">
+              Manage your subscription
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Update your card, download invoices, or cancel anytime.
+            </p>
+          </div>
+          <Button variant="outline" onClick={handleManageBilling}>
+            Manage billing
           </Button>
         </div>
       )}
