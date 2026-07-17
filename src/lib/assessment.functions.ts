@@ -5,6 +5,18 @@ import { ASSESSMENTS, calculateScores, type AssessmentType } from "@/lib/assessm
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { assertSafeWebhookUrl } from "@/lib/webhook-url";
 
+async function isUserSubscribed(
+  supabase: { rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown }> },
+  userId: string,
+): Promise<boolean> {
+  try {
+    const { data } = await supabase.rpc("has_active_subscription", { _user_id: userId });
+    return Boolean(data);
+  } catch {
+    return false;
+  }
+}
+
 const InputSchema = z.object({
   assessment_type: z.enum(["inner_capacity", "personal_leadership", "business_audit"]),
   responses: z.record(z.string(), z.number().int().min(1).max(5)),
@@ -22,11 +34,14 @@ export const submitAssessment = createServerFn({ method: "POST" })
     {
       const { data: prof } = await supabase
         .from("profiles")
-        .select("free_pass_used, subscribed")
+        .select("free_pass_used")
         .eq("id", userId)
         .maybeSingle();
       const freePassUsed = Boolean((prof as { free_pass_used?: boolean } | null)?.free_pass_used);
-      const subscribed = Boolean((prof as { subscribed?: boolean } | null)?.subscribed);
+      const subscribed = await isUserSubscribed(
+        supabase as unknown as Parameters<typeof isUserSubscribed>[0],
+        userId,
+      );
       if (freePassUsed && !subscribed) {
         throw new Error("PAYWALL: You've used your free SCALE report. Subscribe to continue.");
       }
@@ -140,11 +155,14 @@ export const checkAssessmentAccess = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     const { data: prof } = await supabase
       .from("profiles")
-      .select("free_pass_used, subscribed")
+      .select("free_pass_used")
       .eq("id", userId)
       .maybeSingle();
     const freePassUsed = Boolean((prof as { free_pass_used?: boolean } | null)?.free_pass_used);
-    const subscribed = Boolean((prof as { subscribed?: boolean } | null)?.subscribed);
+    const subscribed = await isUserSubscribed(
+      supabase as unknown as Parameters<typeof isUserSubscribed>[0],
+      userId,
+    );
     const allowed = !freePassUsed || subscribed;
     return {
       allowed,
