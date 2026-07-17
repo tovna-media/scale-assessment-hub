@@ -392,8 +392,11 @@ function GapReportPanel({ md }: { md: string | null }) {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
-          <BookOpen className="h-4 w-4" /> Review GAP Report
+        <Button
+          size="sm"
+          className="gap-2 bg-gradient-to-r from-[#5b19bf] to-[#2a0a64] text-white shadow-md hover:from-[#6b23d8] hover:to-[#3a1080] hover:shadow-lg"
+        >
+          <BookOpen className="h-4 w-4" /> Access your gap report here
         </Button>
       </SheetTrigger>
       <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-lg">

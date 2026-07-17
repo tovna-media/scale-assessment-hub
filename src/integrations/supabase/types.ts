@@ -293,6 +293,33 @@ export type Database = {
         }
         Relationships: []
       }
+      leadership_dashboard_snapshots: {
+        Row: {
+          created_at: string
+          cycle_number: number
+          data: Json
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          cycle_number?: number
+          data?: Json
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          cycle_number?: number
+          data?: Json
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       optimizer_section_progress: {
         Row: {
           completed: boolean
