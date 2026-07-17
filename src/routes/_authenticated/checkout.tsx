@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from '@tanstack/react-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { EmbeddedCheckout, EmbeddedCheckoutProvider } from '@stripe/react-stripe-js';
 import { useServerFn } from '@tanstack/react-start';
@@ -23,6 +23,7 @@ function CheckoutPage() {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const stripePromise = useMemo(() => (isStripeConfigured() ? getStripe() : null), []);
   const navigate = useNavigate();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   const fetchClientSecret = useCallback(async () => {
     return clientSecret ?? '';
@@ -61,6 +62,10 @@ function CheckoutPage() {
     } finally {
       setStarting(false);
     }
+  }
+
+  if (pathname !== '/checkout') {
+    return <Outlet />;
   }
 
   if (clientSecret && stripePromise) {
