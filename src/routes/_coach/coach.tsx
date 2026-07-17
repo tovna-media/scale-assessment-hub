@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ASSESSMENTS, maxScoreFor, type AssessmentType } from "@/lib/assessments";
+import { maxScoreFor, type AssessmentType } from "@/lib/assessments";
 import { format, formatDistanceToNowStrict } from "date-fns";
 import {
   Mail,
