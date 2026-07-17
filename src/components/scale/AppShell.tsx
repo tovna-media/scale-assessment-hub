@@ -4,29 +4,39 @@ import {
   Home,
   RefreshCw,
   TrendingUp,
-  ClipboardList,
   Sparkles,
   BookOpen,
   User as UserIcon,
   LogOut,
   Menu,
   Shield,
+  CreditCard,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
+import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
+import { createBillingPortalSession } from "@/lib/payments.functions";
+import { getStripeEnvironment, isStripeConfigured } from "@/lib/stripe";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/scale/Logo";
 
-type NavItem = { to: string; label: string; icon: typeof Home; match?: string };
+type NavItem = {
+  label: string;
+  icon: typeof Home;
+  to?: string;
+  match?: string;
+  href?: string;
+  soon?: boolean;
+};
 
 const NAV: NavItem[] = [
-  { to: "/dashboard", label: "Home", icon: Home },
-  { to: "/dashboard", label: "My Cycle", icon: RefreshCw },
-  { to: "/dashboard", label: "Performance", icon: TrendingUp },
-  { to: "/dashboard", label: "Assessments & Reports", icon: ClipboardList },
-  { to: "/dashboard", label: "Coach Rich AI", icon: Sparkles },
-  { to: "/dashboard", label: "The Book", icon: BookOpen },
+  { to: "/dashboard", label: "Home", icon: Home, match: "/dashboard" },
+  { to: "/cycle", label: "My Cycle", icon: RefreshCw, match: "/cycle" },
+  { to: "/performance", label: "Performance", icon: TrendingUp, match: "/performance" },
+  { label: "Coach Rich AI", icon: Sparkles, soon: true },
+  { label: "The Book", icon: BookOpen, soon: true },
 ];
 
 function useDisplayName() {
@@ -71,11 +81,32 @@ export function AppShell({
   const [menuOpen, setMenuOpen] = useState(false);
   const name = useDisplayName();
   const initials = initialsOf(name, user?.email);
+  const openPortal = useServerFn(createBillingPortalSession);
 
   const handleSignOut = async () => {
     await signOut();
     navigate({ to: "/" });
   };
+
+  async function handleManageBilling() {
+    setMenuOpen(false);
+    if (!isStripeConfigured()) {
+      toast.error("Payments are not configured yet.");
+      return;
+    }
+    try {
+      const result = await openPortal({
+        data: {
+          returnUrl: `${window.location.origin}/dashboard`,
+          environment: getStripeEnvironment(),
+        },
+      });
+      if ("error" in result) throw new Error(result.error);
+      window.open(result.url, "_blank", "noopener,noreferrer");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not open billing portal.");
+    }
+  }
 
   const sidebarContent = (
     <div
@@ -87,22 +118,42 @@ export function AppShell({
         <span className="text-base font-semibold tracking-tight">Fully Resourced</span>
       </div>
       <nav className="mt-2 flex-1 px-3">
-        {NAV.map((item, idx) => {
-          const isActive = idx === 0 && currentPath.startsWith("/dashboard");
+        {NAV.map((item) => {
+          const isActive = Boolean(item.match && currentPath.startsWith(item.match));
           const Icon = item.icon;
+          const commonCls = cn(
+            "mb-1 flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition",
+            isActive
+              ? "bg-[var(--rl-purple)] text-white shadow-[0_8px_24px_rgba(91,25,191,0.45)]"
+              : "text-white/75 hover:bg-white/5 hover:text-white",
+          );
+          if (item.soon) {
+            return (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => {
+                  setMobileOpen(false);
+                  toast(`${item.label} — coming soon`);
+                }}
+                className={cn(commonCls, "w-full text-left opacity-80")}
+              >
+                <Icon style={{ width: 18, height: 18 }} />
+                <span className="flex-1">{item.label}</span>
+                <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/70">
+                  Soon
+                </span>
+              </button>
+            );
+          }
           return (
             <Link
               key={item.label}
-              to={item.to}
+              to={item.to!}
               onClick={() => setMobileOpen(false)}
-              className={cn(
-                "mb-1 flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition",
-                isActive
-                  ? "bg-[var(--rl-purple)] text-white shadow-[0_8px_24px_rgba(91,25,191,0.45)]"
-                  : "text-white/75 hover:bg-white/5 hover:text-white",
-              )}
+              className={commonCls}
             >
-              <Icon className="h-4.5 w-4.5" style={{ width: 18, height: 18 }} />
+              <Icon style={{ width: 18, height: 18 }} />
               {item.label}
             </Link>
           );
@@ -118,14 +169,6 @@ export function AppShell({
             Coach dashboard
           </Link>
         )}
-        <button
-          type="button"
-          onClick={() => navigate({ to: "/dashboard" })}
-          className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-white/75 transition hover:bg-white/5 hover:text-white"
-        >
-          <UserIcon style={{ width: 18, height: 18 }} />
-          Account
-        </button>
       </div>
     </div>
   );
@@ -175,6 +218,23 @@ export function AppShell({
               {menuOpen && (
                 <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl border border-[var(--fr-hairline)] bg-white p-2 shadow-[var(--shadow-card)]">
                   <div className="px-3 py-2 text-xs text-[var(--fr-muted-ink)]">{user?.email}</div>
+                  <Link
+                    to="/profile"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--fr-ink)] hover:bg-[var(--fr-surface)]"
+                  >
+                    <UserIcon className="h-4 w-4" />
+                    Edit profile
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={handleManageBilling}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--fr-ink)] hover:bg-[var(--fr-surface)]"
+                  >
+                    <CreditCard className="h-4 w-4" />
+                    Manage billing
+                  </button>
+                  <div className="my-1 border-t border-[var(--fr-hairline)]" />
                   <button
                     type="button"
                     onClick={handleSignOut}
