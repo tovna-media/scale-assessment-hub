@@ -313,17 +313,12 @@ export const generateGapReport = createServerFn({ method: "POST" })
       subscribed = Boolean((prof as { subscribed?: boolean } | null)?.subscribed);
     }
 
-    // Gate: require all three assessments
-    {
-      const { data: typesRows } = await supabase
-        .from("assessment_sessions")
-        .select("assessment_type")
-        .eq("user_id", userId);
-      const distinct = new Set((typesRows ?? []).map((r) => r.assessment_type));
-      if (distinct.size < 3) {
-        throw new Error("Complete all three assessments to generate your Gap Report.");
-      }
-    }
+    // Compute round-based eligibility. Report N+1 requires each of the 3
+    // assessments to have been taken at least N+1 times.
+    const eligibility = await computeEligibility(
+      supabase as unknown as Parameters<typeof computeEligibility>[0],
+      userId,
+    );
 
     // Load triggering session (with retry — may have just been written)
     let session: SessionRow | null = null;
