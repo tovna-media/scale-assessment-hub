@@ -139,7 +139,7 @@ function SectionTwelvePage() {
       setLoading(false);
       try {
         const e = await checkEligibility({});
-        setNewReportReady(Boolean(e?.eligible));
+        setNewReportReady(Boolean(e?.allowed));
       } catch { /* ignore */ }
     })();
   }, [user, checkEligibility]);
