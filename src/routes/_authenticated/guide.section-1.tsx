@@ -117,7 +117,7 @@ function SectionOnePage() {
       options.sort((a, b) => a.score - b.score);
       setGapOptions(options);
       setAssessmentsDone(done);
-      setHasGapReport(Boolean(report));
+      void report;
 
       if (row) {
         setRowId(row.id);
