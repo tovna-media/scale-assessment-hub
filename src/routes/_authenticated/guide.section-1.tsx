@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, ArrowRight, ExternalLink, Check } from "lucide-react";
 import { ASSESSMENT_LIST, type AssessmentType } from "@/lib/assessments";
 import { toast } from "sonner";
+import { verifyDiscCode } from "@/lib/disc-verify.functions";
 
 export const Route = createFileRoute("/_authenticated/guide/section-1")({
   head: () => ({
@@ -31,8 +32,8 @@ const REFLECTIONS = [
 
 interface SectionData {
   disc_completed?: boolean;
-  gap_report_reviewed?: boolean;
   reflections?: string[];
+  disc_key_code?: string;
 }
 
 interface GapOption {
@@ -48,7 +49,10 @@ function SectionOnePage() {
   const [loading, setLoading] = useState(true);
   const [rowId, setRowId] = useState<string | null>(null);
   const [discCompleted, setDiscCompleted] = useState(false);
-  const [gapReviewed, setGapReviewed] = useState(false);
+  const [discCode, setDiscCode] = useState("");
+  const [discCodeInput, setDiscCodeInput] = useState("");
+  const [discError, setDiscError] = useState<string | null>(null);
+  const [discVerifying, setDiscVerifying] = useState(false);
   const [priorityGap, setPriorityGap] = useState<string>("");
   const [priorityGapScore, setPriorityGapScore] = useState<number | null>(null);
   const [reflections, setReflections] = useState<string[]>(["", "", "", "", ""]);
@@ -58,7 +62,6 @@ function SectionOnePage() {
     personal_leadership: false,
     business_audit: false,
   });
-  const [hasGapReport, setHasGapReport] = useState(false);
 
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const initialLoaded = useRef(false);
@@ -114,13 +117,13 @@ function SectionOnePage() {
       options.sort((a, b) => a.score - b.score);
       setGapOptions(options);
       setAssessmentsDone(done);
-      setHasGapReport(Boolean(report));
+      void report;
 
       if (row) {
         setRowId(row.id);
         const d = (row.data ?? {}) as SectionData;
         setDiscCompleted(Boolean(d.disc_completed));
-        setGapReviewed(Boolean(d.gap_report_reviewed));
+        setDiscCode(d.disc_key_code ?? "");
         setPriorityGap(row.priority_gap ?? "");
         setPriorityGapScore(row.priority_gap_score ?? null);
         const r = Array.isArray(d.reflections) ? d.reflections : [];
@@ -134,7 +137,7 @@ function SectionOnePage() {
   const assessmentsAllDone =
     assessmentsDone.inner_capacity && assessmentsDone.personal_leadership && assessmentsDone.business_audit;
 
-  const checklistComplete = assessmentsAllDone && discCompleted && gapReviewed;
+  const checklistComplete = assessmentsAllDone && discCompleted;
   const priorityGapSet = priorityGap.trim().length > 0;
   const reflectionsDone = reflections.every((r) => r.trim().length > 0);
   const sectionComplete = checklistComplete && priorityGapSet && reflectionsDone;
@@ -149,7 +152,7 @@ function SectionOnePage() {
         section_number: 1,
         data: {
           disc_completed: discCompleted,
-          gap_report_reviewed: gapReviewed,
+          disc_key_code: discCode || undefined,
           reflections,
         } as never,
         priority_gap: priorityGap || null,
@@ -173,7 +176,7 @@ function SectionOnePage() {
   }, [
     user,
     discCompleted,
-    gapReviewed,
+    discCode,
     reflections,
     priorityGap,
     priorityGapScore,
@@ -183,6 +186,30 @@ function SectionOnePage() {
   function selectGap(opt: GapOption) {
     setPriorityGap(opt.label);
     setPriorityGapScore(opt.score);
+  }
+
+  async function submitDiscCode() {
+    const code = discCodeInput.trim();
+    if (!code) return;
+    setDiscVerifying(true);
+    setDiscError(null);
+    try {
+      const res = await verifyDiscCode({ data: { code } });
+      if (res.valid) {
+        setDiscCompleted(true);
+        setDiscCode(code);
+        setDiscCodeInput("");
+        setDiscError(null);
+        toast.success("DISC code verified.");
+      } else {
+        setDiscError("That code is invalid");
+      }
+    } catch (e) {
+      console.error(e);
+      setDiscError("That code is invalid");
+    } finally {
+      setDiscVerifying(false);
+    }
   }
 
   function updateReflection(i: number, value: string) {
@@ -230,16 +257,16 @@ function SectionOnePage() {
           assessmentsDone={assessmentsDone}
           assessmentsAllDone={assessmentsAllDone}
           discCompleted={discCompleted}
-          setDiscCompleted={setDiscCompleted}
-          gapReviewed={gapReviewed}
-          setGapReviewed={setGapReviewed}
-          hasGapReport={hasGapReport}
+          discCode={discCode}
+          discCodeInput={discCodeInput}
+          setDiscCodeInput={setDiscCodeInput}
+          discError={discError}
+          discVerifying={discVerifying}
+          onSubmitDiscCode={submitDiscCode}
           gapOptions={gapOptions}
           priorityGap={priorityGap}
           priorityGapScore={priorityGapScore}
           onSelectGap={selectGap}
-          onSetCustomGap={setPriorityGap}
-          onSetCustomScore={setPriorityGapScore}
           canContinue={checklistComplete && priorityGapSet}
           onContinue={() => setPart(2)}
         />
@@ -267,16 +294,16 @@ function PartOne(props: {
   assessmentsDone: Record<AssessmentType, boolean>;
   assessmentsAllDone: boolean;
   discCompleted: boolean;
-  setDiscCompleted: (v: boolean) => void;
-  gapReviewed: boolean;
-  setGapReviewed: (v: boolean) => void;
-  hasGapReport: boolean;
+  discCode: string;
+  discCodeInput: string;
+  setDiscCodeInput: (v: string) => void;
+  discError: string | null;
+  discVerifying: boolean;
+  onSubmitDiscCode: () => void;
   gapOptions: GapOption[];
   priorityGap: string;
   priorityGapScore: number | null;
   onSelectGap: (o: GapOption) => void;
-  onSetCustomGap: (v: string) => void;
-  onSetCustomScore: (v: number | null) => void;
   canContinue: boolean;
   onContinue: () => void;
 }) {
@@ -284,24 +311,19 @@ function PartOne(props: {
     assessmentsDone,
     assessmentsAllDone,
     discCompleted,
-    setDiscCompleted,
-    gapReviewed,
-    setGapReviewed,
-    hasGapReport,
+    discCode,
+    discCodeInput,
+    setDiscCodeInput,
+    discError,
+    discVerifying,
+    onSubmitDiscCode,
     gapOptions,
     priorityGap,
     priorityGapScore,
     onSelectGap,
-    onSetCustomGap,
-    onSetCustomScore,
     canContinue,
     onContinue,
   } = props;
-
-  const isCustom = useMemo(
-    () => priorityGap && !gapOptions.some((o) => o.label === priorityGap),
-    [priorityGap, gapOptions],
-  );
 
   return (
     <div className="space-y-8">
@@ -342,34 +364,57 @@ function PartOne(props: {
           />
           <ChecklistRow
             checked={discCompleted}
-            onCheckedChange={setDiscCompleted}
+            disabled
             label="Complete your DISC Assessment"
             sub={
-              !discCompleted ? (
-                <div className="mt-2">
-                  <Button asChild size="sm" variant="outline">
-                    <a href={DISC_URL} target="_blank" rel="noopener noreferrer">
-                      Get your DISC assessment
-                      <ExternalLink className="ml-2 h-3.5 w-3.5" />
-                    </a>
-                  </Button>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Check this box once your DISC is complete.
-                  </p>
-                </div>
-              ) : null
-            }
-          />
-          <ChecklistRow
-            checked={gapReviewed}
-            onCheckedChange={setGapReviewed}
-            label="Review your GAP Report and identify your highest-priority leadership opportunities"
-            sub={
-              !hasGapReport ? (
-                <p className="mt-1 text-xs text-amber-700">
-                  Generate your GAP Report from the dashboard first.
+              discCompleted ? (
+                <p className="mt-1 text-xs text-emerald-700">
+                  Verified{discCode ? ` · code ${discCode}` : ""}
                 </p>
-              ) : null
+              ) : (
+                <div className="mt-2 space-y-2">
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <input
+                      type="text"
+                      value={discCodeInput}
+                      onChange={(e) => setDiscCodeInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          onSubmitDiscCode();
+                        }
+                      }}
+                      placeholder="Enter DISC key code"
+                      className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:border-[#433993] focus:outline-none"
+                      autoComplete="off"
+                      spellCheck={false}
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={onSubmitDiscCode}
+                      disabled={discVerifying || !discCodeInput.trim()}
+                      className="bg-[#433993] text-white hover:bg-[#433993]/90"
+                    >
+                      {discVerifying ? "Verifying…" : "Verify"}
+                    </Button>
+                  </div>
+                  {discError ? (
+                    <p className="text-xs font-medium text-red-600">{discError}</p>
+                  ) : null}
+                  <div>
+                    <Button asChild size="sm" variant="outline">
+                      <a href={DISC_URL} target="_blank" rel="noopener noreferrer">
+                        Get your DISC assessment
+                        <ExternalLink className="ml-2 h-3.5 w-3.5" />
+                      </a>
+                    </Button>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Already have a code? Enter it above to verify.
+                    </p>
+                  </div>
+                </div>
+              )
             }
           />
         </ul>
@@ -380,30 +425,33 @@ function PartOne(props: {
           Set your Priority Gap
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          The single highest-priority gap from your GAP Report — the one you'll focus on this cycle.
-          Suggestions below are sorted lowest score first.
+          The single highest-priority gap from your GAP Report — the one you'll focus on this cycle. Tap a chip to select.
         </p>
 
         {gapOptions.length > 0 ? (
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap gap-2.5">
             {gapOptions.map((opt) => {
               const selected = priorityGap === opt.label;
               return (
                 <button
                   key={`${opt.source}-${opt.label}`}
                   type="button"
-                  onClick={() => props.onSelectGap(opt)}
-                  className={`rounded-full border px-3 py-1.5 text-sm transition ${
+                  onClick={() => onSelectGap(opt)}
+                  aria-pressed={selected}
+                  className={`group inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium tracking-tight transition-all active:scale-[0.97] ${
                     selected
-                      ? "border-[#433993] bg-[#433993] text-white"
-                      : "border-border bg-background text-foreground hover:border-[#433993]/50"
+                      ? "bg-[#433993] text-white shadow-[0_6px_20px_-8px_rgba(67,57,147,0.6)] ring-2 ring-[#433993]/40"
+                      : "bg-secondary/60 text-foreground ring-1 ring-inset ring-border hover:bg-secondary hover:ring-[#433993]/40"
                   }`}
                 >
-                  {opt.label}
+                  {selected ? <Check className="h-3.5 w-3.5" /> : null}
+                  <span>{opt.label}</span>
                   <span
-                    className={`ml-2 text-xs ${selected ? "text-white/80" : "text-muted-foreground"}`}
+                    className={`rounded-full px-2 py-0.5 text-[11px] font-mono tabular-nums ${
+                      selected ? "bg-white/15 text-white" : "bg-background text-muted-foreground"
+                    }`}
                   >
-                    {opt.score} · {opt.source}
+                    {opt.score}
                   </span>
                 </button>
               );
@@ -411,40 +459,32 @@ function PartOne(props: {
           </div>
         ) : (
           <p className="mt-3 text-sm text-muted-foreground">
-            No assessment data yet — enter your priority gap manually.
+            No assessment data yet — complete your assessments to see suggestions.
           </p>
         )}
 
-        <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_140px]">
+        <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_140px]">
           <div>
-            <Label htmlFor="custom-gap" className="text-xs uppercase tracking-widest text-muted-foreground">
-              {isCustom || gapOptions.length === 0 ? "Custom priority gap" : "Selected priority gap"}
+            <Label className="text-xs uppercase tracking-widest text-muted-foreground">
+              Selected priority gap
             </Label>
-            <input
-              id="custom-gap"
-              type="text"
-              value={priorityGap}
-              onChange={(e) => onSetCustomGap(e.target.value)}
-              placeholder="e.g. Delegation"
-              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:border-[#433993] focus:outline-none"
-            />
+            <div
+              aria-readonly
+              className="mt-1 min-h-[40px] w-full rounded-md border border-dashed border-border bg-muted/40 px-3 py-2 text-sm text-foreground"
+            >
+              {priorityGap || <span className="text-muted-foreground">Tap a chip above</span>}
+            </div>
           </div>
           <div>
-            <Label htmlFor="custom-score" className="text-xs uppercase tracking-widest text-muted-foreground">
+            <Label className="text-xs uppercase tracking-widest text-muted-foreground">
               Baseline score
             </Label>
-            <input
-              id="custom-score"
-              type="number"
-              inputMode="numeric"
-              value={priorityGapScore ?? ""}
-              onChange={(e) => {
-                const v = e.target.value;
-                onSetCustomScore(v === "" ? null : Number(v));
-              }}
-              placeholder="—"
-              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:border-[#433993] focus:outline-none"
-            />
+            <div
+              aria-readonly
+              className="mt-1 min-h-[40px] w-full rounded-md border border-dashed border-border bg-muted/40 px-3 py-2 text-sm font-mono tabular-nums text-foreground"
+            >
+              {priorityGapScore ?? <span className="text-muted-foreground">—</span>}
+            </div>
           </div>
         </div>
       </section>
