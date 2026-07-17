@@ -19,7 +19,7 @@ const SECTIONS: { number: number; title: string; blurb: string; path?: string }[
   { number: 4, title: "Lead Others", blurb: "Map who you lead, listen deeply, communicate to be heard, and build a plan to grow them.", path: "/guide/section-4" },
   { number: 5, title: "Growing People Intentionally", blurb: "Spot team-wide patterns, build development rhythms, and set your people-growth strategy.", path: "/guide/section-5" },
   { number: 6, title: "Leadership Review & Recalibration", blurb: "Review your growth, seal the leaks, and recalibrate for the next cycle.", path: "/guide/section-6" },
-  { number: 7, title: "Strengthen Emotional Resilience", blurb: "Regulate reactivity and lead from a grounded state." },
+  { number: 7, title: "Lead for Results", blurb: "Sharpen your Success Image, lock in Success Markers, and close the gap.", path: "/guide/section-7" },
   { number: 8, title: "Lead Through Communication", blurb: "Communicate so your team executes without guessing." },
   { number: 9, title: "Cultivate High-Performance Habits", blurb: "Install the daily rhythms that compound." },
   { number: 10, title: "Align Your Team", blurb: "Get everyone rowing toward the same result." },
