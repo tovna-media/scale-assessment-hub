@@ -352,18 +352,21 @@ type UpdateFn = <K extends keyof SectionData>(k: K, v: SectionData[K]) => void;
 function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="People you lead">
-        <NumberedList label="Direct Reports" items={d.direct_reports} onChange={(v) => update("direct_reports", v)} placeholder="Name" />
-        <NumberedList label="Key Business Relationships" items={d.key_relationships} onChange={(v) => update("key_relationships", v)} placeholder="Name" />
-        <NumberedList label="Personal Leadership (family, close relationships)" items={d.personal_leadership} onChange={(v) => update("personal_leadership", v)} placeholder="Name" />
+      <SectionBlock label="Evaluate — Who are you leading?">
+        <LabeledTextarea label="Direct Reports" value={d.direct_reports} onChange={(v) => update("direct_reports", v)} placeholder="List their names" />
+        <LabeledTextarea label="Key Business Relationships" value={d.key_relationships} onChange={(v) => update("key_relationships", v)} placeholder="List their names" />
+        <LabeledTextarea label="Personal Leadership (family, close relationships)" value={d.personal_leadership} onChange={(v) => update("personal_leadership", v)} placeholder="List their names" />
       </SectionBlock>
 
-      <SectionBlock label="Choose three">
-        <NumberedList label="The 3 people who most need your leadership right now" items={d.chosen_three} onChange={(v) => update("chosen_three", v)} placeholder="Name" />
+      <SectionBlock label="Identify — The three who most need your leadership right now">
+        <LabeledTextarea label="Who are the 3 people who most need your leadership right now?" value={d.chosen_three} onChange={(v) => update("chosen_three", v)} placeholder="List their names" />
+      </SectionBlock>
+
+      <SectionBlock label="Understand — Why these three?">
         <LabeledTextarea label="Why these three?" value={d.choose_why} onChange={(v) => update("choose_why", v)} />
       </SectionBlock>
 
-      <SectionBlock label="Person → Desired Growth">
+      <SectionBlock label="Build a Plan — Person → Desired Growth">
         <div className="space-y-3">
           {d.growth_rows.map((r, i) => (
             <div key={i} className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -378,9 +381,12 @@ function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
         </div>
       </SectionBlock>
 
-      <SectionBlock label="Execute">
+      <SectionBlock label="Execute — Schedule the time">
         <LabeledInput label="Time you'll schedule for these three this week" value={d.schedule_time} onChange={(v) => update("schedule_time", v)} placeholder="e.g. Tues 3–4pm, Thurs 8–9am" />
-        <LabeledTextarea label="How you'll know it's working" value={d.working_signal} onChange={(v) => update("working_signal", v)} />
+      </SectionBlock>
+
+      <SectionBlock label="Measure — How you'll know it's working">
+        <LabeledTextarea label="How will you know it's working?" value={d.working_signal} onChange={(v) => update("working_signal", v)} />
       </SectionBlock>
     </div>
   );
@@ -389,27 +395,21 @@ function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Choose one person to focus on">
+      <SectionBlock label="Evaluate — Choose one person to focus on">
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
           <LabeledInput label="Name" value={d.focus_person_name} onChange={(v) => update("focus_person_name", v)} />
           <LabeledInput label="Role" value={d.focus_person_role} onChange={(v) => update("focus_person_role", v)} />
           <LabeledInput label="Relationship" value={d.focus_person_relationship} onChange={(v) => update("focus_person_relationship", v)} />
         </div>
-      </SectionBlock>
-
-      <SectionBlock label="See their world">
         <LabeledTextarea label="Their Success Image — what winning looks like for them" value={d.focus_success_image} onChange={(v) => update("focus_success_image", v)} />
         <LabeledTextarea label="Their Success Drivers — what motivates and moves them" value={d.focus_success_drivers} onChange={(v) => update("focus_success_drivers", v)} />
-      </SectionBlock>
-
-      <SectionBlock label="Their FUEL">
         <LabeledTextarea label="F — Firm Up Character: how do they show discipline, honesty, courage?" value={d.focus_fuel_firm} onChange={(v) => update("focus_fuel_firm", v)} />
         <LabeledTextarea label="U — Understand Emotions: how do they handle pressure and reactivity?" value={d.focus_fuel_understand} onChange={(v) => update("focus_fuel_understand", v)} />
         <LabeledTextarea label="E — Envision Success: how clear is their picture of what they're building?" value={d.focus_fuel_envision} onChange={(v) => update("focus_fuel_envision", v)} />
         <LabeledTextarea label="L — Lead Themselves Daily: how consistent are their daily leadership rhythms?" value={d.focus_fuel_lead} onChange={(v) => update("focus_fuel_lead", v)} />
       </SectionBlock>
 
-      <SectionBlock label="What they need most from you">
+      <SectionBlock label="Identify — What they need most from you">
         <Chips
           label="Select all that apply"
           options={NEED_OPTIONS}
@@ -418,17 +418,26 @@ function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
           other={d.focus_needs_other}
           onOtherChange={(v) => update("focus_needs_other", v)}
         />
-        <LabeledTextarea label="Why?" value={d.focus_needs_why} onChange={(v) => update("focus_needs_why", v)} />
+      </SectionBlock>
+
+      <SectionBlock label="Understand — Why?">
+        <LabeledTextarea label="Why do they need this most?" value={d.focus_needs_why} onChange={(v) => update("focus_needs_why", v)} />
         <LabeledTextarea label="Evidence — what have you seen?" value={d.focus_needs_evidence} onChange={(v) => update("focus_needs_evidence", v)} />
       </SectionBlock>
 
-      <SectionBlock label="Meet them where they are">
-        <LabeledTextarea label="How you'll meet them" value={d.focus_meet_how} onChange={(v) => update("focus_meet_how", v)} />
+      <SectionBlock label="Build a Plan — Meet them where they are">
+        <LabeledTextarea label="How will you meet them where they are?" value={d.focus_meet_how} onChange={(v) => update("focus_meet_how", v)} />
+      </SectionBlock>
+
+      <SectionBlock label="Execute — One conversation to schedule">
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <LabeledInput label="One conversation to schedule" value={d.focus_conversation} onChange={(v) => update("focus_conversation", v)} placeholder="Topic / setting" />
           <LabeledInput label="Date" type="date" value={d.focus_conversation_date} onChange={(v) => update("focus_conversation_date", v)} />
         </div>
-        <LabeledTextarea label="Expected change" value={d.focus_expected_change} onChange={(v) => update("focus_expected_change", v)} />
+      </SectionBlock>
+
+      <SectionBlock label="Measure — Expected change">
+        <LabeledTextarea label="What change do you expect to see?" value={d.focus_expected_change} onChange={(v) => update("focus_expected_change", v)} />
       </SectionBlock>
     </div>
   );
@@ -437,7 +446,7 @@ function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Their DISC style">
+      <SectionBlock label="Evaluate — Their DISC style">
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {DISC_STYLES.map((s) => {
             const active = d.focus_disc === s;
@@ -455,18 +464,27 @@ function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
         </div>
       </SectionBlock>
 
-      <SectionBlock label="How they communicate">
+      <SectionBlock label="Identify — How they communicate">
         <LabeledTextarea label="How they communicate best" value={d.comm_best} onChange={(v) => update("comm_best", v)} />
         <LabeledTextarea label="How they best receive feedback" value={d.comm_feedback} onChange={(v) => update("comm_feedback", v)} />
+      </SectionBlock>
+
+      <SectionBlock label="Understand — How they respond">
         <LabeledTextarea label="How they respond under pressure" value={d.comm_pressure} onChange={(v) => update("comm_pressure", v)} />
         <LabeledTextarea label="How they show up when engaged" value={d.comm_engaged} onChange={(v) => update("comm_engaged", v)} />
         <LabeledTextarea label="How they behave when they withdraw" value={d.comm_withdraw} onChange={(v) => update("comm_withdraw", v)} />
       </SectionBlock>
 
-      <SectionBlock label="Adjust your communication">
+      <SectionBlock label="Build a Plan — Adjust your communication">
         <NumberedList label="3 communication adjustments you will make" items={d.comm_adjustments} onChange={(v) => update("comm_adjustments", v)} />
+      </SectionBlock>
+
+      <SectionBlock label="Execute — The one you'll practice first">
         <LabeledInput label="The one you'll practice first" value={d.comm_practice} onChange={(v) => update("comm_practice", v)} />
-        <LabeledTextarea label="How you'll know it worked" value={d.comm_signal} onChange={(v) => update("comm_signal", v)} />
+      </SectionBlock>
+
+      <SectionBlock label="Measure — How you'll know it worked">
+        <LabeledTextarea label="How will you know it worked?" value={d.comm_signal} onChange={(v) => update("comm_signal", v)} />
       </SectionBlock>
     </div>
   );
@@ -475,7 +493,7 @@ function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Clarity check" hint="Answer Yes or No for the person you're focused on.">
+      <SectionBlock label="Evaluate — Clarity check" hint="Answer Yes or No for the person you're focused on.">
         <div className="space-y-2">
           {CLARITY_CHECKS.map((q, i) => (
             <div key={i} className="flex items-start justify-between gap-3 rounded-lg border border-border bg-background/60 p-3">
@@ -504,15 +522,24 @@ function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
         </div>
       </SectionBlock>
 
-      <SectionBlock label="Where clarity is weakest">
+      <SectionBlock label="Identify — Where clarity is weakest">
         <LabeledTextarea label="Where is clarity weakest?" value={d.clarity_weakest} onChange={(v) => update("clarity_weakest", v)} />
-        <LabeledTextarea label="The effect that lack of clarity is having" value={d.clarity_effect} onChange={(v) => update("clarity_effect", v)} />
       </SectionBlock>
 
-      <SectionBlock label="Make it clear">
+      <SectionBlock label="Understand — The effect of missing clarity">
+        <LabeledTextarea label="What effect is that lack of clarity having?" value={d.clarity_effect} onChange={(v) => update("clarity_effect", v)} />
+      </SectionBlock>
+
+      <SectionBlock label="Build a Plan — Make it clear">
         <NumberedList label="5 expectations to make clear" items={d.clarity_expectations} onChange={(v) => update("clarity_expectations", v)} />
-        <LabeledInput label="When you'll have the clarity conversation" type="date" value={d.clarity_when} onChange={(v) => update("clarity_when", v)} />
-        <LabeledTextarea label="How you'll know clarity improved" value={d.clarity_signal} onChange={(v) => update("clarity_signal", v)} />
+      </SectionBlock>
+
+      <SectionBlock label="Execute — When you'll have the clarity conversation">
+        <LabeledInput label="When will you have the clarity conversation?" type="date" value={d.clarity_when} onChange={(v) => update("clarity_when", v)} />
+      </SectionBlock>
+
+      <SectionBlock label="Measure — How you'll know clarity improved">
+        <LabeledTextarea label="How will you know clarity improved?" value={d.clarity_signal} onChange={(v) => update("clarity_signal", v)} />
       </SectionBlock>
     </div>
   );
@@ -521,13 +548,28 @@ function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part5({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Development focus">
+      <SectionBlock label="Evaluate — Which skill will you help them develop?">
         <LabeledInput label="Which skill will you help them develop?" value={d.dev_skill} onChange={(v) => update("dev_skill", v)} />
+      </SectionBlock>
+
+      <SectionBlock label="Identify — 3 benefits this will create for them">
         <NumberedList label="3 benefits this will create for them" items={d.dev_benefits} onChange={(v) => update("dev_benefits", v)} />
+      </SectionBlock>
+
+      <SectionBlock label="Understand — 5 characteristics of people strong in this skill">
         <NumberedList label="5 characteristics of people strong in this skill" items={d.dev_characteristics} onChange={(v) => update("dev_characteristics", v)} />
+      </SectionBlock>
+
+      <SectionBlock label="Build a Plan — 5 growth experiences to build the skill">
         <NumberedList label="5 growth experiences to build the skill" items={d.dev_experiences} onChange={(v) => update("dev_experiences", v)} />
-        <LabeledInput label="What begins first" value={d.dev_first} onChange={(v) => update("dev_first", v)} />
-        <LabeledTextarea label="How you'll know they're growing" value={d.dev_signal} onChange={(v) => update("dev_signal", v)} />
+      </SectionBlock>
+
+      <SectionBlock label="Execute — What begins first">
+        <LabeledInput label="What begins first?" value={d.dev_first} onChange={(v) => update("dev_first", v)} />
+      </SectionBlock>
+
+      <SectionBlock label="Measure — How you'll know they're growing">
+        <LabeledTextarea label="How will you know they're growing?" value={d.dev_signal} onChange={(v) => update("dev_signal", v)} />
       </SectionBlock>
     </div>
   );
@@ -536,13 +578,28 @@ function Part5({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part6({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Continue to lead yourself">
+      <SectionBlock label="Evaluate — Which of your own areas is hardest to maintain right now?">
         <LabeledTextarea label="Which of your own areas is hardest to maintain right now?" value={d.self_hardest} onChange={(v) => update("self_hardest", v)} />
+      </SectionBlock>
+
+      <SectionBlock label="Identify — What's pulling you away from it?">
         <LabeledTextarea label="What's pulling you away from it?" value={d.self_pulling} onChange={(v) => update("self_pulling", v)} />
-        <LabeledTextarea label="The impact this is having" value={d.self_impact} onChange={(v) => update("self_impact", v)} />
-        <LabeledTextarea label="What you're recommitting to" value={d.self_recommit} onChange={(v) => update("self_recommit", v)} />
+      </SectionBlock>
+
+      <SectionBlock label="Understand — The impact this is having">
+        <LabeledTextarea label="What impact is this having?" value={d.self_impact} onChange={(v) => update("self_impact", v)} />
+      </SectionBlock>
+
+      <SectionBlock label="Build a Plan — What you're recommitting to">
+        <LabeledTextarea label="What are you recommitting to?" value={d.self_recommit} onChange={(v) => update("self_recommit", v)} />
+      </SectionBlock>
+
+      <SectionBlock label="Execute — One action you'll take this week">
         <LabeledInput label="One action you'll take this week" value={d.self_action_week} onChange={(v) => update("self_action_week", v)} />
-        <LabeledTextarea label="How you'll protect your capacity" value={d.self_protect} onChange={(v) => update("self_protect", v)} />
+      </SectionBlock>
+
+      <SectionBlock label="Measure — How you'll protect your capacity">
+        <LabeledTextarea label="How will you protect your capacity?" value={d.self_protect} onChange={(v) => update("self_protect", v)} />
       </SectionBlock>
     </div>
   );
