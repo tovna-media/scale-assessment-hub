@@ -22,6 +22,7 @@ import { Route as CoachSettingsRouteImport } from './routes/_coach/settings'
 import { Route as CoachCoachRouteImport } from './routes/_coach/coach'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
+import { Route as AuthenticatedCheckoutIndexRouteImport } from './routes/_authenticated/checkout.index'
 import { Route as AuthenticatedReportSessionIdRouteImport } from './routes/_authenticated/report.$sessionId'
 import { Route as AuthenticatedCheckoutActivatingRouteImport } from './routes/_authenticated/checkout.activating'
 import { Route as AuthenticatedAssessmentTypeRouteImport } from './routes/_authenticated/assessment.$type'
@@ -91,6 +92,12 @@ const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
   path: '/checkout',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedCheckoutIndexRoute =
+  AuthenticatedCheckoutIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedCheckoutRoute,
+  } as any)
 const AuthenticatedReportSessionIdRoute =
   AuthenticatedReportSessionIdRouteImport.update({
     id: '/report/$sessionId',
@@ -137,6 +144,7 @@ export interface FileRoutesByFullPath {
   '/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/checkout/activating': typeof AuthenticatedCheckoutActivatingRoute
   '/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
+  '/checkout/': typeof AuthenticatedCheckoutIndexRoute
   '/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -147,7 +155,6 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
-  '/checkout': typeof AuthenticatedCheckoutRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/coach': typeof CoachCoachRouteWithChildren
   '/settings': typeof CoachSettingsRoute
@@ -155,6 +162,7 @@ export interface FileRoutesByTo {
   '/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/checkout/activating': typeof AuthenticatedCheckoutActivatingRoute
   '/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
+  '/checkout': typeof AuthenticatedCheckoutIndexRoute
   '/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -176,6 +184,7 @@ export interface FileRoutesById {
   '/_authenticated/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/_authenticated/checkout/activating': typeof AuthenticatedCheckoutActivatingRoute
   '/_authenticated/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
+  '/_authenticated/checkout/': typeof AuthenticatedCheckoutIndexRoute
   '/_coach/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -196,6 +205,7 @@ export interface FileRouteTypes {
     | '/assessment/$type'
     | '/checkout/activating'
     | '/report/$sessionId'
+    | '/checkout/'
     | '/coach/assessee/$userId'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -206,7 +216,6 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/signup'
     | '/terms'
-    | '/checkout'
     | '/dashboard'
     | '/coach'
     | '/settings'
@@ -214,6 +223,7 @@ export interface FileRouteTypes {
     | '/assessment/$type'
     | '/checkout/activating'
     | '/report/$sessionId'
+    | '/checkout'
     | '/coach/assessee/$userId'
     | '/api/public/payments/webhook'
   id:
@@ -234,6 +244,7 @@ export interface FileRouteTypes {
     | '/_authenticated/assessment/$type'
     | '/_authenticated/checkout/activating'
     | '/_authenticated/report/$sessionId'
+    | '/_authenticated/checkout/'
     | '/_coach/coach/assessee/$userId'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
@@ -344,6 +355,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCheckoutRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/checkout/': {
+      id: '/_authenticated/checkout/'
+      path: '/'
+      fullPath: '/checkout/'
+      preLoaderRoute: typeof AuthenticatedCheckoutIndexRouteImport
+      parentRoute: typeof AuthenticatedCheckoutRoute
+    }
     '/_authenticated/report/$sessionId': {
       id: '/_authenticated/report/$sessionId'
       path: '/report/$sessionId'
@@ -384,10 +402,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedCheckoutRouteChildren {
   AuthenticatedCheckoutActivatingRoute: typeof AuthenticatedCheckoutActivatingRoute
+  AuthenticatedCheckoutIndexRoute: typeof AuthenticatedCheckoutIndexRoute
 }
 
 const AuthenticatedCheckoutRouteChildren: AuthenticatedCheckoutRouteChildren = {
   AuthenticatedCheckoutActivatingRoute: AuthenticatedCheckoutActivatingRoute,
+  AuthenticatedCheckoutIndexRoute: AuthenticatedCheckoutIndexRoute,
 }
 
 const AuthenticatedCheckoutRouteWithChildren =

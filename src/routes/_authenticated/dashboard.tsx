@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
@@ -32,7 +32,7 @@ interface SessionRow {
 function DashboardPage() {
   const { user } = useAuth();
   const { checkout } = Route.useSearch();
-  const navigate = Route.useNavigate();
+  const navigate = useNavigate();
   const shownCheckoutToast = useRef(false);
 
   useEffect(() => {
