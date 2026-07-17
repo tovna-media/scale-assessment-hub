@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
-export const Route = createFileRoute('/_authenticated/checkout')({
+export const Route = createFileRoute('/_authenticated/checkout/')({
   head: () => ({ meta: [{ title: 'Checkout — Fully Resourced' }] }),
   component: CheckoutPage,
 });
