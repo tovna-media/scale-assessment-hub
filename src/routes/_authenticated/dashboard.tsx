@@ -288,7 +288,15 @@ function DashboardPage() {
       : "Continue";
   const showGapBanner =
     eligibility !== null &&
-    (canGenerate || readyCount > 0 || (isFirstRound && completedTypes.size < 3));
+    (
+      // Before the first Gap Report: show while assessments remain, or when ready to generate.
+      (isFirstRound && (completedTypes.size < 3 || canGenerate)) ||
+      // After a report exists: only show during the end-of-cycle re-assessment window.
+      (!isFirstRound && (canGenerate || readyCount > 0))
+    );
+  const hasAnyReport = (eligibility?.reportsGenerated ?? 0) > 0;
+  const nextAssessmentTo = `/assessment/${nextTarget.type}`;
+  const nextSectionTo = `/guide/section-${nextSection}`;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-8 sm:py-10">
@@ -315,6 +323,8 @@ function DashboardPage() {
         subscribed={subscribed}
         section1Complete={section1Complete}
         takenCount={takenCount}
+        nextAssessmentTo={nextAssessmentTo}
+        nextSectionTo={nextSectionTo}
       />
 
       {/* Stat cards */}
@@ -424,7 +434,8 @@ function DashboardPage() {
         </div>
       )}
 
-      {/* Explore Performance */}
+      {/* Explore Performance — only after the member has generated at least one Gap Report */}
+      {hasAnyReport && (
       <div className="mt-10 flex flex-col gap-4 rounded-2xl border border-[var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)] sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--rl-purple)]">Performance</p>
@@ -437,6 +448,7 @@ function DashboardPage() {
           <Link to="/performance">Open Performance <ArrowRight className="ml-2 h-4 w-4" /></Link>
         </Button>
       </div>
+      )}
     </div>
   );
 }
@@ -451,6 +463,8 @@ function HeroFocusCard({
   subscribed,
   section1Complete,
   takenCount,
+  nextAssessmentTo,
+  nextSectionTo,
 }: {
   inCycle: boolean;
   cycleWeek: number;
@@ -461,13 +475,15 @@ function HeroFocusCard({
   subscribed: boolean;
   section1Complete: boolean;
   takenCount: number;
+  nextAssessmentTo: string;
+  nextSectionTo: string;
 }) {
   // Determine hero state
   let eyebrow = "Get started";
   let heading = "Take your first assessment";
   let body = "Complete your three SCALE assessments to unlock your personalized Gap Report and 12-week cycle.";
-  let ctaLabel = "Start your first assessment";
-  let ctaTo: string = "/dashboard";
+  let ctaLabel = takenCount === 0 ? "Start your first assessment" : "Continue your assessments";
+  let ctaTo: string = nextAssessmentTo;
   let ringValue = takenCount;
   let ringMax = 3;
   let ringLabel = "TAKEN";
@@ -487,7 +503,7 @@ function HeroFocusCard({
       ? `Your Priority Gap is ${priorityGap.name}. Complete Section ${nextSection} to keep your cycle moving.`
       : `Complete Section ${nextSection} to keep your cycle moving.`;
     ctaLabel = `Continue Section ${nextSection}`;
-    ctaTo = "/guide/section-1"; // future sections when built
+    ctaTo = nextSectionTo;
     ringValue = cycleWeek;
     ringMax = cycleLength;
     ringLabel = "WEEKS";
@@ -496,6 +512,7 @@ function HeroFocusCard({
     heading = "You've completed your 12-week cycle";
     body = "Retake your assessments to measure your growth and start a new cycle.";
     ctaLabel = "Retake assessments";
+    ctaTo = nextAssessmentTo;
     ringValue = cycleLength;
     ringMax = cycleLength;
     ringLabel = "WEEKS";
