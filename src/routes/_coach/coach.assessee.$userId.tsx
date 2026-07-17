@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ASSESSMENTS, subcategoryGapLabel, maxScoreFor, type AssessmentType } from "@/lib/assessments";
-import { ArrowLeft, Mail, Phone, Calendar, Download, FileText } from "lucide-react";
+import { ArrowLeft, Mail, Phone, Calendar, Download, FileText, TrendingUp, TrendingDown } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 
@@ -36,16 +36,19 @@ interface SessionRow {
 }
 
 interface GapReport {
+  id: string;
   pdf_path: string | null;
   report_data: Record<string, unknown>;
   generated_at: string;
+  primary_gap: string | null;
+  primary_gap_level: string | null;
 }
 
 function AssesseeDetail() {
   const { userId } = Route.useParams();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [sessions, setSessions] = useState<SessionRow[]>([]);
-  const [gapReport, setGapReport] = useState<GapReport | null>(null);
+  const [gapReports, setGapReports] = useState<GapReport[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -54,7 +57,7 @@ function AssesseeDetail() {
       const [p, s, g] = await Promise.all([
         supabase.from("profiles").select("id, email, full_name, first_name, last_name, phone, created_at").eq("id", userId).maybeSingle(),
         supabase.from("assessment_sessions").select("id, assessment_type, overall_score, overall_level, subcategory_scores, primary_gap, primary_gap_level, secondary_gap, gap_report, created_at").eq("user_id", userId).order("created_at", { ascending: false }),
-        supabase.from("gap_reports").select("pdf_path, report_data, generated_at").eq("user_id", userId).maybeSingle(),
+        supabase.from("gap_reports").select("id, pdf_path, report_data, generated_at, primary_gap, primary_gap_level").eq("user_id", userId).order("generated_at", { ascending: false }),
       ]);
       if (cancelled) return;
       if (p.error || !p.data) {
@@ -64,7 +67,7 @@ function AssesseeDetail() {
       }
       setProfile(p.data as Profile);
       setSessions((s.data ?? []) as unknown as SessionRow[]);
-      setGapReport((g.data ?? null) as GapReport | null);
+      setGapReports((g.data ?? []) as unknown as GapReport[]);
       setLoading(false);
     }
     load();
