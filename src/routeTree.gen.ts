@@ -20,6 +20,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CoachLoginRouteImport } from './routes/coach.login'
 import { Route as CoachSettingsRouteImport } from './routes/_coach/settings'
 import { Route as CoachCoachRouteImport } from './routes/_coach/coach'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedPerformanceRouteImport } from './routes/_authenticated/performance'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCycleRouteImport } from './routes/_authenticated/cycle'
@@ -84,6 +85,11 @@ const CoachCoachRoute = CoachCoachRouteImport.update({
   id: '/coach',
   path: '/coach',
   getParentRoute: () => CoachRoute,
+} as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedPerformanceRoute =
   AuthenticatedPerformanceRouteImport.update({
@@ -160,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/cycle': typeof AuthenticatedCycleRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/performance': typeof AuthenticatedPerformanceRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/coach': typeof CoachCoachRouteWithChildren
   '/settings': typeof CoachSettingsRoute
   '/coach/login': typeof CoachLoginRoute
@@ -181,6 +188,7 @@ export interface FileRoutesByTo {
   '/cycle': typeof AuthenticatedCycleRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/performance': typeof AuthenticatedPerformanceRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/coach': typeof CoachCoachRouteWithChildren
   '/settings': typeof CoachSettingsRoute
   '/coach/login': typeof CoachLoginRoute
@@ -206,6 +214,7 @@ export interface FileRoutesById {
   '/_authenticated/cycle': typeof AuthenticatedCycleRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/performance': typeof AuthenticatedPerformanceRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_coach/coach': typeof CoachCoachRouteWithChildren
   '/_coach/settings': typeof CoachSettingsRoute
   '/coach/login': typeof CoachLoginRoute
@@ -230,6 +239,7 @@ export interface FileRouteTypes {
     | '/cycle'
     | '/dashboard'
     | '/performance'
+    | '/profile'
     | '/coach'
     | '/settings'
     | '/coach/login'
@@ -251,6 +261,7 @@ export interface FileRouteTypes {
     | '/cycle'
     | '/dashboard'
     | '/performance'
+    | '/profile'
     | '/coach'
     | '/settings'
     | '/coach/login'
@@ -275,6 +286,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cycle'
     | '/_authenticated/dashboard'
     | '/_authenticated/performance'
+    | '/_authenticated/profile'
     | '/_coach/coach'
     | '/_coach/settings'
     | '/coach/login'
@@ -379,6 +391,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoachCoachRouteImport
       parentRoute: typeof CoachRoute
     }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/performance': {
       id: '/_authenticated/performance'
       path: '/performance'
@@ -479,6 +498,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCycleRoute: typeof AuthenticatedCycleRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedPerformanceRoute: typeof AuthenticatedPerformanceRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedAssessmentTypeRoute: typeof AuthenticatedAssessmentTypeRoute
   AuthenticatedGuideSection1Route: typeof AuthenticatedGuideSection1Route
   AuthenticatedReportSessionIdRoute: typeof AuthenticatedReportSessionIdRoute
@@ -489,6 +509,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCycleRoute: AuthenticatedCycleRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedPerformanceRoute: AuthenticatedPerformanceRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedAssessmentTypeRoute: AuthenticatedAssessmentTypeRoute,
   AuthenticatedGuideSection1Route: AuthenticatedGuideSection1Route,
   AuthenticatedReportSessionIdRoute: AuthenticatedReportSessionIdRoute,
