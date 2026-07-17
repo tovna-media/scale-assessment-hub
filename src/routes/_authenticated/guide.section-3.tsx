@@ -12,6 +12,7 @@ import { Slider } from "@/components/ui/slider";
 import { ArrowLeft, ArrowRight, Check, Minus, TrendingDown, TrendingUp, X } from "lucide-react";
 import { toast } from "sonner";
 import { SectionVideo } from "@/components/scale/SectionVideo";
+import { GapReportPanel } from "@/components/scale/GapReportPanel";
 
 export const Route = createFileRoute("/_authenticated/guide/section-3")({
   head: () => ({ meta: [{ title: "Section 3 · Leadership Performance Dashboard" }] }),
