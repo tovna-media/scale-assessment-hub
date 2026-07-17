@@ -31,7 +31,10 @@ function CoachLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div
+      className="min-h-screen"
+      style={{ background: "var(--fr-page-gradient)" }}
+    >
       <AppHeader variant="coach" />
       <Outlet />
     </div>
