@@ -228,17 +228,23 @@ function DashboardPage() {
               SCALE Gap Report
             </p>
             <h2 className="mt-1 font-display text-xl font-semibold text-foreground">
-              {allThreeDone
-                ? "You're ready to generate your full SCALE Gap Report"
-                : `Complete all 3 assessments to unlock your Gap Report (${completedCount}/3 done)`}
+              {canGenerate
+                ? isFirstRound
+                  ? "You're ready to generate your full SCALE Gap Report"
+                  : "You're ready to generate your next SCALE Gap Report"
+                : isFirstRound
+                  ? `Complete all 3 assessments to unlock your Gap Report (${completedTypes.size}/3 done)`
+                  : `Retake all 3 assessments to unlock your next Gap Report (${readyCount} of 3 retaken)`}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              {allThreeDone
+              {canGenerate
                 ? "Combine your results into one unified report with cross-connection analysis."
-                : "Your personalized report ties together Inner Capacity, Personal Leadership, and Business Audit."}
+                : isFirstRound
+                  ? "Your personalized report ties together Inner Capacity, Personal Leadership, and Business Audit."
+                  : "Each new report requires a fresh set of all three assessments so it reflects where you are now."}
             </p>
           </div>
-          {allThreeDone && latestSession ? (
+          {canGenerate && latestSession ? (
             <Button
               asChild
               size="lg"
