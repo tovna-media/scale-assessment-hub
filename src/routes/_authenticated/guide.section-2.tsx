@@ -281,6 +281,8 @@ function SectionTwoPage() {
         <GapReportPanel md={gapReportMd} />
       </div>
 
+      <SectionVideo sectionNumber={2} sectionTitle="Lead Yourself" />
+
       <div className="mb-6">
         <div className="flex items-center justify-between text-xs font-medium uppercase tracking-widest text-muted-foreground">
           <span>Section 2 of {TOTAL_SECTIONS}</span>
