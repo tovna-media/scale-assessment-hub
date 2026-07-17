@@ -712,9 +712,10 @@ function D4Drivers({ d, update }: { d: SectionData; update: <K extends keyof Sec
 function D5Standards({ d, update }: { d: SectionData; update: <K extends keyof SectionData>(k: K, v: SectionData[K]) => void }) {
   return (
     <div className="space-y-6">
-      <div className="space-y-3">
+      <SectionBlock label="Evaluate" hint="Rate each standard 1–10.">
+        <div className="space-y-3">
         {d.standards_ratings.map((s, i) => (
-          <div key={i} className="rounded-xl border border-border bg-card p-3">
+          <div key={i} className="rounded-xl border border-border bg-background p-3">
             <div className="mb-1 flex items-center justify-between">
               <Input
                 value={s.label}
@@ -726,47 +727,75 @@ function D5Standards({ d, update }: { d: SectionData; update: <K extends keyof S
             <Slider value={[s.score]} min={1} max={10} step={1} onValueChange={(v) => { const arr = [...d.standards_ratings]; arr[i] = { ...arr[i], score: v[0] ?? 1 }; update("standards_ratings", arr); }} />
           </div>
         ))}
-      </div>
-      <div className="rounded-2xl border border-[#433993]/30 bg-[#433993]/5 p-4">
-        <Label className="text-xs font-semibold uppercase tracking-wider text-[#433993]">Standard to Improve This Cycle</Label>
-        <Input value={d.standard_focus} onChange={(e) => update("standard_focus", e.target.value)} placeholder="e.g. Follow Through" className="mt-2" />
-        <Label className="mt-4 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Plan</Label>
-        <Textarea value={d.standard_plan} onChange={(e) => update("standard_plan", e.target.value)} placeholder="How will you raise this standard? Concrete actions." className="mt-1 min-h-[90px]" />
-        <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_140px]">
-          <div>
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Success Marker</Label>
-            <Input value={d.standard_success_marker} onChange={(e) => update("standard_success_marker", e.target.value)} placeholder="What proves you did it?" className="mt-1" />
-          </div>
-          <div>
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Number</Label>
-            <Input type="number" inputMode="numeric" value={d.standard_marker_number} onChange={(e) => update("standard_marker_number", e.target.value)} className="mt-1" />
+        </div>
+      </SectionBlock>
+      <SectionBlock label="Identify">
+        <LabeledInput label="Which ONE standard will you raise this cycle?" value={d.standard_focus} onChange={(v) => update("standard_focus", v)} placeholder="e.g. Follow Through" />
+      </SectionBlock>
+      <SectionBlock label="Understand">
+        <LabeledTextarea label="Why is this standard limiting you?" value={d.standard_understand_limiting} onChange={(v) => update("standard_understand_limiting", v)} />
+        <NumberedList label="List 3 benefits of raising it" items={d.standard_benefits} onChange={(arr) => update("standard_benefits", arr)} placeholder="Benefit" />
+      </SectionBlock>
+      <SectionBlock label="Build a Plan">
+        <LabeledInput label="Current standard" value={d.standard_current} onChange={(v) => update("standard_current", v)} />
+        <LabeledInput label="New standard" value={d.standard_new} onChange={(v) => update("standard_new", v)} />
+        <NumberedList label="5 reinforcing actions" items={d.standard_actions} onChange={(arr) => update("standard_actions", arr)} placeholder="Action" />
+        <LabeledTextarea label="Plan summary" value={d.standard_plan} onChange={(v) => update("standard_plan", v)} placeholder="How will you raise this standard?" />
+      </SectionBlock>
+      <SectionBlock label="Execute">
+        <LabeledInput label="What action will you take this week?" value={d.standard_execute_action} onChange={(v) => update("standard_execute_action", v)} />
+        <LabeledInput label="Who will hold you accountable?" value={d.standard_accountable} onChange={(v) => update("standard_accountable", v)} />
+      </SectionBlock>
+      <SectionBlock label="Measure">
+        <div>
+          <Label className="text-xs font-medium text-foreground">Cadence</Label>
+          <div className="mt-2 flex gap-2">
+            {(["Daily", "Weekly", "Monthly"] as const).map((c) => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => update("standard_measure_cadence", c)}
+                className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition ${d.standard_measure_cadence === c ? "bg-[#433993] text-white" : "bg-secondary/60 text-foreground ring-1 ring-inset ring-border hover:ring-[#433993]/40"}`}
+              >{c}</button>
+            ))}
           </div>
         </div>
-      </div>
+        <div className="grid gap-3 sm:grid-cols-[1fr_140px]">
+          <LabeledInput label="Success Marker" value={d.standard_success_marker} onChange={(v) => update("standard_success_marker", v)} placeholder="What proves you did it?" />
+          <LabeledInput label="Number" type="number" value={d.standard_marker_number} onChange={(v) => update("standard_marker_number", v)} />
+        </div>
+      </SectionBlock>
     </div>
   );
 }
 
 function D6Reflection({ d, update }: { d: SectionData; update: <K extends keyof SectionData>(k: K, v: SectionData[K]) => void }) {
-  const fields: { key: keyof SectionData; label: string; placeholder: string }[] = [
-    { key: "reflection_wins", label: "Wins", placeholder: "What worked this cycle?" },
-    { key: "reflection_misses", label: "Misses", placeholder: "Where did you fall short?" },
-    { key: "reflection_blockers", label: "Blockers", placeholder: "What kept getting in the way?" },
-    { key: "reflection_next_focus", label: "Next Focus", placeholder: "What deserves your leadership attention next?" },
-  ];
+  const avoidingOpts = ["A hard conversation", "A decision", "Delegating", "Setting a boundary", "Asking for help", "Firing / hiring", "Financial review", "Time with family"];
+  const whyOpts = ["Fear of conflict", "Perfectionism", "Overwhelm", "Lack of clarity", "Not my strength", "Waiting for perfect timing", "People-pleasing"];
   return (
-    <div className="space-y-4">
-      {fields.map((f) => (
-        <div key={f.key}>
-          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{f.label}</Label>
-          <Textarea
-            value={d[f.key] as string}
-            onChange={(e) => update(f.key, e.target.value as never)}
-            placeholder={f.placeholder}
-            className="mt-1 min-h-[90px]"
-          />
-        </div>
-      ))}
+    <div className="space-y-6">
+      <SectionBlock label="Evaluate">
+        <LabeledTextarea label="What was your biggest win this cycle?" value={d.reflection_wins} onChange={(v) => update("reflection_wins", v)} />
+        <LabeledTextarea label="What was your biggest challenge?" value={d.reflection_misses} onChange={(v) => update("reflection_misses", v)} />
+      </SectionBlock>
+      <SectionBlock label="Identify">
+        <Chips label="What have you been avoiding?" options={avoidingOpts} values={d.reflection_avoiding} onChange={(arr) => update("reflection_avoiding", arr)} other={d.reflection_avoiding_other} onOtherChange={(v) => update("reflection_avoiding_other", v)} />
+      </SectionBlock>
+      <SectionBlock label="Understand">
+        <Chips label="Why have you been avoiding it?" options={whyOpts} values={d.reflection_why} onChange={(arr) => update("reflection_why", arr)} other={d.reflection_why_other} onOtherChange={(v) => update("reflection_why_other", v)} />
+      </SectionBlock>
+      <SectionBlock label="Build a Plan">
+        <LabeledTextarea label="What is the best next leadership action to take?" value={d.reflection_best_action} onChange={(v) => update("reflection_best_action", v)} />
+        <LabeledTextarea label="Lock in your next focus" value={d.reflection_next_focus} onChange={(v) => update("reflection_next_focus", v)} placeholder="What deserves your leadership attention next?" />
+      </SectionBlock>
+      <SectionBlock label="Execute">
+        <LabeledInput label="When will you do it?" value={d.reflection_when} onChange={(v) => update("reflection_when", v)} placeholder="Date / this week / etc." />
+        <LabeledInput label="Who's involved?" value={d.reflection_involved} onChange={(v) => update("reflection_involved", v)} />
+      </SectionBlock>
+      <SectionBlock label="Measure">
+        <LabeledTextarea label="How will you know you handled it well?" value={d.reflection_measure_success} onChange={(v) => update("reflection_measure_success", v)} />
+        <LabeledTextarea label="What result do you expect?" value={d.reflection_expected_result} onChange={(v) => update("reflection_expected_result", v)} />
+      </SectionBlock>
     </div>
   );
 }
