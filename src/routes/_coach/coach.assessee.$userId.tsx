@@ -74,18 +74,14 @@ function AssesseeDetail() {
     return () => { cancelled = true; };
   }, [userId]);
 
-  if (loading) {
-    return <main className="mx-auto max-w-5xl px-4 py-16 text-center text-sm text-muted-foreground">Loading…</main>;
-  }
-  if (!profile) {
-    return <main className="mx-auto max-w-5xl px-4 py-16 text-center text-sm text-muted-foreground">Assessee not found.</main>;
-  }
-
   // Latest of each type
-  const latestByType = new Map<AssessmentType, SessionRow>();
-  for (const s of sessions) {
-    if (!latestByType.has(s.assessment_type)) latestByType.set(s.assessment_type, s);
-  }
+  const latestByType = useMemo(() => {
+    const m = new Map<AssessmentType, SessionRow>();
+    for (const s of sessions) {
+      if (!m.has(s.assessment_type)) m.set(s.assessment_type, s);
+    }
+    return m;
+  }, [sessions]);
 
   const reportsWithUrl = useMemo(
     () =>
@@ -98,7 +94,6 @@ function AssesseeDetail() {
     [gapReports],
   );
 
-  // Group all sessions by assessment type, oldest first, to show growth over time.
   const historyByType = useMemo(() => {
     const m = new Map<AssessmentType, SessionRow[]>();
     const asc = [...sessions].sort((a, b) => a.created_at.localeCompare(b.created_at));
@@ -109,6 +104,13 @@ function AssesseeDetail() {
     }
     return m;
   }, [sessions]);
+
+  if (loading) {
+    return <main className="mx-auto max-w-5xl px-4 py-16 text-center text-sm text-muted-foreground">Loading…</main>;
+  }
+  if (!profile) {
+    return <main className="mx-auto max-w-5xl px-4 py-16 text-center text-sm text-muted-foreground">Assessee not found.</main>;
+  }
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
