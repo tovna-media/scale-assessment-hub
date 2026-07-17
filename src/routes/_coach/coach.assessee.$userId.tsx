@@ -3,9 +3,10 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ASSESSMENTS, subcategoryGapLabel, maxScoreFor, type AssessmentType } from "@/lib/assessments";
-import { ArrowLeft, Mail, Phone, Calendar, Download, FileText, TrendingUp, TrendingDown } from "lucide-react";
+import { ArrowLeft, Mail, Phone, Calendar, Download, FileText, TrendingUp, TrendingDown, ChevronDown } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { TablePagination, usePagination } from "@/components/ui/table-pagination";
 
 export const Route = createFileRoute("/_coach/coach/assessee/$userId")({
   head: () => ({ meta: [{ title: "Assessee Detail — SCALE Coach" }] }),
@@ -96,8 +97,9 @@ function AssesseeDetail() {
 
   const historyByType = useMemo(() => {
     const m = new Map<AssessmentType, SessionRow[]>();
-    const asc = [...sessions].sort((a, b) => a.created_at.localeCompare(b.created_at));
-    for (const s of asc) {
+    // newest first per type
+    const desc = [...sessions].sort((a, b) => b.created_at.localeCompare(a.created_at));
+    for (const s of desc) {
       const arr = m.get(s.assessment_type) ?? [];
       arr.push(s);
       m.set(s.assessment_type, arr);
@@ -174,89 +176,16 @@ function AssesseeDetail() {
       {latestByType.size > 0 && (
         <section className="mt-10 rounded-2xl border border-[color:var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)]">
           <h2 className="font-display text-xl font-semibold text-[color:var(--fr-ink)]">Growth over time</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Every assessment attempt with date and score.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Every assessment attempt. Click any attempt to open its full breakdown.
+          </p>
           <div className="mt-6 grid gap-6 lg:grid-cols-3">
             {(["inner_capacity", "personal_leadership", "business_audit"] as AssessmentType[]).map((t) => {
-              const history = historyByType.get(t) ?? [];
-              const max = maxScoreFor(t);
-              return (
-                <div key={t} className="rounded-xl border border-[color:var(--fr-hairline)] bg-[color:var(--fr-lilac)]/30 p-4">
-                  <div className="text-xs font-medium uppercase tracking-[0.14em] text-[color:var(--rl-purple-deep)]">{ASSESSMENTS[t].shortTitle}</div>
-                  {history.length === 0 ? (
-                    <p className="mt-3 text-sm text-muted-foreground">No attempts yet.</p>
-                  ) : (
-                    <ol className="mt-3 space-y-2">
-                      {history.map((s, i) => {
-                        const prev = i > 0 ? history[i - 1] : null;
-                        const delta = prev ? s.overall_score - prev.overall_score : 0;
-                        return (
-                          <li key={s.id} className="flex items-center justify-between rounded-lg border border-[color:var(--fr-hairline)] bg-white px-3 py-2">
-                            <div className="text-xs text-muted-foreground">
-                              <div className="font-medium text-[color:var(--fr-ink)]">Attempt {i + 1}</div>
-                              <div>{format(new Date(s.created_at), "MMM d, yyyy")}</div>
-                            </div>
-                            <div className="flex items-baseline gap-2">
-                              <span className="font-display text-lg font-semibold text-[color:var(--fr-ink)]">{s.overall_score}</span>
-                              <span className="text-xs text-muted-foreground">/{max}</span>
-                              {prev && (
-                                <span className={"ml-1 text-[11px] font-medium " + (delta > 0 ? "text-emerald-700" : delta < 0 ? "text-rose-700" : "text-muted-foreground")}>
-                                  {delta > 0 ? "+" : ""}{delta}
-                                </span>
-                              )}
-                            </div>
-                          </li>
-                        );
-                      })}
-                    </ol>
-                  )}
-                </div>
-              );
+              return <AttemptsColumn key={t} type={t} history={historyByType.get(t) ?? []} />;
             })}
           </div>
         </section>
       )}
-
-      {/* Latest breakdown per assessment */}
-      <div className="mt-8 space-y-8">
-        {Array.from(latestByType.entries()).map(([t, s]) => (
-          <section key={t} className="rounded-2xl border border-[color:var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)]">
-            <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <div>
-                <div className="text-xs uppercase tracking-[0.14em] text-[color:var(--rl-purple)]">Latest breakdown</div>
-                <h3 className="mt-1 font-display text-lg font-semibold text-[color:var(--fr-ink)]">{ASSESSMENTS[t].shortTitle}</h3>
-              </div>
-              <span className="text-sm text-muted-foreground">Score {s.overall_score}/{maxScoreFor(t)} · {format(new Date(s.created_at), "MMM d, yyyy")}</span>
-            </div>
-            <div className="mt-4 grid gap-2 sm:grid-cols-2">
-              {Object.entries(s.subcategory_scores ?? {}).map(([name, score]) => {
-                const label = subcategoryGapLabel(t, name, score);
-                const tone =
-                  label === "Strength" ? "bg-emerald-100 text-emerald-800"
-                  : label === "Moderate Gap" ? "bg-amber-100 text-amber-800"
-                  : label === "Developing" ? "bg-[color:var(--fr-lilac)] text-[color:var(--rl-purple-deep)]"
-                  : "bg-rose-100 text-rose-800";
-                return (
-                  <div key={name} className="flex items-center justify-between rounded-lg border border-[color:var(--fr-hairline)] bg-white px-3 py-2 text-sm">
-                    <div>
-                      <div className="font-medium text-[color:var(--fr-ink)]">{name}</div>
-                      <div className={"mt-0.5 inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium " + tone}>{label}</div>
-                    </div>
-                    <div className="font-display text-base font-semibold text-[color:var(--fr-ink)]">{score}</div>
-                  </div>
-                );
-              })}
-            </div>
-            {s.gap_report && (
-              <details className="mt-5 rounded-lg border border-[color:var(--fr-hairline)] bg-[color:var(--fr-lilac)]/25 p-4">
-                <summary className="cursor-pointer text-sm font-medium text-[color:var(--rl-purple-deep)]">View narrative</summary>
-                <article className="prose mt-4 max-w-none">
-                  <Markdown text={s.gap_report} />
-                </article>
-              </details>
-            )}
-          </section>
-        ))}
-      </div>
 
       {/* Gap Report history */}
       <section className="mt-10 rounded-2xl border border-[color:var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)]">
@@ -264,41 +193,166 @@ function AssesseeDetail() {
           <FileText className="h-5 w-5 text-[color:var(--rl-purple)]" /> Gap report history
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">Every SCALE Gap Report generated for this member.</p>
-        {reportsWithUrl.length === 0 ? (
-          <p className="mt-4 text-sm text-muted-foreground">No gap reports generated yet.</p>
-        ) : (
-          <ol className="mt-4 space-y-3">
-            {reportsWithUrl.map((r, i) => (
-              <li
-                key={r.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[color:var(--fr-hairline)] bg-[color:var(--fr-lilac)]/25 px-4 py-3"
-              >
-                <div>
-                  <div className="font-medium text-[color:var(--fr-ink)]">
-                    Cycle {reportsWithUrl.length - i} · {format(new Date(r.generated_at), "MMM d, yyyy")}
-                  </div>
-                  {r.primary_gap && (
-                    <div className="mt-0.5 text-xs text-muted-foreground">
-                      Priority gap: <span className="text-[color:var(--fr-ink)] font-medium">{r.primary_gap}</span>
-                      {r.primary_gap_level && ` · ${r.primary_gap_level}`}
-                    </div>
-                  )}
-                </div>
-                {r.pdfUrl ? (
-                  <Button variant="outline" size="sm" asChild>
-                    <a href={r.pdfUrl} target="_blank" rel="noopener noreferrer">
-                      <Download className="mr-1.5 h-3.5 w-3.5" /> View PDF
-                    </a>
-                  </Button>
-                ) : (
-                  <span className="text-xs text-muted-foreground">PDF unavailable</span>
-                )}
-              </li>
-            ))}
-          </ol>
-        )}
+        <GapReportsList reports={reportsWithUrl} />
       </section>
     </main>
+  );
+}
+
+type ReportWithUrl = GapReport & { pdfUrl: string | null };
+
+function AttemptsColumn({ type, history }: { type: AssessmentType; history: SessionRow[] }) {
+  const max = maxScoreFor(type);
+  const { page, setPage, pageSize, setPageSize, pageCount, total, paged } = usePagination(history, 10);
+  const [openId, setOpenId] = useState<string | null>(null);
+
+  return (
+    <div className="rounded-xl border border-[color:var(--fr-hairline)] bg-[color:var(--fr-lilac)]/30 p-4">
+      <div className="text-xs font-medium uppercase tracking-[0.14em] text-[color:var(--rl-purple-deep)]">
+        {ASSESSMENTS[type].shortTitle}
+      </div>
+      {history.length === 0 ? (
+        <p className="mt-3 text-sm text-muted-foreground">No attempts yet.</p>
+      ) : (
+        <>
+          <ol className="mt-3 space-y-2">
+            {paged.map((s) => {
+              // Attempt number: newest = total attempts, oldest = 1
+              const attemptNumber = history.length - history.indexOf(s);
+              const idx = history.indexOf(s);
+              const older = history[idx + 1]; // next in desc = older attempt
+              const delta = older ? s.overall_score - older.overall_score : 0;
+              const isOpen = openId === s.id;
+              return (
+                <li key={s.id} className="rounded-lg border border-[color:var(--fr-hairline)] bg-white">
+                  <button
+                    type="button"
+                    onClick={() => setOpenId(isOpen ? null : s.id)}
+                    className="flex w-full items-center justify-between px-3 py-2 text-left"
+                    aria-expanded={isOpen}
+                  >
+                    <div className="text-xs text-muted-foreground">
+                      <div className="font-medium text-[color:var(--fr-ink)]">Attempt {attemptNumber}</div>
+                      <div>{format(new Date(s.created_at), "MMM d, yyyy")}</div>
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="font-display text-lg font-semibold text-[color:var(--fr-ink)]">{s.overall_score}</span>
+                      <span className="text-xs text-muted-foreground">/{max}</span>
+                      {older && (
+                        <span className={"ml-1 text-[11px] font-medium " + (delta > 0 ? "text-emerald-700" : delta < 0 ? "text-rose-700" : "text-muted-foreground")}>
+                          {delta > 0 ? "+" : ""}{delta}
+                        </span>
+                      )}
+                      <ChevronDown className={"ml-1 h-4 w-4 text-muted-foreground transition-transform " + (isOpen ? "rotate-180" : "")} />
+                    </div>
+                  </button>
+                  {isOpen && <AttemptBreakdown session={s} type={type} />}
+                </li>
+              );
+            })}
+          </ol>
+          {history.length > pageSize && (
+            <TablePagination
+              page={page} setPage={setPage}
+              pageSize={pageSize} setPageSize={setPageSize}
+              pageCount={pageCount} total={total}
+              label="attempts"
+              className="mt-2 px-0"
+            />
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+function AttemptBreakdown({ session, type }: { session: SessionRow; type: AssessmentType }) {
+  return (
+    <div className="border-t border-[color:var(--fr-hairline)] bg-[color:var(--fr-lilac)]/20 p-3">
+      <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--rl-purple)]">
+        Score {session.overall_score}/{maxScoreFor(type)}
+        {session.overall_level && ` · ${session.overall_level}`}
+      </div>
+      <div className="mt-2 grid gap-2 sm:grid-cols-2">
+        {Object.entries(session.subcategory_scores ?? {}).map(([name, score]) => {
+          const label = subcategoryGapLabel(type, name, score);
+          const tone =
+            label === "Strength" ? "bg-emerald-100 text-emerald-800"
+            : label === "Moderate Gap" ? "bg-amber-100 text-amber-800"
+            : label === "Developing" ? "bg-[color:var(--fr-lilac)] text-[color:var(--rl-purple-deep)]"
+            : "bg-rose-100 text-rose-800";
+          return (
+            <div key={name} className="flex items-center justify-between rounded-lg border border-[color:var(--fr-hairline)] bg-white px-3 py-2 text-sm">
+              <div>
+                <div className="font-medium text-[color:var(--fr-ink)]">{name}</div>
+                <div className={"mt-0.5 inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium " + tone}>{label}</div>
+              </div>
+              <div className="font-display text-base font-semibold text-[color:var(--fr-ink)]">{score}</div>
+            </div>
+          );
+        })}
+      </div>
+      {session.gap_report && (
+        <details className="mt-3 rounded-lg border border-[color:var(--fr-hairline)] bg-white p-3">
+          <summary className="cursor-pointer text-sm font-medium text-[color:var(--rl-purple-deep)]">View narrative</summary>
+          <article className="prose mt-3 max-w-none">
+            <Markdown text={session.gap_report} />
+          </article>
+        </details>
+      )}
+    </div>
+  );
+}
+
+function GapReportsList({ reports }: { reports: ReportWithUrl[] }) {
+  const { page, setPage, pageSize, setPageSize, pageCount, total, paged } = usePagination(reports, 10);
+  if (reports.length === 0) {
+    return <p className="mt-4 text-sm text-muted-foreground">No gap reports generated yet.</p>;
+  }
+  return (
+    <>
+      <ol className="mt-4 space-y-3">
+        {paged.map((r) => {
+          const cycleNum = reports.length - reports.indexOf(r);
+          return (
+            <li
+              key={r.id}
+              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[color:var(--fr-hairline)] bg-[color:var(--fr-lilac)]/25 px-4 py-3"
+            >
+              <div>
+                <div className="font-medium text-[color:var(--fr-ink)]">
+                  Cycle {cycleNum} · {format(new Date(r.generated_at), "MMM d, yyyy")}
+                </div>
+                {r.primary_gap && (
+                  <div className="mt-0.5 text-xs text-muted-foreground">
+                    Priority gap: <span className="text-[color:var(--fr-ink)] font-medium">{r.primary_gap}</span>
+                    {r.primary_gap_level && ` · ${r.primary_gap_level}`}
+                  </div>
+                )}
+              </div>
+              {r.pdfUrl ? (
+                <Button variant="outline" size="sm" asChild>
+                  <a href={r.pdfUrl} target="_blank" rel="noopener noreferrer">
+                    <Download className="mr-1.5 h-3.5 w-3.5" /> View PDF
+                  </a>
+                </Button>
+              ) : (
+                <span className="text-xs text-muted-foreground">PDF unavailable</span>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+      {reports.length > pageSize && (
+        <TablePagination
+          page={page} setPage={setPage}
+          pageSize={pageSize} setPageSize={setPageSize}
+          pageCount={pageCount} total={total}
+          label="reports"
+          className="mt-2 px-0"
+        />
+      )}
+    </>
   );
 }
 
