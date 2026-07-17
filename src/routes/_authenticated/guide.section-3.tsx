@@ -12,6 +12,7 @@ import { Slider } from "@/components/ui/slider";
 import { ArrowLeft, ArrowRight, Check, Minus, TrendingDown, TrendingUp, X } from "lucide-react";
 import { toast } from "sonner";
 import { SectionVideo } from "@/components/scale/SectionVideo";
+import { GapReportPanel } from "@/components/scale/GapReportPanel";
 
 export const Route = createFileRoute("/_authenticated/guide/section-3")({
   head: () => ({ meta: [{ title: "Section 3 · Leadership Performance Dashboard" }] }),
@@ -348,6 +349,7 @@ function SectionThreePage() {
           <span>Dashboard {step} of {TOTAL_STEPS}</span>
         </div>
         <Progress value={(step / TOTAL_STEPS) * 100} className="mt-2 h-1.5" />
+        <GapReportPanel className="mt-4" />
         <h1 className="mt-4 font-display text-3xl font-semibold text-foreground sm:text-4xl">{stepTitle(step)}</h1>
       </div>
 

@@ -8,10 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { ArrowLeft, ArrowRight, BookOpen, Check, FileText, ExternalLink } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { toast } from "sonner";
 import { SectionVideo } from "@/components/scale/SectionVideo";
+import { GapReportPanel } from "@/components/scale/GapReportPanel";
 
 export const Route = createFileRoute("/_authenticated/guide/section-2")({
   head: () => ({ meta: [{ title: "Section 2 · Lead Yourself" }] }),
@@ -279,7 +279,6 @@ function SectionTwoPage() {
         >
           <ArrowLeft className="h-4 w-4" /> My Cycle
         </Link>
-        <GapReportPanel md={gapReportMd} />
       </div>
 
       <SectionVideo sectionNumber={2} sectionTitle="Lead Yourself" />
@@ -290,6 +289,7 @@ function SectionTwoPage() {
           <span>Step {step} of {TOTAL_STEPS}</span>
         </div>
         <Progress value={(step / TOTAL_STEPS) * 100} className="mt-2 h-1.5" />
+        <GapReportPanel className="mt-4" />
         <h1 className="mt-4 font-display text-3xl font-semibold text-foreground sm:text-4xl">
           {stepTitle(step)}
         </h1>
@@ -389,60 +389,6 @@ function stepIsValid(step: number, d: SectionData): boolean {
     case 10: return d.committed && d.commitment_date.trim().length > 0;
     default: return true;
   }
-}
-
-function GapReportPanel({ md }: { md: string | null }) {
-  return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <Button
-          size="sm"
-          className="gap-2 bg-gradient-to-r from-[#5b19bf] to-[#2a0a64] text-white shadow-md hover:from-[#6b23d8] hover:to-[#3a1080] hover:shadow-lg"
-        >
-          <BookOpen className="h-4 w-4" /> Access your gap report here
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-lg">
-        <SheetHeader>
-          <SheetTitle className="flex items-center gap-2">
-            <FileText className="h-4 w-4 text-[#433993]" /> Your latest GAP Report
-          </SheetTitle>
-        </SheetHeader>
-        <div className="mt-4">
-          {md ? (
-            <MiniMarkdown text={md} />
-          ) : (
-            <div className="rounded-md border border-dashed border-border bg-muted/40 p-4 text-sm text-muted-foreground">
-              You don't have a GAP Report yet.
-              <div className="mt-2">
-                <Button asChild size="sm" variant="outline">
-                  <Link to="/dashboard">
-                    Go to dashboard <ExternalLink className="ml-1 h-3 w-3" />
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-      </SheetContent>
-    </Sheet>
-  );
-}
-
-function MiniMarkdown({ text }: { text: string }) {
-  const lines = text.split("\n");
-  return (
-    <div className="prose prose-sm max-w-none text-foreground">
-      {lines.map((l, i) => {
-        if (l.startsWith("### ")) return <h4 key={i} className="mt-4 text-sm font-semibold text-foreground">{l.slice(4)}</h4>;
-        if (l.startsWith("## ")) return <h3 key={i} className="mt-5 text-base font-semibold text-foreground">{l.slice(3)}</h3>;
-        if (l.startsWith("# ")) return <h2 key={i} className="mt-6 text-lg font-semibold text-foreground">{l.slice(2)}</h2>;
-        if (l.startsWith("- ") || l.startsWith("* ")) return <li key={i} className="ml-5 list-disc text-sm">{l.slice(2)}</li>;
-        if (!l.trim()) return <div key={i} className="h-2" />;
-        return <p key={i} className="text-sm leading-relaxed">{l}</p>;
-      })}
-    </div>
-  );
 }
 
 function ChipToggle({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
