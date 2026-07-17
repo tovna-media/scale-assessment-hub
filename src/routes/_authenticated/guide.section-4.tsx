@@ -41,10 +41,10 @@ interface ActionRow { person: string; priority: string; first_action: string; su
 interface SectionData {
   step: number;
   // Part 1
-  direct_reports: string[]; // 5
-  key_relationships: string[]; // 5
-  personal_leadership: string[]; // 5
-  chosen_three: string[]; // 3
+  direct_reports: string;
+  key_relationships: string;
+  personal_leadership: string;
+  chosen_three: string;
   choose_why: string;
   growth_rows: GrowthRow[]; // 3
   schedule_time: string;
@@ -110,10 +110,10 @@ const emptyAction = (): ActionRow => ({ person: "", priority: "", first_action: 
 
 const EMPTY: SectionData = {
   step: 1,
-  direct_reports: ["", "", "", "", ""],
-  key_relationships: ["", "", "", "", ""],
-  personal_leadership: ["", "", "", "", ""],
-  chosen_three: ["", "", ""],
+  direct_reports: "",
+  key_relationships: "",
+  personal_leadership: "",
+  chosen_three: "",
   choose_why: "",
   growth_rows: [emptyRow(), emptyRow(), emptyRow()],
   schedule_time: "",
