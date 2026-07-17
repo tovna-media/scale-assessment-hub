@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { ASSESSMENT_LIST, ASSESSMENTS, maxScoreFor, type AssessmentType } from "@/lib/assessments";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, FileText, Lock, Sparkles } from "lucide-react";
+import { ArrowRight, FileText, Lock, Sparkles, Compass } from "lucide-react";
 import { format } from "date-fns";
 import { logFunnelEvent } from "@/lib/funnel.functions";
 import { createBillingPortalSession, getSubscriptionStatus } from "@/lib/payments.functions";
@@ -48,6 +48,8 @@ function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [freePassUsed, setFreePassUsed] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
+  const [priorityGap, setPriorityGap] = useState<{ name: string; score: number | null } | null>(null);
+  const [section1Complete, setSection1Complete] = useState(false);
   const [eligibility, setEligibility] = useState<{
     reportsGenerated: number;
     readyCount: number;
@@ -96,6 +98,19 @@ function DashboardPage() {
         }),
       )
       .catch(() => setEligibility(null));
+    supabase
+      .from("optimizer_section_progress")
+      .select("priority_gap, priority_gap_score, completed")
+      .eq("user_id", user.id)
+      .eq("section_number", 1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!data) return;
+        setSection1Complete(Boolean(data.completed));
+        if (data.priority_gap) {
+          setPriorityGap({ name: data.priority_gap, score: data.priority_gap_score ?? null });
+        }
+      });
   }, [user, checkSub, checkEligibility]);
 
   const paywalled = freePassUsed && !subscribed;
