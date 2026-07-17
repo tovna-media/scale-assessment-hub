@@ -38,6 +38,7 @@ import { Route as AuthenticatedGuideSection5RouteImport } from './routes/_authen
 import { Route as AuthenticatedGuideSection4RouteImport } from './routes/_authenticated/guide.section-4'
 import { Route as AuthenticatedGuideSection3RouteImport } from './routes/_authenticated/guide.section-3'
 import { Route as AuthenticatedGuideSection2RouteImport } from './routes/_authenticated/guide.section-2'
+import { Route as AuthenticatedGuideSection12RouteImport } from './routes/_authenticated/guide.section-12'
 import { Route as AuthenticatedGuideSection11RouteImport } from './routes/_authenticated/guide.section-11'
 import { Route as AuthenticatedGuideSection10RouteImport } from './routes/_authenticated/guide.section-10'
 import { Route as AuthenticatedGuideSection1RouteImport } from './routes/_authenticated/guide.section-1'
@@ -205,6 +206,12 @@ const AuthenticatedGuideSection2Route =
     path: '/guide/section-2',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedGuideSection12Route =
+  AuthenticatedGuideSection12RouteImport.update({
+    id: '/guide/section-12',
+    path: '/guide/section-12',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedGuideSection11Route =
   AuthenticatedGuideSection11RouteImport.update({
     id: '/guide/section-11',
@@ -298,6 +305,7 @@ export interface FileRoutesByFullPath {
   '/guide/section-1': typeof AuthenticatedGuideSection1Route
   '/guide/section-10': typeof AuthenticatedGuideSection10Route
   '/guide/section-11': typeof AuthenticatedGuideSection11Route
+  '/guide/section-12': typeof AuthenticatedGuideSection12Route
   '/guide/section-2': typeof AuthenticatedGuideSection2Route
   '/guide/section-3': typeof AuthenticatedGuideSection3Route
   '/guide/section-4': typeof AuthenticatedGuideSection4Route
@@ -338,6 +346,7 @@ export interface FileRoutesByTo {
   '/guide/section-1': typeof AuthenticatedGuideSection1Route
   '/guide/section-10': typeof AuthenticatedGuideSection10Route
   '/guide/section-11': typeof AuthenticatedGuideSection11Route
+  '/guide/section-12': typeof AuthenticatedGuideSection12Route
   '/guide/section-2': typeof AuthenticatedGuideSection2Route
   '/guide/section-3': typeof AuthenticatedGuideSection3Route
   '/guide/section-4': typeof AuthenticatedGuideSection4Route
@@ -382,6 +391,7 @@ export interface FileRoutesById {
   '/_authenticated/guide/section-1': typeof AuthenticatedGuideSection1Route
   '/_authenticated/guide/section-10': typeof AuthenticatedGuideSection10Route
   '/_authenticated/guide/section-11': typeof AuthenticatedGuideSection11Route
+  '/_authenticated/guide/section-12': typeof AuthenticatedGuideSection12Route
   '/_authenticated/guide/section-2': typeof AuthenticatedGuideSection2Route
   '/_authenticated/guide/section-3': typeof AuthenticatedGuideSection3Route
   '/_authenticated/guide/section-4': typeof AuthenticatedGuideSection4Route
@@ -425,6 +435,7 @@ export interface FileRouteTypes {
     | '/guide/section-1'
     | '/guide/section-10'
     | '/guide/section-11'
+    | '/guide/section-12'
     | '/guide/section-2'
     | '/guide/section-3'
     | '/guide/section-4'
@@ -465,6 +476,7 @@ export interface FileRouteTypes {
     | '/guide/section-1'
     | '/guide/section-10'
     | '/guide/section-11'
+    | '/guide/section-12'
     | '/guide/section-2'
     | '/guide/section-3'
     | '/guide/section-4'
@@ -508,6 +520,7 @@ export interface FileRouteTypes {
     | '/_authenticated/guide/section-1'
     | '/_authenticated/guide/section-10'
     | '/_authenticated/guide/section-11'
+    | '/_authenticated/guide/section-12'
     | '/_authenticated/guide/section-2'
     | '/_authenticated/guide/section-3'
     | '/_authenticated/guide/section-4'
@@ -754,6 +767,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGuideSection2RouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/guide/section-12': {
+      id: '/_authenticated/guide/section-12'
+      path: '/guide/section-12'
+      fullPath: '/guide/section-12'
+      preLoaderRoute: typeof AuthenticatedGuideSection12RouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/guide/section-11': {
       id: '/_authenticated/guide/section-11'
       path: '/guide/section-11'
@@ -866,6 +886,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedGuideSection1Route: typeof AuthenticatedGuideSection1Route
   AuthenticatedGuideSection10Route: typeof AuthenticatedGuideSection10Route
   AuthenticatedGuideSection11Route: typeof AuthenticatedGuideSection11Route
+  AuthenticatedGuideSection12Route: typeof AuthenticatedGuideSection12Route
   AuthenticatedGuideSection2Route: typeof AuthenticatedGuideSection2Route
   AuthenticatedGuideSection3Route: typeof AuthenticatedGuideSection3Route
   AuthenticatedGuideSection4Route: typeof AuthenticatedGuideSection4Route
@@ -887,6 +908,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedGuideSection1Route: AuthenticatedGuideSection1Route,
   AuthenticatedGuideSection10Route: AuthenticatedGuideSection10Route,
   AuthenticatedGuideSection11Route: AuthenticatedGuideSection11Route,
+  AuthenticatedGuideSection12Route: AuthenticatedGuideSection12Route,
   AuthenticatedGuideSection2Route: AuthenticatedGuideSection2Route,
   AuthenticatedGuideSection3Route: AuthenticatedGuideSection3Route,
   AuthenticatedGuideSection4Route: AuthenticatedGuideSection4Route,
