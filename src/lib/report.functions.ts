@@ -15,6 +15,64 @@ const InputSchema = z.object({
   sessionId: z.string().uuid(),
 });
 
+const ASSESSMENT_TYPES: AssessmentType[] = [
+  "inner_capacity",
+  "personal_leadership",
+  "business_audit",
+];
+
+async function computeEligibility(
+  supabase: {
+    from: (t: string) => {
+      select: (s: string) => {
+        eq: (col: string, v: string) => Promise<{
+          data: Array<{ assessment_type: AssessmentType; gap_report: string | null }> | null;
+        }>;
+      };
+    };
+  },
+  userId: string,
+) {
+  const { data } = await supabase
+    .from("assessment_sessions")
+    .select("assessment_type, gap_report")
+    .eq("user_id", userId);
+  const rows = data ?? [];
+  const reportsGenerated = rows.filter((r) => r.gap_report).length;
+  const required = reportsGenerated + 1;
+  const counts: Record<AssessmentType, number> = {
+    inner_capacity: 0,
+    personal_leadership: 0,
+    business_audit: 0,
+  };
+  for (const r of rows) counts[r.assessment_type] += 1;
+  const perTypeReady: Record<AssessmentType, boolean> = {
+    inner_capacity: counts.inner_capacity >= required,
+    personal_leadership: counts.personal_leadership >= required,
+    business_audit: counts.business_audit >= required,
+  };
+  const readyCount = ASSESSMENT_TYPES.filter((t) => perTypeReady[t]).length;
+  return {
+    reportsGenerated,
+    required,
+    counts,
+    perTypeReady,
+    readyCount,
+    total: 3,
+    allowed: readyCount === 3,
+    isFirstRound: reportsGenerated === 0,
+  };
+}
+
+export const getGapReportEligibility = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    return computeEligibility(
+      context.supabase as unknown as Parameters<typeof computeEligibility>[0],
+      context.userId,
+    );
+  });
+
 type SessionRow = {
   id: string;
   assessment_type: AssessmentType;
