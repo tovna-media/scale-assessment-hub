@@ -31,6 +31,19 @@ interface SessionRow {
 
 function DashboardPage() {
   const { user } = useAuth();
+  const { checkout } = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const shownCheckoutToast = useRef(false);
+
+  useEffect(() => {
+    if (checkout !== "success" || shownCheckoutToast.current) return;
+    shownCheckoutToast.current = true;
+    toast.success("Welcome to Fully Resourced!", {
+      description: "Your subscription is active. You have unlimited access to assessments and Gap Reports.",
+    });
+    navigate({ to: "/dashboard", search: {}, replace: true });
+  }, [checkout, navigate]);
+
   const [sessions, setSessions] = useState<SessionRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [freePassUsed, setFreePassUsed] = useState(false);
