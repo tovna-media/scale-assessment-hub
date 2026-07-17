@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { Slider } from "@/components/ui/slider";
-import { ArrowLeft, ArrowRight, Check, Minus, TrendingDown, TrendingUp } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Minus, PlayCircle, TrendingDown, TrendingUp, X } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/guide/section-3")({
@@ -68,6 +68,56 @@ interface SectionData {
   committed: boolean;
   commitment_date: string;
   step: number;
+  // Dashboard 1 follow-up
+  fuel_identify_progress: string;
+  fuel_identify_attention: string;
+  fuel_understand: string;
+  fuel_plan: string;
+  fuel_execute_action: string;
+  fuel_execute_date: string;
+  fuel_measure: string;
+  // Dashboard 2 follow-up
+  capacity_identify: string;
+  capacity_understand: string;
+  capacity_plan: string;
+  capacity_execute: string;
+  capacity_measure: string;
+  // Dashboard 3 follow-up (single skill focus)
+  skill_focus: string;
+  skill_benefits: string[]; // 3
+  skill_characteristics: string[]; // 5
+  skill_plan_steps: string[]; // 5
+  skill_execute_step: string;
+  skill_execute_date: string;
+  skill_measure: string;
+  skill_feedback_from: string;
+  // Dashboard 4 follow-up
+  drivers_identify: string;
+  drivers_understand_helped: string;
+  drivers_understand_slowed: string;
+  drivers_plan: string;
+  drivers_execute_action: string;
+  drivers_execute_date: string;
+  drivers_measure: string;
+  // Dashboard 5 follow-up (extends existing standard fields)
+  standard_understand_limiting: string;
+  standard_benefits: string[]; // 3
+  standard_current: string;
+  standard_new: string;
+  standard_actions: string[]; // 5
+  standard_execute_action: string;
+  standard_accountable: string;
+  standard_measure_cadence: "Daily" | "Weekly" | "Monthly" | "";
+  // Dashboard 6 follow-up (replaces generic reflection body)
+  reflection_avoiding: string[]; // chips
+  reflection_avoiding_other: string;
+  reflection_why: string[]; // chips
+  reflection_why_other: string;
+  reflection_best_action: string;
+  reflection_when: string;
+  reflection_involved: string;
+  reflection_measure_success: string;
+  reflection_expected_result: string;
 }
 
 const emptyPriority = (): Priority => ({
@@ -99,6 +149,50 @@ const EMPTY: SectionData = {
   committed: false,
   commitment_date: "",
   step: 1,
+  fuel_identify_progress: "",
+  fuel_identify_attention: "",
+  fuel_understand: "",
+  fuel_plan: "",
+  fuel_execute_action: "",
+  fuel_execute_date: "",
+  fuel_measure: "",
+  capacity_identify: "",
+  capacity_understand: "",
+  capacity_plan: "",
+  capacity_execute: "",
+  capacity_measure: "",
+  skill_focus: "",
+  skill_benefits: ["", "", ""],
+  skill_characteristics: ["", "", "", "", ""],
+  skill_plan_steps: ["", "", "", "", ""],
+  skill_execute_step: "",
+  skill_execute_date: "",
+  skill_measure: "",
+  skill_feedback_from: "",
+  drivers_identify: "",
+  drivers_understand_helped: "",
+  drivers_understand_slowed: "",
+  drivers_plan: "",
+  drivers_execute_action: "",
+  drivers_execute_date: "",
+  drivers_measure: "",
+  standard_understand_limiting: "",
+  standard_benefits: ["", "", ""],
+  standard_current: "",
+  standard_new: "",
+  standard_actions: ["", "", "", "", ""],
+  standard_execute_action: "",
+  standard_accountable: "",
+  standard_measure_cadence: "",
+  reflection_avoiding: [],
+  reflection_avoiding_other: "",
+  reflection_why: [],
+  reflection_why_other: "",
+  reflection_best_action: "",
+  reflection_when: "",
+  reflection_involved: "",
+  reflection_measure_success: "",
+  reflection_expected_result: "",
 };
 
 function SectionThreePage() {
@@ -252,7 +346,7 @@ function SectionThreePage() {
         </div>
         <Progress value={(step / TOTAL_STEPS) * 100} className="mt-2 h-1.5" />
         <h1 className="mt-4 font-display text-3xl font-semibold text-foreground sm:text-4xl">{stepTitle(step)}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{stepBlurb(step)}</p>
+        {step < TOTAL_STEPS && <VideoPlaceholder title={stepTitle(step)} />}
       </div>
 
       <div className="space-y-8">
@@ -298,19 +392,93 @@ function stepTitle(step: number) {
     default: return "";
   }
 }
-function stepBlurb(step: number) {
-  switch (step) {
-    case 1: return "Rate each of the 4 FUEL areas 1–10. Trend compares to your last review.";
-    case 2: return "For each of the 5 capacities, tap Worse / Same / Better vs last cycle.";
-    case 3: return "Set Current and Desired levels for up to three leadership skills.";
-    case 4: return "Slide the progress percent for each of your 5 Success Drivers.";
-    case 5: return "Rate 7 standards, pick one to improve, then plan and set a Success Marker.";
-    case 6: return "Reflect on wins, misses, blockers, and what you're locking in next.";
-    case 7: return "Three priorities. For each: steps, a Success Marker, and a target date.";
-    case 8: return "Sign your commitment for this cycle.";
-    default: return "";
-  }
+function VideoPlaceholder({ title }: { title: string }) {
+  return (
+    <div className="mt-4 flex aspect-video w-full items-center justify-center rounded-2xl border border-dashed border-[#433993]/30 bg-gradient-to-br from-[#f6f2ff] to-white text-center">
+      <div className="flex flex-col items-center gap-2 px-4 py-6">
+        <PlayCircle className="h-10 w-10 text-[#433993]" />
+        <p className="text-sm font-semibold text-[#433993]">Video coming soon</p>
+        <p className="text-xs text-muted-foreground">Rich will walk you through {title.replace(/^Dashboard \d+ — /, "")}.</p>
+      </div>
+    </div>
+  );
 }
+
+function SectionBlock({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4">
+      <div className="mb-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">{label}</p>
+        {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
+      </div>
+      <div className="space-y-3">{children}</div>
+    </div>
+  );
+}
+
+function LabeledTextarea({ label, value, onChange, placeholder, rows = 3 }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; rows?: number }) {
+  return (
+    <div>
+      <Label className="text-xs font-medium text-foreground">{label}</Label>
+      <Textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className="mt-1" style={{ minHeight: rows * 26 }} />
+    </div>
+  );
+}
+
+function LabeledInput({ label, value, onChange, placeholder, type = "text" }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; type?: string }) {
+  return (
+    <div>
+      <Label className="text-xs font-medium text-foreground">{label}</Label>
+      <Input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className="mt-1" />
+    </div>
+  );
+}
+
+function NumberedList({ label, items, onChange, placeholder }: { label: string; items: string[]; onChange: (arr: string[]) => void; placeholder?: string }) {
+  return (
+    <div>
+      <Label className="text-xs font-medium text-foreground">{label}</Label>
+      <ol className="mt-1 space-y-2">
+        {items.map((it, i) => (
+          <li key={i} className="flex items-start gap-2">
+            <span className="mt-2 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[#433993]/10 text-[11px] font-semibold text-[#433993]">{i + 1}</span>
+            <Input value={it} onChange={(e) => { const arr = [...items]; arr[i] = e.target.value; onChange(arr); }} placeholder={placeholder} />
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
+function Chips({ label, options, values, onChange, other, onOtherChange }: { label: string; options: string[]; values: string[]; onChange: (v: string[]) => void; other: string; onOtherChange: (v: string) => void }) {
+  const toggle = (opt: string) => {
+    if (values.includes(opt)) onChange(values.filter((v) => v !== opt));
+    else onChange([...values, opt]);
+  };
+  return (
+    <div>
+      <Label className="text-xs font-medium text-foreground">{label}</Label>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {options.map((opt) => {
+          const active = values.includes(opt);
+          return (
+            <button
+              key={opt}
+              type="button"
+              onClick={() => toggle(opt)}
+              className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium transition ${active ? "bg-[#433993] text-white" : "bg-secondary/60 text-foreground ring-1 ring-inset ring-border hover:ring-[#433993]/40"}`}
+            >
+              {opt}
+              {active && <X className="h-3 w-3" />}
+            </button>
+          );
+        })}
+      </div>
+      <Input value={other} onChange={(e) => onOtherChange(e.target.value)} placeholder="Other…" className="mt-2" />
+    </div>
+  );
+}
+
 function stepIsValid(step: number, d: SectionData): boolean {
   switch (step) {
     case 1: return FUEL_AREAS.every((a) => (d.fuel[a.key] ?? 0) > 0);
