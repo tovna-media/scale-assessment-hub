@@ -11,6 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, ArrowRight, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { SectionVideo } from "@/components/scale/SectionVideo";
+import { GapReportPanel } from "@/components/scale/GapReportPanel";
 
 export const Route = createFileRoute("/_authenticated/guide/section-5")({
   head: () => ({ meta: [{ title: "Section 5 · Growing People Intentionally" }] }),
@@ -325,6 +326,7 @@ function SectionFivePage() {
           <span>Part {step} of {TOTAL_STEPS}</span>
         </div>
         <Progress value={(step / TOTAL_STEPS) * 100} className="mt-2 h-1.5" />
+        <GapReportPanel className="mt-4" />
         <h1 className="mt-4 font-display text-3xl font-semibold text-foreground sm:text-4xl">{stepTitle(step)}</h1>
       </div>
 
