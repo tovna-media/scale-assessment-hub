@@ -37,7 +37,11 @@ function ActivatingPage() {
         const status = await check({});
         if (cancelled) return;
         if (status.active) {
-          navigate({ to: '/dashboard', replace: true });
+          navigate({
+            to: '/dashboard',
+            search: { checkout: 'success' },
+            replace: true,
+          });
           return;
         }
       } catch {

@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { ASSESSMENT_LIST, ASSESSMENTS, maxScoreFor, type AssessmentType } from "@/lib/assessments";
@@ -15,6 +15,9 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Your dashboard — SCALE" }] }),
+  validateSearch: (search: Record<string, unknown>) => ({
+    checkout: search.checkout === "success" ? ("success" as const) : undefined,
+  }),
   component: DashboardPage,
 });
 
@@ -28,6 +31,19 @@ interface SessionRow {
 
 function DashboardPage() {
   const { user } = useAuth();
+  const { checkout } = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const shownCheckoutToast = useRef(false);
+
+  useEffect(() => {
+    if (checkout !== "success" || shownCheckoutToast.current) return;
+    shownCheckoutToast.current = true;
+    toast.success("Welcome to Fully Resourced!", {
+      description: "Your subscription is active. You have unlimited access to assessments and Gap Reports.",
+    });
+    navigate({ to: "/dashboard", search: {}, replace: true });
+  }, [checkout, navigate]);
+
   const [sessions, setSessions] = useState<SessionRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [freePassUsed, setFreePassUsed] = useState(false);
