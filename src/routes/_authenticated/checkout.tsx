@@ -17,13 +17,18 @@ export const Route = createFileRoute('/_authenticated/checkout')({
 const PRICE_ID = 'price_1TtwYbKi9kEwbRKQKPBRgXw7';
 
 function CheckoutPage() {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+
+  if (pathname !== "/checkout") {
+    return <Outlet />;
+  }
+
   const create = useServerFn(createSubscriptionCheckout);
   const [accepted, setAccepted] = useState(false);
   const [starting, setStarting] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const stripePromise = useMemo(() => (isStripeConfigured() ? getStripe() : null), []);
   const navigate = useNavigate();
-  const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   const fetchClientSecret = useCallback(async () => {
     return clientSecret ?? '';
@@ -62,10 +67,6 @@ function CheckoutPage() {
     } finally {
       setStarting(false);
     }
-  }
-
-  if (pathname !== '/checkout') {
-    return <Outlet />;
   }
 
   if (clientSecret && stripePromise) {
