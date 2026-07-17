@@ -42,6 +42,9 @@ function AuthLayout() {
 
 function titleFor(path: string): string {
   if (path.startsWith("/dashboard")) return "Home";
+  if (path.startsWith("/cycle")) return "My Cycle";
+  if (path.startsWith("/performance")) return "Performance";
+  if (path.startsWith("/profile")) return "Edit profile";
   if (path.startsWith("/assessment")) return "Assessment";
   if (path.startsWith("/report")) return "Gap Report";
   if (path.startsWith("/guide")) return "Optimization Cycle";
