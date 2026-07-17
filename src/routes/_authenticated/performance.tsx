@@ -10,6 +10,7 @@ import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceDot,
   BarChart, Bar, LabelList,
 } from "recharts";
+import { TablePagination, usePagination } from "@/components/ui/table-pagination";
 
 export const Route = createFileRoute("/_authenticated/performance")({
   head: () => ({ meta: [{ title: "Performance — Fully Resourced" }] }),
@@ -301,40 +302,7 @@ function PerformancePage() {
         {reportSessions.length === 0 ? (
           <EmptyState>No Gap Reports yet. Complete all three assessments to generate your first.</EmptyState>
         ) : (
-          <ul className="grid gap-3">
-            {reportSessions.map((s, idx) => (
-              <li key={s.id}>
-                <Card className="flex flex-wrap items-center justify-between gap-4">
-                  <div className="flex items-start gap-3 min-w-0">
-                    <div className="rounded-lg bg-[var(--fr-lilac)]/40 p-2 text-[var(--rl-purple)]"><FileText className="h-4 w-4" /></div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-[var(--fr-ink)]">
-                        SCALE Gap Report · {format(new Date(s.created_at), "MMMM d, yyyy")}
-                      </p>
-                      <p className="text-xs text-[var(--fr-muted-ink)]">
-                        Triggered by {ASSESSMENTS[s.assessment_type].shortTitle}
-                        {idx === 0 && " · Most recent"}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" asChild>
-                      <Link to="/report/$sessionId" params={{ sessionId: s.id }}>
-                        <ExternalLink className="mr-1.5 h-3.5 w-3.5" /> View
-                      </Link>
-                    </Button>
-                    {idx === 0 && pdfUrl ? (
-                      <Button size="sm" asChild>
-                        <a href={pdfUrl} target="_blank" rel="noreferrer" download>
-                          <Download className="mr-1.5 h-3.5 w-3.5" /> Download PDF
-                        </a>
-                      </Button>
-                    ) : null}
-                  </div>
-                </Card>
-              </li>
-            ))}
-          </ul>
+          <PaginatedReports sessions={reportSessions} pdfUrl={pdfUrl} />
         )}
       </section>
 
@@ -345,6 +313,62 @@ function PerformancePage() {
         <GuideCharts snapshots={snapshots} />
       </section>
     </div>
+  );
+}
+
+function PaginatedReports({ sessions, pdfUrl }: { sessions: SessionRow[]; pdfUrl: string | null }) {
+  const { page, setPage, pageSize, setPageSize, pageCount, total, paged } = usePagination(sessions, 10);
+  return (
+    <>
+      <ul className="grid gap-3">
+        {paged.map((s) => {
+          const idx = sessions.indexOf(s);
+          return (
+            <li key={s.id}>
+              <Card className="flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-start gap-3 min-w-0">
+                  <div className="rounded-lg bg-[var(--fr-lilac)]/40 p-2 text-[var(--rl-purple)]"><FileText className="h-4 w-4" /></div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-[var(--fr-ink)]">
+                      SCALE Gap Report · {format(new Date(s.created_at), "MMMM d, yyyy")}
+                    </p>
+                    <p className="text-xs text-[var(--fr-muted-ink)]">
+                      Triggered by {ASSESSMENTS[s.assessment_type].shortTitle}
+                      {idx === 0 && " · Most recent"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" asChild>
+                    <Link to="/report/$sessionId" params={{ sessionId: s.id }}>
+                      <ExternalLink className="mr-1.5 h-3.5 w-3.5" /> View
+                    </Link>
+                  </Button>
+                  {idx === 0 && pdfUrl ? (
+                    <Button size="sm" asChild>
+                      <a href={pdfUrl} target="_blank" rel="noreferrer" download>
+                        <Download className="mr-1.5 h-3.5 w-3.5" /> Download PDF
+                      </a>
+                    </Button>
+                  ) : null}
+                </div>
+              </Card>
+            </li>
+          );
+        })}
+      </ul>
+      {sessions.length > pageSize && (
+        <div className="mt-3">
+          <TablePagination
+            page={page} setPage={setPage}
+            pageSize={pageSize} setPageSize={setPageSize}
+            pageCount={pageCount} total={total}
+            label="reports"
+            className="px-0"
+          />
+        </div>
+      )}
+    </>
   );
 }
 

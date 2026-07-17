@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { TablePagination, usePagination } from "@/components/ui/table-pagination";
 
 export const Route = createFileRoute("/_coach/coach")({
   head: () => ({ meta: [{ title: "Coach Dashboard — SCALE" }] }),
@@ -79,9 +80,14 @@ function subPillClasses(status: SubStatus) {
 }
 
 function subLabel(status: SubStatus) {
-  if (status === "none") return "No sub";
-  if (status === "past_due") return "Past due";
-  return status.charAt(0).toUpperCase() + status.slice(1);
+  switch (status) {
+    case "active": return "Active";
+    case "trialing": return "Trialing";
+    case "past_due": return "Past due";
+    case "canceled": return "Canceled";
+    case "none":
+    default: return "Not subscribed";
+  }
 }
 
 function CoachDashboard() {
@@ -316,6 +322,8 @@ function CoachDashboardIndex() {
     return list;
   }, [rows, statusFilter, engagementFilter, search, sortBy]);
 
+  const { page, setPage, pageSize, setPageSize, pageCount, total, paged } = usePagination(filtered, 10);
+
   const funnelMax = Math.max(1, ...FUNNEL_STEPS.map((s) => funnel[s.key]));
 
   return (
@@ -460,7 +468,7 @@ function CoachDashboardIndex() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((r) => (
+              {paged.map((r) => (
                 <tr
                   key={r.id}
                   className="border-b border-[color:var(--fr-hairline)]/60 last:border-0 transition-colors hover:bg-[color:var(--fr-lilac)]/30"
@@ -557,6 +565,16 @@ function CoachDashboardIndex() {
               ))}
             </tbody>
           </table>
+        )}
+        {!loading && filtered.length > 0 && (
+          <div className="border-t border-[color:var(--fr-hairline)]">
+            <TablePagination
+              page={page} setPage={setPage}
+              pageSize={pageSize} setPageSize={setPageSize}
+              pageCount={pageCount} total={total}
+              label="members"
+            />
+          </div>
         )}
       </div>
     </main>
