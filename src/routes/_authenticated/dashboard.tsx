@@ -273,9 +273,9 @@ function DashboardPage() {
               size="lg"
               className="bg-[#433993] text-white hover:bg-[#433993]/90"
             >
-              <Link to="/assessment/$type" params={{ type: (nextIncomplete ?? ASSESSMENT_LIST[0]).type }}>
+              <Link to="/assessment/$type" params={{ type: nextTarget.type }}>
                 <ArrowRight className="mr-2 h-4 w-4" />
-                {nextIncomplete ? `Take ${nextIncomplete.shortTitle}` : "Continue"}
+                {nextLabel}
               </Link>
             </Button>
           )}
