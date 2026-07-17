@@ -12,6 +12,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { ArrowLeft, ArrowRight, BookOpen, Check, FileText, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { SectionVideo } from "@/components/scale/SectionVideo";
+import { GapReportPanel } from "@/components/scale/GapReportPanel";
 
 export const Route = createFileRoute("/_authenticated/guide/section-2")({
   head: () => ({ meta: [{ title: "Section 2 · Lead Yourself" }] }),
@@ -279,7 +280,6 @@ function SectionTwoPage() {
         >
           <ArrowLeft className="h-4 w-4" /> My Cycle
         </Link>
-        <GapReportPanel md={gapReportMd} />
       </div>
 
       <SectionVideo sectionNumber={2} sectionTitle="Lead Yourself" />
@@ -290,6 +290,7 @@ function SectionTwoPage() {
           <span>Step {step} of {TOTAL_STEPS}</span>
         </div>
         <Progress value={(step / TOTAL_STEPS) * 100} className="mt-2 h-1.5" />
+        <GapReportPanel className="mt-4" />
         <h1 className="mt-4 font-display text-3xl font-semibold text-foreground sm:text-4xl">
           {stepTitle(step)}
         </h1>
@@ -391,7 +392,7 @@ function stepIsValid(step: number, d: SectionData): boolean {
   }
 }
 
-function GapReportPanel({ md }: { md: string | null }) {
+function LegacyGapReportPanel({ md }: { md: string | null }) {
   return (
     <Sheet>
       <SheetTrigger asChild>
