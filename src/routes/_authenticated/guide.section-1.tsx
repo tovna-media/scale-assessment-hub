@@ -12,6 +12,7 @@ import { ASSESSMENT_LIST, type AssessmentType } from "@/lib/assessments";
 import { toast } from "sonner";
 import { verifyDiscCode } from "@/lib/disc-verify.functions";
 import { SectionVideo } from "@/components/scale/SectionVideo";
+import { GapReportPanel } from "@/components/scale/GapReportPanel";
 
 export const Route = createFileRoute("/_authenticated/guide/section-1")({
   head: () => ({
@@ -250,6 +251,7 @@ function SectionOnePage() {
           <span>Part {part} of 2</span>
         </div>
         <Progress value={progressPct} className="mt-2 h-1.5" />
+        <GapReportPanel className="mt-4" />
         <h1 className="mt-4 font-display text-3xl font-semibold text-foreground sm:text-4xl">
           Begin Your Leadership Optimization Cycle
         </h1>
