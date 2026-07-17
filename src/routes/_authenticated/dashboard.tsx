@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { ASSESSMENT_LIST, ASSESSMENTS, maxScoreFor, type AssessmentType } from "@/lib/assessments";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, FileText, Lock, Sparkles, Compass } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ArrowDownRight, Lock, Sparkles, Compass, Info } from "lucide-react";
 import { format } from "date-fns";
 import { logFunnelEvent } from "@/lib/funnel.functions";
 import { createBillingPortalSession, getSubscriptionStatus } from "@/lib/payments.functions";
