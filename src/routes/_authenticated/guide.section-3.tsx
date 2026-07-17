@@ -9,8 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { Slider } from "@/components/ui/slider";
-import { ArrowLeft, ArrowRight, Check, Minus, PlayCircle, TrendingDown, TrendingUp, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Minus, TrendingDown, TrendingUp, X } from "lucide-react";
 import { toast } from "sonner";
+import { SectionVideo } from "@/components/scale/SectionVideo";
 
 export const Route = createFileRoute("/_authenticated/guide/section-3")({
   head: () => ({ meta: [{ title: "Section 3 · Leadership Performance Dashboard" }] }),
