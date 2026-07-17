@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
 import { logFunnelEvent } from "@/lib/funnel.functions";
 import { useServerFn } from "@tanstack/react-start";
+import { sendTransactionalEmail } from "@/lib/email/send";
 
 export const Route = createFileRoute("/signup")({
   head: () => ({ meta: [{ title: "Create your account — SCALE Assessment Hub" }] }),
@@ -57,6 +58,13 @@ function SignupPage() {
     toast.success("Account created. Welcome to SCALE.");
     // Fire-and-forget funnel event.
     void logEvent({ data: { event_type: "signed_up" } }).catch(() => {});
+    // Fire-and-forget welcome email.
+    void sendTransactionalEmail({
+      templateName: "welcome",
+      recipientEmail: email,
+      idempotencyKey: `welcome-${email}`,
+      templateData: { name: firstName || fullName || undefined },
+    }).catch(() => {});
     // Session is set automatically; redirect via useEffect
   }
 

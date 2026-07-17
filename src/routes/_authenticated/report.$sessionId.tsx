@@ -21,6 +21,7 @@ import { logFunnelEvent } from "@/lib/funnel.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, ArrowRight, Download, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { sendTransactionalEmail } from "@/lib/email/send";
 
 export const Route = createFileRoute("/_authenticated/report/$sessionId")({
   head: () => ({ meta: [{ title: "Your assessment results" }] }),
@@ -186,6 +187,20 @@ function ReportPage() {
       setSession(result.session as SessionFull);
       if (result.delivery && "error" in result.delivery) {
         toast.error(`Report generated, but GHL delivery failed: ${result.delivery.error}`);
+      }
+      // Fire-and-forget "your report is ready" email.
+      if (user?.email) {
+        void sendTransactionalEmail({
+          templateName: "gap-report-ready",
+          recipientEmail: user.email,
+          idempotencyKey: `gap-report-ready-${sessionId}`,
+          templateData: {
+            name:
+              (user.user_metadata?.first_name as string | undefined) ||
+              (user.user_metadata?.full_name as string | undefined),
+            reportUrl: `${window.location.origin}/report/${sessionId}`,
+          },
+        }).catch(() => {});
       }
       setTimeout(() => setGenerating(false), 400);
     } catch (e) {
