@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { EmbeddedCheckout, EmbeddedCheckoutProvider } from '@stripe/react-stripe-js';
 import { useServerFn } from '@tanstack/react-start';
@@ -17,12 +17,6 @@ export const Route = createFileRoute('/_authenticated/checkout/')({
 const PRICE_ID = 'price_1TtwYbKi9kEwbRKQKPBRgXw7';
 
 function CheckoutPage() {
-  const pathname = useRouterState({ select: (state) => state.location.pathname });
-
-  if (pathname !== "/checkout") {
-    return <Outlet />;
-  }
-
   const create = useServerFn(createSubscriptionCheckout);
   const [accepted, setAccepted] = useState(false);
   const [starting, setStarting] = useState(false);
