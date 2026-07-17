@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { ASSESSMENT_LIST, ASSESSMENTS, maxScoreFor, type AssessmentType } from "@/lib/assessments";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, FileText, Lock, Sparkles } from "lucide-react";
+import { ArrowRight, FileText, Lock, Sparkles, Compass } from "lucide-react";
 import { format } from "date-fns";
 import { logFunnelEvent } from "@/lib/funnel.functions";
 import { createBillingPortalSession, getSubscriptionStatus } from "@/lib/payments.functions";
@@ -48,6 +48,8 @@ function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [freePassUsed, setFreePassUsed] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
+  const [priorityGap, setPriorityGap] = useState<{ name: string; score: number | null } | null>(null);
+  const [section1Complete, setSection1Complete] = useState(false);
   const [eligibility, setEligibility] = useState<{
     reportsGenerated: number;
     readyCount: number;
@@ -96,6 +98,19 @@ function DashboardPage() {
         }),
       )
       .catch(() => setEligibility(null));
+    supabase
+      .from("optimizer_section_progress")
+      .select("priority_gap, priority_gap_score, completed")
+      .eq("user_id", user.id)
+      .eq("section_number", 1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!data) return;
+        setSection1Complete(Boolean(data.completed));
+        if (data.priority_gap) {
+          setPriorityGap({ name: data.priority_gap, score: data.priority_gap_score ?? null });
+        }
+      });
   }, [user, checkSub, checkEligibility]);
 
   const paywalled = freePassUsed && !subscribed;
@@ -163,6 +178,42 @@ function DashboardPage() {
           Take any assessment to generate your personalized SCALE Gap Report.
         </p>
       </div>
+
+      {subscribed && (
+        <div className="mb-8 flex flex-col items-start justify-between gap-4 rounded-2xl border border-[#433993]/30 bg-[#433993]/5 p-6 sm:flex-row sm:items-center">
+          <div className="flex items-start gap-3">
+            <Compass className="mt-0.5 h-5 w-5 text-[#433993]" />
+            <div>
+              <p className="text-xs font-medium uppercase tracking-widest text-[#433993]">
+                Optimized Leader Guide · Section 1
+              </p>
+              <h2 className="mt-1 font-display text-xl font-semibold text-foreground">
+                {section1Complete
+                  ? "Section 1 complete"
+                  : "Begin Your Leadership Optimization Cycle"}
+              </h2>
+              {priorityGap ? (
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Priority Gap: <span className="font-medium text-foreground">{priorityGap.name}</span>
+                  {priorityGap.score !== null && (
+                    <span className="text-muted-foreground"> · baseline {priorityGap.score}</span>
+                  )}
+                </p>
+              ) : (
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Confirm your assessments, set your Priority Gap, and answer five reflection questions.
+                </p>
+              )}
+            </div>
+          </div>
+          <Button asChild size="lg" className="bg-[#433993] text-white hover:bg-[#433993]/90">
+            <Link to="/guide/section-1">
+              {section1Complete ? "Review Section 1" : "Start Section 1"}
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
+      )}
 
       <div className="grid gap-5 md:grid-cols-3">
         {ASSESSMENT_LIST.map((a) => {

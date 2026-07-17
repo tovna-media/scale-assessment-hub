@@ -206,6 +206,42 @@ export type Database = {
         }
         Relationships: []
       }
+      optimizer_section_progress: {
+        Row: {
+          completed: boolean
+          created_at: string
+          data: Json
+          id: string
+          priority_gap: string | null
+          priority_gap_score: number | null
+          section_number: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          data?: Json
+          id?: string
+          priority_gap?: string | null
+          priority_gap_score?: number | null
+          section_number: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          data?: Json
+          id?: string
+          priority_gap?: string | null
+          priority_gap_score?: number | null
+          section_number?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
