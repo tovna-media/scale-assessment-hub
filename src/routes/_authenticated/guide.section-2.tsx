@@ -11,6 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { ArrowLeft, ArrowRight, BookOpen, Check, FileText, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
+import { SectionVideo } from "@/components/scale/SectionVideo";
 
 export const Route = createFileRoute("/_authenticated/guide/section-2")({
   head: () => ({ meta: [{ title: "Section 2 · Lead Yourself" }] }),
