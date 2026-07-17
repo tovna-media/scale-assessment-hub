@@ -306,11 +306,18 @@ export const generateGapReport = createServerFn({ method: "POST" })
     {
       const { data: prof } = await supabase
         .from("profiles")
-        .select("free_pass_used, subscribed")
+        .select("free_pass_used")
         .eq("id", userId)
         .maybeSingle();
       freePassAlreadyUsed = Boolean((prof as { free_pass_used?: boolean } | null)?.free_pass_used);
-      subscribed = Boolean((prof as { subscribed?: boolean } | null)?.subscribed);
+      try {
+        const { data: subRpc } = await supabase.rpc("has_active_subscription", {
+          _user_id: userId,
+        });
+        subscribed = Boolean(subRpc);
+      } catch {
+        subscribed = false;
+      }
     }
 
     // Compute round-based eligibility. Report N+1 requires each of the 3
