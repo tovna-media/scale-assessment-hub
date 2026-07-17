@@ -1,7 +1,7 @@
-import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { AppHeader } from "@/components/scale/AppHeader";
+import { AppShell } from "@/components/scale/AppShell";
 
 export const Route = createFileRoute("/_authenticated")({
   component: AuthLayout,
@@ -10,6 +10,7 @@ export const Route = createFileRoute("/_authenticated")({
 function AuthLayout() {
   const { session, role, loading } = useAuth();
   const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   useEffect(() => {
     if (loading) return;
@@ -31,10 +32,19 @@ function AuthLayout() {
     );
   }
 
+  const pageTitle = titleFor(pathname);
   return (
-    <div className="min-h-screen bg-background">
-      <AppHeader variant="assessee" />
+    <AppShell pageTitle={pageTitle}>
       <Outlet />
-    </div>
+    </AppShell>
   );
+}
+
+function titleFor(path: string): string {
+  if (path.startsWith("/dashboard")) return "Home";
+  if (path.startsWith("/assessment")) return "Assessment";
+  if (path.startsWith("/report")) return "Gap Report";
+  if (path.startsWith("/guide")) return "Optimization Cycle";
+  if (path.startsWith("/checkout")) return "Checkout";
+  return "Fully Resourced";
 }
