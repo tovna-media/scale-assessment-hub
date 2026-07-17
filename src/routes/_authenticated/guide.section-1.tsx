@@ -10,6 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, ArrowRight, ExternalLink, Check } from "lucide-react";
 import { ASSESSMENT_LIST, type AssessmentType } from "@/lib/assessments";
 import { toast } from "sonner";
+import { verifyDiscCode } from "@/lib/disc-verify.functions";
 
 export const Route = createFileRoute("/_authenticated/guide/section-1")({
   head: () => ({
@@ -31,8 +32,8 @@ const REFLECTIONS = [
 
 interface SectionData {
   disc_completed?: boolean;
-  gap_report_reviewed?: boolean;
   reflections?: string[];
+  disc_key_code?: string;
 }
 
 interface GapOption {
@@ -48,7 +49,10 @@ function SectionOnePage() {
   const [loading, setLoading] = useState(true);
   const [rowId, setRowId] = useState<string | null>(null);
   const [discCompleted, setDiscCompleted] = useState(false);
-  const [gapReviewed, setGapReviewed] = useState(false);
+  const [discCode, setDiscCode] = useState("");
+  const [discCodeInput, setDiscCodeInput] = useState("");
+  const [discError, setDiscError] = useState<string | null>(null);
+  const [discVerifying, setDiscVerifying] = useState(false);
   const [priorityGap, setPriorityGap] = useState<string>("");
   const [priorityGapScore, setPriorityGapScore] = useState<number | null>(null);
   const [reflections, setReflections] = useState<string[]>(["", "", "", "", ""]);
@@ -120,7 +124,7 @@ function SectionOnePage() {
         setRowId(row.id);
         const d = (row.data ?? {}) as SectionData;
         setDiscCompleted(Boolean(d.disc_completed));
-        setGapReviewed(Boolean(d.gap_report_reviewed));
+        setDiscCode(d.disc_key_code ?? "");
         setPriorityGap(row.priority_gap ?? "");
         setPriorityGapScore(row.priority_gap_score ?? null);
         const r = Array.isArray(d.reflections) ? d.reflections : [];
@@ -134,7 +138,7 @@ function SectionOnePage() {
   const assessmentsAllDone =
     assessmentsDone.inner_capacity && assessmentsDone.personal_leadership && assessmentsDone.business_audit;
 
-  const checklistComplete = assessmentsAllDone && discCompleted && gapReviewed;
+  const checklistComplete = assessmentsAllDone && discCompleted;
   const priorityGapSet = priorityGap.trim().length > 0;
   const reflectionsDone = reflections.every((r) => r.trim().length > 0);
   const sectionComplete = checklistComplete && priorityGapSet && reflectionsDone;
@@ -149,7 +153,7 @@ function SectionOnePage() {
         section_number: 1,
         data: {
           disc_completed: discCompleted,
-          gap_report_reviewed: gapReviewed,
+          disc_key_code: discCode || undefined,
           reflections,
         } as never,
         priority_gap: priorityGap || null,
@@ -173,7 +177,7 @@ function SectionOnePage() {
   }, [
     user,
     discCompleted,
-    gapReviewed,
+    discCode,
     reflections,
     priorityGap,
     priorityGapScore,
@@ -183,6 +187,30 @@ function SectionOnePage() {
   function selectGap(opt: GapOption) {
     setPriorityGap(opt.label);
     setPriorityGapScore(opt.score);
+  }
+
+  async function submitDiscCode() {
+    const code = discCodeInput.trim();
+    if (!code) return;
+    setDiscVerifying(true);
+    setDiscError(null);
+    try {
+      const res = await verifyDiscCode({ data: { code } });
+      if (res.valid) {
+        setDiscCompleted(true);
+        setDiscCode(code);
+        setDiscCodeInput("");
+        setDiscError(null);
+        toast.success("DISC code verified.");
+      } else {
+        setDiscError("That code is invalid");
+      }
+    } catch (e) {
+      console.error(e);
+      setDiscError("That code is invalid");
+    } finally {
+      setDiscVerifying(false);
+    }
   }
 
   function updateReflection(i: number, value: string) {
@@ -230,16 +258,16 @@ function SectionOnePage() {
           assessmentsDone={assessmentsDone}
           assessmentsAllDone={assessmentsAllDone}
           discCompleted={discCompleted}
-          setDiscCompleted={setDiscCompleted}
-          gapReviewed={gapReviewed}
-          setGapReviewed={setGapReviewed}
-          hasGapReport={hasGapReport}
+          discCode={discCode}
+          discCodeInput={discCodeInput}
+          setDiscCodeInput={setDiscCodeInput}
+          discError={discError}
+          discVerifying={discVerifying}
+          onSubmitDiscCode={submitDiscCode}
           gapOptions={gapOptions}
           priorityGap={priorityGap}
           priorityGapScore={priorityGapScore}
           onSelectGap={selectGap}
-          onSetCustomGap={setPriorityGap}
-          onSetCustomScore={setPriorityGapScore}
           canContinue={checklistComplete && priorityGapSet}
           onContinue={() => setPart(2)}
         />
