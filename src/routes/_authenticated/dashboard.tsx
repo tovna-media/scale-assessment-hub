@@ -162,7 +162,6 @@ function DashboardPage() {
     perTypeReady: Record<AssessmentType, boolean>;
   } | null>(null);
   const logEvent = useServerFn(logFunnelEvent);
-  const openPortal = useServerFn(createBillingPortalSession);
   const checkSub = useServerFn(getSubscriptionStatus);
   const checkEligibility = useServerFn(getGapReportEligibility);
 
@@ -223,25 +222,6 @@ function DashboardPage() {
 
   function handleSubscribeClick() {
     void logEvent({ data: { event_type: "clicked_subscribe" } }).catch(() => {});
-  }
-
-  async function handleManageBilling() {
-    if (!isStripeConfigured()) {
-      toast.error("Payments are not configured yet.");
-      return;
-    }
-    try {
-      const result = await openPortal({
-        data: {
-          returnUrl: `${window.location.origin}/dashboard`,
-          environment: getStripeEnvironment(),
-        },
-      });
-      if ("error" in result) throw new Error(result.error);
-      window.open(result.url, "_blank", "noopener,noreferrer");
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not open billing portal.");
-    }
   }
 
   const displayName = profile.firstName || profile.fullName?.split(" ")[0] || (user?.email ? user.email.split("@")[0] : "");
