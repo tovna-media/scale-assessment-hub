@@ -1,5 +1,5 @@
-import logoUrl from "@/assets/rl-logo.png";
+import logoAsset from "@/assets/fr-logo.png.asset.json";
 
 export function Logo({ className = "h-8 w-auto" }: { className?: string }) {
-  return <img src={logoUrl} alt="Rich Lohman" className={className} />;
+  return <img src={logoAsset.url} alt="Fully Resourced" className={className} />;
 }
