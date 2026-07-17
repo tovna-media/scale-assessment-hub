@@ -24,7 +24,7 @@ const SECTIONS: { number: number; title: string; blurb: string; path?: string }[
   { number: 9, title: "Integration & Real-World Leadership", blurb: "Debrief pressure, rate integration, and lock the next 14-day focus.", path: "/guide/section-9" },
   { number: 10, title: "Lead Leaders", blurb: "Choose a leader to invest in, build their Transfer Plan, and set the development rhythm.", path: "/guide/section-10" },
   { number: 11, title: "Protecting the Leadership System", blurb: "Protect the process, catch drift, and sustain the standards you've built.", path: "/guide/section-11" },
-  { number: 12, title: "Reassess & Renew", blurb: "Retake your assessments and start your next cycle." },
+  { number: 12, title: "Leadership Optimization Review", blurb: "Review your cycle, retake all three assessments, generate a new Gap Report, and launch the next cycle.", path: "/guide/section-12" },
 ];
 
 interface Progress { section_number: number; completed: boolean; }
