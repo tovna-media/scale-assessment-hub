@@ -356,53 +356,6 @@ function DashboardPage() {
       </div>
 
       {/* Assessment performance */}
-      <div className="mt-10 flex items-baseline justify-between">
-        <h3 className="text-lg font-semibold text-[var(--fr-ink)]">Assessment performance</h3>
-        <Link to="/dashboard" className="hidden text-sm font-medium text-[var(--rl-purple)] hover:underline sm:inline-flex sm:items-center sm:gap-1">
-          View assessments & reports <ArrowRight className="h-3.5 w-3.5" />
-        </Link>
-      </div>
-      <div className="mt-4 grid gap-4 md:grid-cols-3">
-        {assessmentStats.map((s) => (
-          <AssessmentCard key={s.def.type} stats={s} />
-        ))}
-      </div>
-
-      {/* Section 1 CTA (Optimized Leader Guide) */}
-      {subscribed && (
-        <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-[var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)] sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-start gap-3">
-            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[var(--fr-lilac)] text-[var(--rl-purple)]">
-              <Compass className="h-5 w-5" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--rl-purple)]">
-                Optimized Leader Guide · Section 1
-              </p>
-              <h4 className="mt-1 text-lg font-semibold text-[var(--fr-ink)]">
-                {section1Complete ? "Section 1 complete" : "Begin Your Leadership Optimization Cycle"}
-              </h4>
-              {priorityGap ? (
-                <p className="mt-1 text-sm text-[var(--fr-muted-ink)]">
-                  Priority Gap: <span className="font-medium text-[var(--fr-ink)]">{priorityGap.name}</span>
-                  {priorityGap.score !== null && <span> · baseline {priorityGap.score}</span>}
-                </p>
-              ) : (
-                <p className="mt-1 text-sm text-[var(--fr-muted-ink)]">
-                  Confirm your assessments, set your Priority Gap, and answer five reflection questions.
-                </p>
-              )}
-            </div>
-          </div>
-          <Button asChild size="lg">
-            <Link to="/guide/section-1">
-              {section1Complete ? "Review Section 1" : "Start Section 1"}
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
-      )}
-
       {/* Gap Report banner */}
       {showGapBanner && (
         <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-[var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)] sm:flex-row sm:items-center sm:justify-between">
@@ -471,65 +424,19 @@ function DashboardPage() {
         </div>
       )}
 
-      {/* Manage billing */}
-      {subscribed && (
-        <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-[var(--fr-hairline)] bg-[var(--fr-surface)]/60 p-6 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--rl-purple)]">
-              Fully Resourced Member
-            </p>
-            <h4 className="mt-1 text-base font-semibold text-[var(--fr-ink)]">Manage your subscription</h4>
-            <p className="mt-1 text-sm text-[var(--fr-muted-ink)]">Update your card, download invoices, or cancel anytime.</p>
-          </div>
-          <Button variant="outline" onClick={handleManageBilling}>Manage billing</Button>
+      {/* Explore Performance */}
+      <div className="mt-10 flex flex-col gap-4 rounded-2xl border border-[var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)] sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--rl-purple)]">Performance</p>
+          <h4 className="mt-1 text-base font-semibold text-[var(--fr-ink)]">See your growth over time</h4>
+          <p className="mt-1 text-sm text-[var(--fr-muted-ink)]">
+            Per-assessment trends, deltas, and every Gap Report you've generated.
+          </p>
         </div>
-      )}
-
-      {/* History */}
-      <section className="mt-12">
-        <h3 className="text-lg font-semibold text-[var(--fr-ink)]">My history</h3>
-        <div className="mt-4 overflow-x-auto rounded-2xl border border-[var(--fr-hairline)] bg-white shadow-[var(--shadow-card)]">
-          {loading ? (
-            <div className="px-6 py-10 text-center text-sm text-[var(--fr-muted-ink)]">Loading…</div>
-          ) : sessions.length === 0 ? (
-            <div className="px-6 py-10 text-center text-sm text-[var(--fr-muted-ink)]">
-              No assessments taken yet. Start with one above.
-            </div>
-          ) : (
-            <table className="w-full min-w-[640px] text-sm">
-              <thead className="border-b border-[var(--fr-hairline)] bg-[var(--fr-surface)]/50 text-left text-xs uppercase tracking-wider text-[var(--fr-muted-ink)]">
-                <tr>
-                  <th className="px-4 py-3 font-medium">Assessment</th>
-                  <th className="px-4 py-3 font-medium">Date taken</th>
-                  <th className="px-4 py-3 font-medium">Overall score</th>
-                  <th className="px-4 py-3 font-medium text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sessions.map((s) => (
-                  <tr key={s.id} className="border-b border-[var(--fr-hairline)] last:border-0">
-                    <td className="px-4 py-3 font-medium text-[var(--fr-ink)]">
-                      {ASSESSMENTS[s.assessment_type].shortTitle}
-                    </td>
-                    <td className="px-4 py-3 text-[var(--fr-muted-ink)]">
-                      {format(new Date(s.created_at), "MMM d, yyyy")}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="font-semibold">{s.overall_score}</span>
-                      <span className="text-[var(--fr-muted-ink)]">/{maxScoreFor(s.assessment_type)}</span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link to="/report/$sessionId" params={{ sessionId: s.id }}>View report</Link>
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      </section>
+        <Button asChild variant="outline">
+          <Link to="/performance">Open Performance <ArrowRight className="ml-2 h-4 w-4" /></Link>
+        </Button>
+      </div>
     </div>
   );
 }
