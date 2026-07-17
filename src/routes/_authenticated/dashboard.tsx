@@ -2,14 +2,12 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
-import { ASSESSMENT_LIST, ASSESSMENTS, maxScoreFor, type AssessmentType } from "@/lib/assessments";
+import { ASSESSMENT_LIST, maxScoreFor, type AssessmentType } from "@/lib/assessments";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ArrowUpRight, ArrowDownRight, Lock, Sparkles, Compass, Minus, Calendar, Target } from "lucide-react";
-import { format } from "date-fns";
+import { ArrowRight, Lock, Sparkles, Minus, Target } from "lucide-react";
 import { logFunnelEvent } from "@/lib/funnel.functions";
-import { createBillingPortalSession, getSubscriptionStatus } from "@/lib/payments.functions";
+import { getSubscriptionStatus } from "@/lib/payments.functions";
 import { getGapReportEligibility } from "@/lib/report.functions";
-import { getStripeEnvironment, isStripeConfigured } from "@/lib/stripe";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
