@@ -714,7 +714,7 @@ function StatCard({
         {trailing && <span className="ml-1">{trailing}</span>}
       </div>
       {subValue && <div className="mt-1 text-xs text-[var(--fr-muted-ink)]">{subValue}</div>}
-      {typeof progress === "number" && progress >= 0 && (
+      {typeof progress === "number" && progress > 0 && (
         <div className="mt-4 h-2 overflow-hidden rounded-full bg-[var(--fr-lilac)]">
           <div
             className="h-full rounded-full"
