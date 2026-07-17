@@ -38,6 +38,7 @@ function DashboardPage() {
     total: number;
     allowed: boolean;
     isFirstRound: boolean;
+    perTypeReady: Record<AssessmentType, boolean>;
   } | null>(null);
   const logEvent = useServerFn(logFunnelEvent);
   const openPortal = useServerFn(createBillingPortalSession);
@@ -75,6 +76,7 @@ function DashboardPage() {
           total: e.total,
           allowed: e.allowed,
           isFirstRound: e.isFirstRound,
+          perTypeReady: e.perTypeReady as Record<AssessmentType, boolean>,
         }),
       )
       .catch(() => setEligibility(null));
@@ -111,6 +113,16 @@ function DashboardPage() {
 
   const completedTypes = new Set(sessions.map((s) => s.assessment_type));
   const nextIncomplete = ASSESSMENT_LIST.find((a) => !completedTypes.has(a.type));
+  const nextRetake =
+    eligibility && !eligibility.isFirstRound
+      ? ASSESSMENT_LIST.find((a) => !eligibility.perTypeReady[a.type])
+      : undefined;
+  const nextTarget = nextRetake ?? nextIncomplete ?? ASSESSMENT_LIST[0];
+  const nextLabel = nextRetake
+    ? `Retake ${nextRetake.shortTitle}`
+    : nextIncomplete
+      ? `Take ${nextIncomplete.shortTitle}`
+      : "Continue";
   const latestSession = sessions[0];
   const readyCount = eligibility?.readyCount ?? 0;
   const canGenerate = Boolean(eligibility?.allowed);
