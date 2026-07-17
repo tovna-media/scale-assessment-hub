@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/cycle")({
 const SECTIONS: { number: number; title: string; blurb: string; path?: string }[] = [
   { number: 1, title: "Begin Your Leadership Optimization Cycle", blurb: "Confirm your assessments, lock in your Priority Gap, and set your intent.", path: "/guide/section-1" },
   { number: 2, title: "Lead Yourself", blurb: "Build the Lead Yourself Plan: character, emotions, success image, standards, and daily leadership.", path: "/guide/section-2" },
-  { number: 3, title: "Identify Your Core Values", blurb: "Name the non-negotiables that drive your leadership." },
+  { number: 3, title: "Leadership Performance Dashboard", blurb: "Rate FUEL, capacity, skills, drivers, standards, and lock in your action plan.", path: "/guide/section-3" },
   { number: 4, title: "Master Your Time", blurb: "Redesign how you spend the hours the business demands." },
   { number: 5, title: "Build Your Support System", blurb: "Map the people and structures that will hold your growth." },
   { number: 6, title: "Sharpen Your Decision-Making", blurb: "Faster, cleaner decisions under real pressure." },
