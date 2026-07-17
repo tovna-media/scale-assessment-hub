@@ -87,43 +87,77 @@ function AssesseeDetail() {
     if (!latestByType.has(s.assessment_type)) latestByType.set(s.assessment_type, s);
   }
 
-  let pdfPublicUrl: string | null = null;
-  if (gapReport?.pdf_path) {
-    const { data } = supabase.storage.from("reports").getPublicUrl(gapReport.pdf_path);
-    pdfPublicUrl = data.publicUrl;
-  }
+  const reportsWithUrl = useMemo(
+    () =>
+      gapReports.map((r) => ({
+        ...r,
+        pdfUrl: r.pdf_path
+          ? supabase.storage.from("reports").getPublicUrl(r.pdf_path).data.publicUrl
+          : null,
+      })),
+    [gapReports],
+  );
+
+  // Group all sessions by assessment type, oldest first, to show growth over time.
+  const historyByType = useMemo(() => {
+    const m = new Map<AssessmentType, SessionRow[]>();
+    const asc = [...sessions].sort((a, b) => a.created_at.localeCompare(b.created_at));
+    for (const s of asc) {
+      const arr = m.get(s.assessment_type) ?? [];
+      arr.push(s);
+      m.set(s.assessment_type, arr);
+    }
+    return m;
+  }, [sessions]);
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-      <Button variant="ghost" asChild className="mb-4">
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <Button variant="ghost" asChild className="mb-4 text-[color:var(--rl-purple-deep)] hover:text-[color:var(--rl-purple)]">
         <Link to="/coach"><ArrowLeft className="mr-2 h-4 w-4" /> Back to dashboard</Link>
       </Button>
 
-      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-        <h1 className="font-display text-3xl font-semibold text-foreground">{profile.full_name || `${profile.first_name ?? ""} ${profile.last_name ?? ""}`.trim() || "—"}</h1>
-        <div className="mt-3 flex flex-wrap gap-4 text-sm text-muted-foreground">
-          <a href={`mailto:${profile.email}`} className="inline-flex items-center gap-1 hover:text-foreground"><Mail className="h-4 w-4" />{profile.email}</a>
-          {profile.phone && <a href={`tel:${profile.phone}`} className="inline-flex items-center gap-1 hover:text-foreground"><Phone className="h-4 w-4" />{profile.phone}</a>}
-          <span className="inline-flex items-center gap-1"><Calendar className="h-4 w-4" />Joined {format(new Date(profile.created_at), "MMM d, yyyy")}</span>
+      {/* Header card */}
+      <div className="rounded-2xl border border-[color:var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)]">
+        <div className="text-xs uppercase tracking-[0.18em] text-[color:var(--rl-purple)]">Member</div>
+        <h1 className="mt-1 font-display text-3xl font-semibold text-[color:var(--fr-ink)] sm:text-4xl">
+          {profile.full_name || `${profile.first_name ?? ""} ${profile.last_name ?? ""}`.trim() || "—"}
+        </h1>
+        <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
+          <a href={`mailto:${profile.email}`} className="inline-flex items-center gap-1.5 hover:text-[color:var(--rl-purple-deep)]"><Mail className="h-4 w-4" />{profile.email}</a>
+          {profile.phone && <a href={`tel:${profile.phone}`} className="inline-flex items-center gap-1.5 hover:text-[color:var(--rl-purple-deep)]"><Phone className="h-4 w-4" />{profile.phone}</a>}
+          <span className="inline-flex items-center gap-1.5"><Calendar className="h-4 w-4" />Joined {format(new Date(profile.created_at), "MMM d, yyyy")}</span>
         </div>
       </div>
 
-      <h2 className="mt-10 font-display text-xl font-semibold text-foreground">Assessments</h2>
+      {/* Latest snapshot */}
+      <h2 className="mt-10 font-display text-xl font-semibold text-[color:var(--fr-ink)]">Latest scores</h2>
       {latestByType.size === 0 ? (
-        <p className="mt-3 text-sm text-muted-foreground">This assessee has not taken any assessments yet.</p>
+        <p className="mt-3 text-sm text-muted-foreground">This member hasn't taken any assessments yet.</p>
       ) : (
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           {(["inner_capacity", "personal_leadership", "business_audit"] as AssessmentType[]).map((t) => {
             const s = latestByType.get(t);
             const def = ASSESSMENTS[t];
+            const history = historyByType.get(t) ?? [];
+            const prev = history.length >= 2 ? history[history.length - 2] : null;
+            const delta = s && prev ? s.overall_score - prev.overall_score : 0;
             return (
-              <div key={t} className="rounded-xl border border-border bg-card p-5">
-                <div className="text-xs font-medium uppercase tracking-wider text-[var(--accent-blue)]">{def.shortTitle}</div>
+              <div key={t} className="rounded-2xl border border-[color:var(--fr-hairline)] bg-white p-5 shadow-[var(--shadow-card)]">
+                <div className="text-xs font-medium uppercase tracking-[0.14em] text-[color:var(--rl-purple)]">{def.shortTitle}</div>
                 {s ? (
                   <>
-                    <div className="mt-3 font-display text-4xl font-semibold text-foreground">{s.overall_score}<span className="text-base text-muted-foreground">/{maxScoreFor(t)}</span></div>
+                    <div className="mt-3 flex items-baseline gap-2">
+                      <span className="font-display text-4xl font-semibold text-[color:var(--fr-ink)]">{s.overall_score}</span>
+                      <span className="text-sm text-muted-foreground">/ {maxScoreFor(t)}</span>
+                      {delta !== 0 && (
+                        <span className={"ml-auto inline-flex items-center gap-0.5 text-xs font-medium " + (delta > 0 ? "text-emerald-700" : "text-rose-700")}>
+                          {delta > 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                          {delta > 0 ? "+" : ""}{delta}
+                        </span>
+                      )}
+                    </div>
                     {s.overall_level && <div className="mt-1 text-sm text-muted-foreground">{s.overall_level}</div>}
-                    <div className="mt-2 text-xs text-muted-foreground">{format(new Date(s.created_at), "MMM d, yyyy")}</div>
+                    <div className="mt-2 text-xs text-muted-foreground">{format(new Date(s.created_at), "MMM d, yyyy")} · {history.length} {history.length === 1 ? "attempt" : "attempts"}</div>
                   </>
                 ) : (
                   <div className="mt-3 text-sm text-muted-foreground">Not yet taken.</div>
@@ -134,36 +168,85 @@ function AssesseeDetail() {
         </div>
       )}
 
-      {/* Per-assessment subcategory + gap report */}
+      {/* Growth over time — every attempt per assessment */}
+      {latestByType.size > 0 && (
+        <section className="mt-10 rounded-2xl border border-[color:var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)]">
+          <h2 className="font-display text-xl font-semibold text-[color:var(--fr-ink)]">Growth over time</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Every assessment attempt with date and score.</p>
+          <div className="mt-6 grid gap-6 lg:grid-cols-3">
+            {(["inner_capacity", "personal_leadership", "business_audit"] as AssessmentType[]).map((t) => {
+              const history = historyByType.get(t) ?? [];
+              const max = maxScoreFor(t);
+              return (
+                <div key={t} className="rounded-xl border border-[color:var(--fr-hairline)] bg-[color:var(--fr-lilac)]/30 p-4">
+                  <div className="text-xs font-medium uppercase tracking-[0.14em] text-[color:var(--rl-purple-deep)]">{ASSESSMENTS[t].shortTitle}</div>
+                  {history.length === 0 ? (
+                    <p className="mt-3 text-sm text-muted-foreground">No attempts yet.</p>
+                  ) : (
+                    <ol className="mt-3 space-y-2">
+                      {history.map((s, i) => {
+                        const prev = i > 0 ? history[i - 1] : null;
+                        const delta = prev ? s.overall_score - prev.overall_score : 0;
+                        return (
+                          <li key={s.id} className="flex items-center justify-between rounded-lg border border-[color:var(--fr-hairline)] bg-white px-3 py-2">
+                            <div className="text-xs text-muted-foreground">
+                              <div className="font-medium text-[color:var(--fr-ink)]">Attempt {i + 1}</div>
+                              <div>{format(new Date(s.created_at), "MMM d, yyyy")}</div>
+                            </div>
+                            <div className="flex items-baseline gap-2">
+                              <span className="font-display text-lg font-semibold text-[color:var(--fr-ink)]">{s.overall_score}</span>
+                              <span className="text-xs text-muted-foreground">/{max}</span>
+                              {prev && (
+                                <span className={"ml-1 text-[11px] font-medium " + (delta > 0 ? "text-emerald-700" : delta < 0 ? "text-rose-700" : "text-muted-foreground")}>
+                                  {delta > 0 ? "+" : ""}{delta}
+                                </span>
+                              )}
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* Latest breakdown per assessment */}
       <div className="mt-8 space-y-8">
         {Array.from(latestByType.entries()).map(([t, s]) => (
-          <section key={t} className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <section key={t} className="rounded-2xl border border-[color:var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)]">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <h3 className="font-display text-lg font-semibold text-foreground">{ASSESSMENTS[t].shortTitle}</h3>
+              <div>
+                <div className="text-xs uppercase tracking-[0.14em] text-[color:var(--rl-purple)]">Latest breakdown</div>
+                <h3 className="mt-1 font-display text-lg font-semibold text-[color:var(--fr-ink)]">{ASSESSMENTS[t].shortTitle}</h3>
+              </div>
               <span className="text-sm text-muted-foreground">Score {s.overall_score}/{maxScoreFor(t)} · {format(new Date(s.created_at), "MMM d, yyyy")}</span>
             </div>
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
               {Object.entries(s.subcategory_scores ?? {}).map(([name, score]) => {
                 const label = subcategoryGapLabel(t, name, score);
                 const tone =
-                  label === "Strength" ? "bg-[var(--success)]/10 text-[var(--success)]"
-                  : label === "Moderate Gap" ? "bg-[var(--warning)]/15 text-[var(--warning)]"
-                  : label === "Developing" ? "bg-[var(--accent-blue)]/10 text-[var(--accent-blue)]"
-                  : "bg-destructive/10 text-destructive";
+                  label === "Strength" ? "bg-emerald-100 text-emerald-800"
+                  : label === "Moderate Gap" ? "bg-amber-100 text-amber-800"
+                  : label === "Developing" ? "bg-[color:var(--fr-lilac)] text-[color:var(--rl-purple-deep)]"
+                  : "bg-rose-100 text-rose-800";
                 return (
-                  <div key={name} className="flex items-center justify-between rounded-md border border-border px-3 py-2 text-sm">
+                  <div key={name} className="flex items-center justify-between rounded-lg border border-[color:var(--fr-hairline)] bg-white px-3 py-2 text-sm">
                     <div>
-                      <div className="font-medium text-foreground">{name}</div>
+                      <div className="font-medium text-[color:var(--fr-ink)]">{name}</div>
                       <div className={"mt-0.5 inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium " + tone}>{label}</div>
                     </div>
-                    <div className="font-display text-base font-semibold">{score}</div>
+                    <div className="font-display text-base font-semibold text-[color:var(--fr-ink)]">{score}</div>
                   </div>
                 );
               })}
             </div>
             {s.gap_report && (
-              <details className="mt-5 rounded-lg border border-border bg-background p-4">
-                <summary className="cursor-pointer text-sm font-medium text-foreground">View gap report</summary>
+              <details className="mt-5 rounded-lg border border-[color:var(--fr-hairline)] bg-[color:var(--fr-lilac)]/25 p-4">
+                <summary className="cursor-pointer text-sm font-medium text-[color:var(--rl-purple-deep)]">View narrative</summary>
                 <article className="prose mt-4 max-w-none">
                   <Markdown text={s.gap_report} />
                 </article>
@@ -173,17 +256,46 @@ function AssesseeDetail() {
         ))}
       </div>
 
-      {/* SCALE Gap Report */}
-      {pdfPublicUrl && (
-        <section className="mt-10 rounded-2xl border border-border bg-card p-6 shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="font-display text-xl font-semibold text-foreground inline-flex items-center gap-2"><FileText className="h-5 w-5" /> SCALE Gap Report</h2>
-            <Button variant="outline" asChild>
-              <a href={pdfPublicUrl} target="_blank" rel="noopener noreferrer"><Download className="mr-2 h-4 w-4" /> PDF</a>
-            </Button>
-          </div>
-        </section>
-      )}
+      {/* Gap Report history */}
+      <section className="mt-10 rounded-2xl border border-[color:var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)]">
+        <h2 className="font-display text-xl font-semibold text-[color:var(--fr-ink)] inline-flex items-center gap-2">
+          <FileText className="h-5 w-5 text-[color:var(--rl-purple)]" /> Gap report history
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">Every SCALE Gap Report generated for this member.</p>
+        {reportsWithUrl.length === 0 ? (
+          <p className="mt-4 text-sm text-muted-foreground">No gap reports generated yet.</p>
+        ) : (
+          <ol className="mt-4 space-y-3">
+            {reportsWithUrl.map((r, i) => (
+              <li
+                key={r.id}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[color:var(--fr-hairline)] bg-[color:var(--fr-lilac)]/25 px-4 py-3"
+              >
+                <div>
+                  <div className="font-medium text-[color:var(--fr-ink)]">
+                    Cycle {reportsWithUrl.length - i} · {format(new Date(r.generated_at), "MMM d, yyyy")}
+                  </div>
+                  {r.primary_gap && (
+                    <div className="mt-0.5 text-xs text-muted-foreground">
+                      Priority gap: <span className="text-[color:var(--fr-ink)] font-medium">{r.primary_gap}</span>
+                      {r.primary_gap_level && ` · ${r.primary_gap_level}`}
+                    </div>
+                  )}
+                </div>
+                {r.pdfUrl ? (
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={r.pdfUrl} target="_blank" rel="noopener noreferrer">
+                      <Download className="mr-1.5 h-3.5 w-3.5" /> View PDF
+                    </a>
+                  </Button>
+                ) : (
+                  <span className="text-xs text-muted-foreground">PDF unavailable</span>
+                )}
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
     </main>
   );
 }
