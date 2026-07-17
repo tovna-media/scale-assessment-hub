@@ -196,7 +196,7 @@ function SectionFourPage() {
 
   const isComplete = useMemo(() => {
     return (
-      d.chosen_three.some((p) => p.trim().length > 0) &&
+      d.chosen_three.trim().length > 0 &&
       d.focus_person_name.trim().length > 0 &&
       d.focus_needs.length + (d.focus_needs_other.trim().length > 0 ? 1 : 0) > 0 &&
       d.focus_disc.length > 0 &&
@@ -327,7 +327,7 @@ function stepTitle(step: number) {
 function stepIsValid(step: number, d: SectionData): boolean {
   switch (step) {
     case 1:
-      return d.chosen_three.some((p) => p.trim().length > 0) && d.growth_rows.some((r) => r.person.trim().length > 0);
+      return d.chosen_three.trim().length > 0 && d.growth_rows.some((r) => r.person.trim().length > 0);
     case 2:
       return d.focus_person_name.trim().length > 0 && (d.focus_needs.length > 0 || d.focus_needs_other.trim().length > 0);
     case 3:
