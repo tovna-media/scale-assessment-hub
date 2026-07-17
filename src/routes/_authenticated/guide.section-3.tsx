@@ -394,18 +394,6 @@ function stepTitle(step: number) {
     default: return "";
   }
 }
-function VideoPlaceholder({ title }: { title: string }) {
-  return (
-    <div className="mt-4 flex aspect-video w-full items-center justify-center rounded-2xl border border-dashed border-[#433993]/30 bg-gradient-to-br from-[#f6f2ff] to-white text-center">
-      <div className="flex flex-col items-center gap-2 px-4 py-6">
-        <PlayCircle className="h-10 w-10 text-[#433993]" />
-        <p className="text-sm font-semibold text-[#433993]">Video coming soon</p>
-        <p className="text-xs text-muted-foreground">Rich will walk you through {title.replace(/^Dashboard \d+ — /, "")}.</p>
-      </div>
-    </div>
-  );
-}
-
 function SectionBlock({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
     <div className="rounded-2xl border border-border bg-card p-4">
