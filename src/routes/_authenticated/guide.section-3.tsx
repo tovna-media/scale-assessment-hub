@@ -339,6 +339,8 @@ function SectionThreePage() {
           <ArrowLeft className="h-4 w-4" /> My Cycle
         </Link>
       </div>
+      <SectionVideo sectionNumber={3} sectionTitle="Leadership Performance Dashboard" />
+
       <div className="mb-6">
         <div className="flex items-center justify-between text-xs font-medium uppercase tracking-widest text-muted-foreground">
           <span>Section 3 of {TOTAL_SECTIONS}</span>
@@ -346,7 +348,6 @@ function SectionThreePage() {
         </div>
         <Progress value={(step / TOTAL_STEPS) * 100} className="mt-2 h-1.5" />
         <h1 className="mt-4 font-display text-3xl font-semibold text-foreground sm:text-4xl">{stepTitle(step)}</h1>
-        {step < TOTAL_STEPS && <VideoPlaceholder title={stepTitle(step)} />}
       </div>
 
       <div className="space-y-8">
