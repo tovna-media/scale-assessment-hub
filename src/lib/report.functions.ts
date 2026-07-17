@@ -354,6 +354,13 @@ export const generateGapReport = createServerFn({ method: "POST" })
     }
 
     // No existing report on this session — we're about to generate a NEW one.
+    // Enforce the round-based rule: all three assessments must be at (or above)
+    // the required count for the next report.
+    if (!eligibility.allowed) {
+      throw new Error(
+        `Retake all three assessments to generate your next Gap Report (${eligibility.readyCount} of 3 retaken this round).`,
+      );
+    }
     // Block non-subscribers who have already used their free pass.
     if (freePassAlreadyUsed && !subscribed) {
       throw new Error("PAYWALL: You've used your free SCALE report. Subscribe to generate another.");
