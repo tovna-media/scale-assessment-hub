@@ -14,6 +14,8 @@ import {
   type AssessmentType,
 } from "@/lib/assessments";
 import { generateGapReport } from "@/lib/report.functions";
+import { getGapReportEligibility } from "@/lib/report.functions";
+import { getSubscriptionStatus } from "@/lib/payments.functions";
 import { generatePdfReport } from "@/lib/pdf-report.functions";
 import { logFunnelEvent } from "@/lib/funnel.functions";
 import { useServerFn } from "@tanstack/react-start";
@@ -54,6 +56,8 @@ function ReportPage() {
   const generate = useServerFn(generateGapReport);
   const generatePdf = useServerFn(generatePdfReport);
   const logEvent = useServerFn(logFunnelEvent);
+  const checkEligibility = useServerFn(getGapReportEligibility);
+  const checkSub = useServerFn(getSubscriptionStatus);
   const [session, setSession] = useState<SessionFull | null>(null);
   const [takenTypes, setTakenTypes] = useState<Set<AssessmentType>>(new Set());
   const [latestResponses, setLatestResponses] = useState<LatestResponses>({});
@@ -62,6 +66,30 @@ function ReportPage() {
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [progress, setProgress] = useState(0);
   const [statusMessage, setStatusMessage] = useState("Generating your report...");
+  const [subscribed, setSubscribed] = useState(false);
+  const [eligibility, setEligibility] = useState<{
+    readyCount: number;
+    total: number;
+    allowed: boolean;
+    isFirstRound: boolean;
+    perTypeReady: Record<AssessmentType, boolean>;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    void checkSub({}).then((s) => setSubscribed(Boolean(s.active))).catch(() => {});
+    void checkEligibility({})
+      .then((e) =>
+        setEligibility({
+          readyCount: e.readyCount,
+          total: e.total,
+          allowed: e.allowed,
+          isFirstRound: e.isFirstRound,
+          perTypeReady: e.perTypeReady as Record<AssessmentType, boolean>,
+        }),
+      )
+      .catch(() => {});
+  }, [user, checkSub, checkEligibility, session?.id]);
 
   useEffect(() => {
     if (!user) return;
@@ -252,6 +280,7 @@ function ReportPage() {
         latestResponses={latestResponses}
         onDownloadPdf={handleDownloadPdf}
         downloadingPdf={downloadingPdf}
+        subscribed={subscribed}
       />
     );
   }
@@ -262,6 +291,7 @@ function ReportPage() {
       session={session}
       takenTypes={takenTypes}
       onGenerateGapReport={handleGenerateGapReport}
+      eligibility={eligibility}
     />
   );
 }
