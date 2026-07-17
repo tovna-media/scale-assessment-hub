@@ -592,11 +592,13 @@ function ReportView({
   latestResponses,
   onDownloadPdf,
   downloadingPdf,
+  subscribed,
 }: {
   session: SessionFull;
   latestResponses: LatestResponses;
   onDownloadPdf: () => void;
   downloadingPdf: boolean;
+  subscribed: boolean;
 }) {
   const ic = useMemo(
     () => scoreInnerCapacity(latestResponses.inner_capacity ?? {}),
@@ -632,11 +634,13 @@ function ReportView({
               </>
             )}
           </Button>
-          <Button asChild className="bg-[#433993] text-white hover:bg-[#433993]/90">
-            <Link to="/fully-resourced">
-              Get Fully Resourced <span className="ml-2 text-sm opacity-80">$97/mo</span>
-            </Link>
-          </Button>
+          {!subscribed && (
+            <Button asChild className="bg-[#433993] text-white hover:bg-[#433993]/90">
+              <Link to="/fully-resourced">
+                Get Fully Resourced <span className="ml-2 text-sm opacity-80">$97/mo</span>
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -674,20 +678,22 @@ function ReportView({
           title="DIY Path"
           desc="Self-directed implementation using the SCALE framework."
         />
-        <PathCard
-          title="Fully Resourced"
-          desc="The full SCALE system: guided 90-day plan, Coach Rich AI, live dashboard, digital book, and unlimited assessments."
-          to="/fully-resourced"
-          recommended
-        />
+        {!subscribed && (
+          <PathCard
+            title="Fully Resourced"
+            desc="The full SCALE system: guided 90-day plan, Coach Rich AI, live dashboard, digital book, and unlimited assessments."
+            to="/fully-resourced"
+            recommended
+          />
+        )}
       </div>
 
       <div className="mt-8 flex flex-wrap gap-3 no-print">
-        <Button asChild size="lg" className="bg-[#433993] text-white hover:bg-[#433993]/90">
-          <Link to="/fully-resourced">
-            Get Fully Resourced — $97/month
-          </Link>
-        </Button>
+        {!subscribed && (
+          <Button asChild size="lg" className="bg-[#433993] text-white hover:bg-[#433993]/90">
+            <Link to="/fully-resourced">Get Fully Resourced — $97/month</Link>
+          </Button>
+        )}
         <Button variant="outline" size="lg" onClick={onDownloadPdf} disabled={downloadingPdf}>
           {downloadingPdf ? "Preparing…" : "Download My Report (PDF)"}
         </Button>
