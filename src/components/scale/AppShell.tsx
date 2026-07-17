@@ -10,7 +10,6 @@ import {
   User as UserIcon,
   LogOut,
   Menu,
-  X,
   Shield,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
@@ -191,11 +190,6 @@ export function AppShell({
         </header>
         <main className="min-h-[calc(100vh-4rem)]">{children}</main>
       </div>
-
-      {/* Hide X import warning */}
-      <span className="hidden">
-        <X />
-      </span>
     </div>
   );
 }
