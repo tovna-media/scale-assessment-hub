@@ -22,7 +22,7 @@ const SECTIONS: { number: number; title: string; blurb: string; path?: string }[
   { number: 7, title: "Lead for Results", blurb: "Sharpen your Success Image, lock in Success Markers, and close the gap.", path: "/guide/section-7" },
   { number: 8, title: "Evaluation & Crucial Conversations", blurb: "Evaluate what's stalling, prepare the crucial conversation, execute it, and measure the shift.", path: "/guide/section-8" },
   { number: 9, title: "Integration & Real-World Leadership", blurb: "Debrief pressure, rate integration, and lock the next 14-day focus.", path: "/guide/section-9" },
-  { number: 10, title: "Align Your Team", blurb: "Get everyone rowing toward the same result." },
+  { number: 10, title: "Lead Leaders", blurb: "Choose a leader to invest in, build their Transfer Plan, and set the development rhythm.", path: "/guide/section-10" },
   { number: 11, title: "Execute with Discipline", blurb: "Turn strategy into weekly, measurable output." },
   { number: 12, title: "Reassess & Renew", blurb: "Retake your assessments and start your next cycle." },
 ];
