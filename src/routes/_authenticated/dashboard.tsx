@@ -160,6 +160,8 @@ function DashboardPage() {
     allowed: boolean;
     isFirstRound: boolean;
     perTypeReady: Record<AssessmentType, boolean>;
+    reassessmentUnlocked: boolean;
+    retakeLocked: boolean;
   } | null>(null);
   const logEvent = useServerFn(logFunnelEvent);
   const checkSub = useServerFn(getSubscriptionStatus);
@@ -198,6 +200,8 @@ function DashboardPage() {
           allowed: e.allowed,
           isFirstRound: e.isFirstRound,
           perTypeReady: e.perTypeReady as Record<AssessmentType, boolean>,
+          reassessmentUnlocked: Boolean(e.reassessmentUnlocked),
+          retakeLocked: Boolean(e.retakeLocked),
         }),
       )
       .catch(() => setEligibility(null));
@@ -291,8 +295,9 @@ function DashboardPage() {
     (
       // Before the first Gap Report: show while assessments remain, or when ready to generate.
       (isFirstRound && (completedTypes.size < 3 || canGenerate)) ||
-      // After a report exists: only show during the end-of-cycle re-assessment window.
-      (!isFirstRound && (canGenerate || readyCount > 0))
+      // After a report exists: only show once the end-of-cycle
+      // re-assessment window is open (Section 12, Part 5 reached).
+      (!isFirstRound && eligibility.reassessmentUnlocked)
     );
   const hasAnyReport = (eligibility?.reportsGenerated ?? 0) > 0;
   const nextAssessmentTo = `/assessment/${nextTarget.type}`;
