@@ -17,13 +17,15 @@ async function isUserSubscribed(
   }
 }
 
-// After a member has generated their first Gap Report, they cannot retake
-// assessments until they have worked through the 12-section cycle. Once all
-// 12 sections are complete they can retake all three to start their next
-// cycle and unlock a new Gap Report.
-const CYCLE_LENGTH = 12;
+// After a member has generated their first Gap Report, retaking any
+// assessment is LOCKED until they reach the end-of-cycle re-assessment:
+// Section 12, Part 5 ("Complete a New GAP Report"). Reaching that point
+// requires sections 1–11 complete AND opening Section 12 at least to Part 5.
+const REASSESSMENT_SECTION = 12;
+const REASSESSMENT_PART = 5;
+const PRIOR_SECTIONS_REQUIRED = REASSESSMENT_SECTION - 1; // 1..11
 
-async function computeRetakeLock(
+export async function computeRetakeLock(
   supabase: {
     from: (t: string) => {
       select: (s: string) => {
@@ -32,7 +34,13 @@ async function computeRetakeLock(
     };
   },
   userId: string,
-): Promise<{ locked: boolean; completedSections: number; reportsGenerated: number }> {
+): Promise<{
+  locked: boolean;
+  reassessmentUnlocked: boolean;
+  completedPriorSections: number;
+  section12Step: number;
+  reportsGenerated: number;
+}> {
   const sessRes = await supabase
     .from("assessment_sessions")
     .select("gap_report")
@@ -42,14 +50,32 @@ async function computeRetakeLock(
   ).length;
   const progRes = await supabase
     .from("optimizer_section_progress")
-    .select("section_number, completed")
+    .select("section_number, completed, data")
     .eq("user_id", userId);
-  const completedSections = (progRes.data ?? []).filter(
-    (r) => (r as { completed?: boolean }).completed,
+  const rows = (progRes.data ?? []) as Array<{
+    section_number: number;
+    completed?: boolean;
+    data?: { step?: number } | null;
+  }>;
+  const completedPriorSections = rows.filter(
+    (r) => r.completed && r.section_number >= 1 && r.section_number <= PRIOR_SECTIONS_REQUIRED,
   ).length;
-  const locked = reportsGenerated > 0 && completedSections < CYCLE_LENGTH;
-  return { locked, completedSections, reportsGenerated };
+  const section12 = rows.find((r) => r.section_number === REASSESSMENT_SECTION);
+  const section12Step = Number(section12?.data?.step ?? 0) || 0;
+  const reassessmentUnlocked =
+    completedPriorSections >= PRIOR_SECTIONS_REQUIRED && section12Step >= REASSESSMENT_PART;
+  const locked = reportsGenerated > 0 && !reassessmentUnlocked;
+  return {
+    locked,
+    reassessmentUnlocked,
+    completedPriorSections,
+    section12Step,
+    reportsGenerated,
+  };
 }
+
+const RETAKE_LOCK_MESSAGE =
+  "Retakes unlock at the end of your cycle. Work through the sections and reach Section 12, Part 5 to start your re-assessment.";
 
 const InputSchema = z.object({
   assessment_type: z.enum(["inner_capacity", "personal_leadership", "business_audit"]),
@@ -89,9 +115,7 @@ export const submitAssessment = createServerFn({ method: "POST" })
         userId,
       );
       if (lock.locked) {
-        throw new Error(
-          `Retakes unlock after you complete all 12 sections of your cycle (${lock.completedSections}/${CYCLE_LENGTH} done).`,
-        );
+        throw new Error(RETAKE_LOCK_MESSAGE);
       }
     }
 
@@ -224,7 +248,7 @@ export const checkAssessmentAccess = createServerFn({ method: "GET" })
     if (lock.locked) {
       return {
         allowed: false as const,
-        reason: `Retakes unlock after you complete all 12 sections of your cycle (${lock.completedSections}/${CYCLE_LENGTH} done).` as const,
+        reason: RETAKE_LOCK_MESSAGE,
       };
     }
     return { allowed: true as const, reason: null };

@@ -10,6 +10,7 @@ import {
   type AssessmentType,
 } from "@/lib/assessments";
 import { generateGapReportPdfAndNotify } from "@/lib/gap-report-delivery.server";
+import { computeRetakeLock } from "@/lib/assessment.functions";
 
 const InputSchema = z.object({
   sessionId: z.string().uuid(),
@@ -26,7 +27,7 @@ async function computeEligibility(
     from: (t: string) => {
       select: (s: string) => {
         eq: (col: string, v: string) => Promise<{
-          data: Array<{ assessment_type: AssessmentType; gap_report: string | null }> | null;
+          data: Array<Record<string, unknown>> | null;
         }>;
       };
     };
@@ -37,7 +38,7 @@ async function computeEligibility(
     .from("assessment_sessions")
     .select("assessment_type, gap_report")
     .eq("user_id", userId);
-  const rows = data ?? [];
+  const rows = (data ?? []) as Array<{ assessment_type: AssessmentType; gap_report: string | null }>;
   const reportsGenerated = rows.filter((r) => r.gap_report).length;
   const required = reportsGenerated + 1;
   const counts: Record<AssessmentType, number> = {
@@ -52,6 +53,15 @@ async function computeEligibility(
     business_audit: counts.business_audit >= required,
   };
   const readyCount = ASSESSMENT_TYPES.filter((t) => perTypeReady[t]).length;
+  const lock = await computeRetakeLock(
+    supabase as unknown as Parameters<typeof computeRetakeLock>[0],
+    userId,
+  );
+  const isFirstRound = reportsGenerated === 0;
+  // A retake counts only when the re-assessment window is open (or on the
+  // first round). Otherwise the assessments haven't been legitimately
+  // retaken this cycle — the lock would have prevented them.
+  const inReassessmentWindow = isFirstRound || lock.reassessmentUnlocked;
   return {
     reportsGenerated,
     required,
@@ -59,8 +69,10 @@ async function computeEligibility(
     perTypeReady,
     readyCount,
     total: 3,
-    allowed: readyCount === 3,
-    isFirstRound: reportsGenerated === 0,
+    allowed: readyCount === 3 && inReassessmentWindow,
+    isFirstRound,
+    reassessmentUnlocked: lock.reassessmentUnlocked,
+    retakeLocked: lock.locked,
   };
 }
 
