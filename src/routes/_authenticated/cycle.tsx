@@ -17,7 +17,7 @@ const SECTIONS: { number: number; title: string; blurb: string; path?: string }[
   { number: 2, title: "Lead Yourself", blurb: "Build the Lead Yourself Plan: character, emotions, success image, standards, and daily leadership.", path: "/guide/section-2" },
   { number: 3, title: "Leadership Performance Dashboard", blurb: "Rate FUEL, capacity, skills, drivers, standards, and lock in your action plan.", path: "/guide/section-3" },
   { number: 4, title: "Lead Others", blurb: "Map who you lead, listen deeply, communicate to be heard, and build a plan to grow them.", path: "/guide/section-4" },
-  { number: 5, title: "Build Your Support System", blurb: "Map the people and structures that will hold your growth." },
+  { number: 5, title: "Growing People Intentionally", blurb: "Spot team-wide patterns, build development rhythms, and set your people-growth strategy.", path: "/guide/section-5" },
   { number: 6, title: "Sharpen Your Decision-Making", blurb: "Faster, cleaner decisions under real pressure." },
   { number: 7, title: "Strengthen Emotional Resilience", blurb: "Regulate reactivity and lead from a grounded state." },
   { number: 8, title: "Lead Through Communication", blurb: "Communicate so your team executes without guessing." },
