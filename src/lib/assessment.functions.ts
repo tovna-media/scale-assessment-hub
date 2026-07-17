@@ -17,6 +17,40 @@ async function isUserSubscribed(
   }
 }
 
+// After a member has generated their first Gap Report, they cannot retake
+// assessments until they have worked through the 12-section cycle. Once all
+// 12 sections are complete they can retake all three to start their next
+// cycle and unlock a new Gap Report.
+const CYCLE_LENGTH = 12;
+
+async function computeRetakeLock(
+  supabase: {
+    from: (t: string) => {
+      select: (s: string) => {
+        eq: (col: string, v: string) => Promise<{ data: Array<Record<string, unknown>> | null }>;
+      };
+    };
+  },
+  userId: string,
+): Promise<{ locked: boolean; completedSections: number; reportsGenerated: number }> {
+  const sessRes = await supabase
+    .from("assessment_sessions")
+    .select("gap_report")
+    .eq("user_id", userId);
+  const reportsGenerated = (sessRes.data ?? []).filter(
+    (r) => (r as { gap_report?: string | null }).gap_report,
+  ).length;
+  const progRes = await supabase
+    .from("optimizer_section_progress")
+    .select("section_number, completed")
+    .eq("user_id", userId);
+  const completedSections = (progRes.data ?? []).filter(
+    (r) => (r as { completed?: boolean }).completed,
+  ).length;
+  const locked = reportsGenerated > 0 && completedSections < CYCLE_LENGTH;
+  return { locked, completedSections, reportsGenerated };
+}
+
 const InputSchema = z.object({
   assessment_type: z.enum(["inner_capacity", "personal_leadership", "business_audit"]),
   responses: z.record(z.string(), z.number().int().min(1).max(5)),
@@ -44,6 +78,20 @@ export const submitAssessment = createServerFn({ method: "POST" })
       );
       if (freePassUsed && !subscribed) {
         throw new Error("PAYWALL: You've used your free SCALE report. Subscribe to continue.");
+      }
+    }
+
+    // Retake lock: once a Gap Report exists, block new assessments until
+    // all 12 sections of the current cycle are complete.
+    {
+      const lock = await computeRetakeLock(
+        supabase as unknown as Parameters<typeof computeRetakeLock>[0],
+        userId,
+      );
+      if (lock.locked) {
+        throw new Error(
+          `Retakes unlock after you complete all 12 sections of your cycle (${lock.completedSections}/${CYCLE_LENGTH} done).`,
+        );
       }
     }
 
@@ -163,11 +211,21 @@ export const checkAssessmentAccess = createServerFn({ method: "GET" })
       supabase as unknown as Parameters<typeof isUserSubscribed>[0],
       userId,
     );
-    const allowed = !freePassUsed || subscribed;
-    return {
-      allowed,
-      reason: allowed
-        ? null
-        : ("You've used your free SCALE report. Subscribe to continue." as const),
-    };
+    if (freePassUsed && !subscribed) {
+      return {
+        allowed: false as const,
+        reason: "You've used your free SCALE report. Subscribe to continue." as const,
+      };
+    }
+    const lock = await computeRetakeLock(
+      supabase as unknown as Parameters<typeof computeRetakeLock>[0],
+      userId,
+    );
+    if (lock.locked) {
+      return {
+        allowed: false as const,
+        reason: `Retakes unlock after you complete all 12 sections of your cycle (${lock.completedSections}/${CYCLE_LENGTH} done).` as const,
+      };
+    }
+    return { allowed: true as const, reason: null };
   });
