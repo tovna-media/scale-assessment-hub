@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, FileText, Lock, Sparkles } from "lucide-react";
 import { format } from "date-fns";
 import { logFunnelEvent } from "@/lib/funnel.functions";
-import { createBillingPortalSession } from "@/lib/payments.functions";
+import { createBillingPortalSession, getSubscriptionStatus } from "@/lib/payments.functions";
+import { getGapReportEligibility } from "@/lib/report.functions";
 import { getStripeEnvironment, isStripeConfigured } from "@/lib/stripe";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -31,8 +32,17 @@ function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [freePassUsed, setFreePassUsed] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
+  const [eligibility, setEligibility] = useState<{
+    reportsGenerated: number;
+    readyCount: number;
+    total: number;
+    allowed: boolean;
+    isFirstRound: boolean;
+  } | null>(null);
   const logEvent = useServerFn(logFunnelEvent);
   const openPortal = useServerFn(createBillingPortalSession);
+  const checkSub = useServerFn(getSubscriptionStatus);
+  const checkEligibility = useServerFn(getGapReportEligibility);
 
   useEffect(() => {
     if (!user) return;
@@ -47,15 +57,28 @@ function DashboardPage() {
       });
     supabase
       .from("profiles")
-      .select("free_pass_used, subscribed")
+      .select("free_pass_used")
       .eq("id", user.id)
       .maybeSingle()
       .then(({ data }) => {
-        const p = data as { free_pass_used?: boolean; subscribed?: boolean } | null;
+        const p = data as { free_pass_used?: boolean } | null;
         setFreePassUsed(Boolean(p?.free_pass_used));
-        setSubscribed(Boolean(p?.subscribed));
       });
-  }, [user]);
+    void checkSub({})
+      .then((s) => setSubscribed(Boolean(s.active)))
+      .catch(() => setSubscribed(false));
+    void checkEligibility({})
+      .then((e) =>
+        setEligibility({
+          reportsGenerated: e.reportsGenerated,
+          readyCount: e.readyCount,
+          total: e.total,
+          allowed: e.allowed,
+          isFirstRound: e.isFirstRound,
+        }),
+      )
+      .catch(() => setEligibility(null));
+  }, [user, checkSub, checkEligibility]);
 
   const paywalled = freePassUsed && !subscribed;
 
@@ -87,12 +110,17 @@ function DashboardPage() {
   }
 
   const completedTypes = new Set(sessions.map((s) => s.assessment_type));
-  const completedCount = completedTypes.size;
-  const allThreeDone = completedCount === 3;
-  const hasGapReport = sessions.some((s) => !!s.gap_report);
-  const showGapBanner = !hasGapReport;
   const nextIncomplete = ASSESSMENT_LIST.find((a) => !completedTypes.has(a.type));
   const latestSession = sessions[0];
+  const readyCount = eligibility?.readyCount ?? 0;
+  const canGenerate = Boolean(eligibility?.allowed);
+  const isFirstRound = eligibility?.isFirstRound ?? true;
+  // Show the report banner if we're still waiting on this round's retakes,
+  // OR (first round) still missing assessments. Hide once the current round's
+  // report has been generated and no retakes have started yet.
+  const showGapBanner =
+    eligibility !== null &&
+    (canGenerate || readyCount > 0 || (isFirstRound && completedTypes.size < 3));
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
