@@ -535,13 +535,15 @@ function TrendButtons({ value, onChange }: { value: Trend; onChange: (t: Trend) 
 
 function D1Fuel({ d, update, prev }: { d: SectionData; update: <K extends keyof SectionData>(k: K, v: SectionData[K]) => void; prev: SectionData | null }) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      <SectionBlock label="Evaluate" hint="Rate each FUEL area 1–10. Trend compares to your last review.">
+        <div className="space-y-3">
       {FUEL_AREAS.map((a) => {
         const current = d.fuel[a.key] ?? 5;
         const previous = prev?.fuel?.[a.key];
         const delta = typeof previous === "number" ? current - previous : null;
         return (
-          <div key={a.key} className="rounded-2xl border border-border bg-card p-4">
+          <div key={a.key} className="rounded-xl border border-border bg-background p-3">
             <div className="mb-1 flex items-center justify-between gap-3">
               <div>
                 <h3 className="text-sm font-semibold text-foreground">{a.label}</h3>
@@ -553,28 +555,68 @@ function D1Fuel({ d, update, prev }: { d: SectionData; update: <K extends keyof 
           </div>
         );
       })}
+        </div>
+      </SectionBlock>
+      <SectionBlock label="Identify">
+        <LabeledTextarea label="Where did you make the greatest progress this cycle?" value={d.fuel_identify_progress} onChange={(v) => update("fuel_identify_progress", v)} />
+        <LabeledTextarea label="Which FUEL area needs the most attention right now?" value={d.fuel_identify_attention} onChange={(v) => update("fuel_identify_attention", v)} />
+      </SectionBlock>
+      <SectionBlock label="Understand">
+        <LabeledTextarea label="Why did it improve or decline?" value={d.fuel_understand} onChange={(v) => update("fuel_understand", v)} />
+      </SectionBlock>
+      <SectionBlock label="Build a Plan">
+        <LabeledTextarea label="What is one adjustment you'll make?" value={d.fuel_plan} onChange={(v) => update("fuel_plan", v)} />
+      </SectionBlock>
+      <SectionBlock label="Execute">
+        <LabeledInput label="What action will you take this week?" value={d.fuel_execute_action} onChange={(v) => update("fuel_execute_action", v)} />
+        <LabeledInput label="Completion Date" type="date" value={d.fuel_execute_date} onChange={(v) => update("fuel_execute_date", v)} />
+      </SectionBlock>
+      <SectionBlock label="Measure">
+        <LabeledTextarea label="How will you know you improved?" value={d.fuel_measure} onChange={(v) => update("fuel_measure", v)} />
+      </SectionBlock>
     </div>
   );
 }
 
 function D2Capacity({ d, update }: { d: SectionData; update: <K extends keyof SectionData>(k: K, v: SectionData[K]) => void }) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-6">
+      <SectionBlock label="Evaluate" hint="For each capacity, tap Worse / Same / Better vs last cycle.">
+        <div className="space-y-3">
       {CAPACITY_AREAS.map((a) => (
-        <div key={a.key} className="rounded-2xl border border-border bg-card p-4">
+        <div key={a.key} className="rounded-xl border border-border bg-background p-3">
           <div className="mb-2 text-sm font-semibold text-foreground">{a.label}</div>
           <TrendButtons value={d.capacity[a.key]} onChange={(t) => update("capacity", { ...d.capacity, [a.key]: t })} />
         </div>
       ))}
+        </div>
+      </SectionBlock>
+      <SectionBlock label="Identify">
+        <LabeledTextarea label="Which area deserves your attention this cycle?" value={d.capacity_identify} onChange={(v) => update("capacity_identify", v)} />
+      </SectionBlock>
+      <SectionBlock label="Understand">
+        <LabeledTextarea label="What behaviors or patterns are behind it?" value={d.capacity_understand} onChange={(v) => update("capacity_understand", v)} />
+      </SectionBlock>
+      <SectionBlock label="Build a Plan">
+        <LabeledTextarea label="What is the one change that would have the greatest impact?" value={d.capacity_plan} onChange={(v) => update("capacity_plan", v)} />
+      </SectionBlock>
+      <SectionBlock label="Execute">
+        <LabeledTextarea label="What will you begin immediately?" value={d.capacity_execute} onChange={(v) => update("capacity_execute", v)} />
+      </SectionBlock>
+      <SectionBlock label="Measure">
+        <LabeledTextarea label="How will you measure improvement over the next month?" value={d.capacity_measure} onChange={(v) => update("capacity_measure", v)} />
+      </SectionBlock>
     </div>
   );
 }
 
 function D3Skills({ d, update }: { d: SectionData; update: <K extends keyof SectionData>(k: K, v: SectionData[K]) => void }) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      <SectionBlock label="Evaluate" hint="Set Current and Desired level for each skill (1–10).">
+        <div className="space-y-3">
       {d.skills.map((s, i) => (
-        <div key={i} className="rounded-2xl border border-border bg-card p-4">
+        <div key={i} className="rounded-xl border border-border bg-background p-3">
           <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Skill {i + 1}</Label>
           <Input
             value={s.name}
@@ -596,15 +638,39 @@ function D3Skills({ d, update }: { d: SectionData; update: <K extends keyof Sect
           </div>
         </div>
       ))}
+        </div>
+      </SectionBlock>
+      <SectionBlock label="Focus" hint="Pick ONE skill to develop this cycle.">
+        <LabeledInput label="Skill to develop this cycle" value={d.skill_focus} onChange={(v) => update("skill_focus", v)} placeholder="Choose one skill from above" />
+      </SectionBlock>
+      <SectionBlock label="Identify">
+        <NumberedList label="List 3 benefits of improving this skill" items={d.skill_benefits} onChange={(arr) => update("skill_benefits", arr)} placeholder="Benefit" />
+      </SectionBlock>
+      <SectionBlock label="Understand">
+        <NumberedList label="List 5 characteristics of people who do this well" items={d.skill_characteristics} onChange={(arr) => update("skill_characteristics", arr)} placeholder="Characteristic" />
+      </SectionBlock>
+      <SectionBlock label="Build a Plan">
+        <NumberedList label="5 specific steps to develop this skill" items={d.skill_plan_steps} onChange={(arr) => update("skill_plan_steps", arr)} placeholder="Step" />
+      </SectionBlock>
+      <SectionBlock label="Execute">
+        <LabeledInput label="Which step will you take this week?" value={d.skill_execute_step} onChange={(v) => update("skill_execute_step", v)} />
+        <LabeledInput label="Completion Date" type="date" value={d.skill_execute_date} onChange={(v) => update("skill_execute_date", v)} />
+      </SectionBlock>
+      <SectionBlock label="Measure">
+        <LabeledTextarea label="How will you know this skill is improving?" value={d.skill_measure} onChange={(v) => update("skill_measure", v)} />
+        <LabeledInput label="Who will give you feedback?" value={d.skill_feedback_from} onChange={(v) => update("skill_feedback_from", v)} />
+      </SectionBlock>
     </div>
   );
 }
 
 function D4Drivers({ d, update }: { d: SectionData; update: <K extends keyof SectionData>(k: K, v: SectionData[K]) => void }) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-6">
+      <SectionBlock label="Evaluate" hint="Slide the progress percent for each Success Driver.">
+        <div className="space-y-3">
       {d.drivers.map((dr, i) => (
-        <div key={i} className="rounded-2xl border border-border bg-card p-4">
+        <div key={i} className="rounded-xl border border-border bg-background p-3">
           <div className="flex items-center gap-3">
             <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#433993]/10 text-xs font-semibold text-[#433993]">{i + 1}</span>
             <Input
@@ -620,6 +686,25 @@ function D4Drivers({ d, update }: { d: SectionData; update: <K extends keyof Sec
           </div>
         </div>
       ))}
+        </div>
+      </SectionBlock>
+      <SectionBlock label="Identify">
+        <LabeledTextarea label="Which driver deserves the most attention right now?" value={d.drivers_identify} onChange={(v) => update("drivers_identify", v)} />
+      </SectionBlock>
+      <SectionBlock label="Understand">
+        <LabeledTextarea label="What helped you move it forward?" value={d.drivers_understand_helped} onChange={(v) => update("drivers_understand_helped", v)} />
+        <LabeledTextarea label="What slowed your progress?" value={d.drivers_understand_slowed} onChange={(v) => update("drivers_understand_slowed", v)} />
+      </SectionBlock>
+      <SectionBlock label="Build a Plan">
+        <LabeledTextarea label="What must change to move it forward?" value={d.drivers_plan} onChange={(v) => update("drivers_plan", v)} />
+      </SectionBlock>
+      <SectionBlock label="Execute">
+        <LabeledInput label="What is your first action?" value={d.drivers_execute_action} onChange={(v) => update("drivers_execute_action", v)} />
+        <LabeledInput label="Completion Date" type="date" value={d.drivers_execute_date} onChange={(v) => update("drivers_execute_date", v)} />
+      </SectionBlock>
+      <SectionBlock label="Measure">
+        <LabeledTextarea label="How will you measure progress?" value={d.drivers_measure} onChange={(v) => update("drivers_measure", v)} />
+      </SectionBlock>
     </div>
   );
 }
