@@ -151,7 +151,7 @@ function SectionOnePage() {
           disc_completed: discCompleted,
           gap_report_reviewed: gapReviewed,
           reflections,
-        } as unknown as Record<string, unknown>,
+        } as never,
         priority_gap: priorityGap || null,
         priority_gap_score: priorityGapScore,
         completed: sectionComplete,
