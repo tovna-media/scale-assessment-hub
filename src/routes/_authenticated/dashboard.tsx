@@ -15,6 +15,9 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Your dashboard — SCALE" }] }),
+  validateSearch: (search: Record<string, unknown>) => ({
+    checkout: search.checkout === "success" ? ("success" as const) : undefined,
+  }),
   component: DashboardPage,
 });
 
