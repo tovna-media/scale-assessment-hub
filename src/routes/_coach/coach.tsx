@@ -266,7 +266,12 @@ function CoachDashboardIndex() {
     const pastDue = rows.filter((r) => r.subStatus === "past_due").length;
     const completedCycles = rows.reduce((acc, r) => acc + Math.max(0, r.reportsCount - 1), 0);
     // biggest drop-off: consecutive step with largest absolute drop
-    let biggestDrop = { from: FUNNEL_STEPS[0].label, to: FUNNEL_STEPS[1].label, drop: 0, idx: 0 };
+    let biggestDrop: { from: string; to: string; drop: number; idx: number } = {
+      from: FUNNEL_STEPS[0].label,
+      to: FUNNEL_STEPS[1].label,
+      drop: 0,
+      idx: 0,
+    };
     for (let i = 0; i < FUNNEL_STEPS.length - 1; i++) {
       const a = funnel[FUNNEL_STEPS[i].key];
       const b = funnel[FUNNEL_STEPS[i + 1].key];
