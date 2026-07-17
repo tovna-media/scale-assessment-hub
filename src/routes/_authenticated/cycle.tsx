@@ -12,9 +12,9 @@ export const Route = createFileRoute("/_authenticated/cycle")({
   component: CyclePage,
 });
 
-const SECTIONS: { number: number; title: string; blurb: string }[] = [
-  { number: 1, title: "Begin Your Leadership Optimization Cycle", blurb: "Confirm your assessments, lock in your Priority Gap, and set your intent." },
-  { number: 2, title: "Clarify Your Vision", blurb: "Define what success looks like at the end of this cycle." },
+const SECTIONS: { number: number; title: string; blurb: string; path?: string }[] = [
+  { number: 1, title: "Begin Your Leadership Optimization Cycle", blurb: "Confirm your assessments, lock in your Priority Gap, and set your intent.", path: "/guide/section-1" },
+  { number: 2, title: "Lead Yourself", blurb: "Build the Lead Yourself Plan: character, emotions, success image, standards, and daily leadership.", path: "/guide/section-2" },
   { number: 3, title: "Identify Your Core Values", blurb: "Name the non-negotiables that drive your leadership." },
   { number: 4, title: "Master Your Time", blurb: "Redesign how you spend the hours the business demands." },
   { number: 5, title: "Build Your Support System", blurb: "Map the people and structures that will hold your growth." },
@@ -87,7 +87,7 @@ function CyclePage() {
           const prevDone = s.number === 1 || completedSet.has(s.number - 1);
           const available = subscribed && prevDone && !done;
           const locked = !done && !available;
-          const built = s.number === 1; // only Section 1 exists so far
+          const built = Boolean(s.path);
 
           return (
             <li
@@ -113,11 +113,11 @@ function CyclePage() {
                 </div>
               </div>
               <div className="shrink-0">
-                {done && built && (
-                  <Button variant="outline" size="sm" asChild><Link to="/guide/section-1">Review</Link></Button>
+                {done && built && s.path && (
+                  <Button variant="outline" size="sm" asChild><Link to={s.path as "/guide/section-1"}>Review</Link></Button>
                 )}
-                {available && built && (
-                  <Button size="sm" asChild><Link to="/guide/section-1">Start <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Link></Button>
+                {available && built && s.path && (
+                  <Button size="sm" asChild><Link to={s.path as "/guide/section-1"}>Start <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Link></Button>
                 )}
                 {!built && (
                   <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[var(--fr-muted-ink)]">

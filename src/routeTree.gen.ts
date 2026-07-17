@@ -27,6 +27,7 @@ import { Route as AuthenticatedCycleRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
 import { Route as AuthenticatedCheckoutIndexRouteImport } from './routes/_authenticated/checkout.index'
 import { Route as AuthenticatedReportSessionIdRouteImport } from './routes/_authenticated/report.$sessionId'
+import { Route as AuthenticatedGuideSection2RouteImport } from './routes/_authenticated/guide.section-2'
 import { Route as AuthenticatedGuideSection1RouteImport } from './routes/_authenticated/guide.section-1'
 import { Route as AuthenticatedCheckoutActivatingRouteImport } from './routes/_authenticated/checkout.activating'
 import { Route as AuthenticatedAssessmentTypeRouteImport } from './routes/_authenticated/assessment.$type'
@@ -125,6 +126,12 @@ const AuthenticatedReportSessionIdRoute =
     path: '/report/$sessionId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedGuideSection2Route =
+  AuthenticatedGuideSection2RouteImport.update({
+    id: '/guide/section-2',
+    path: '/guide/section-2',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedGuideSection1Route =
   AuthenticatedGuideSection1RouteImport.update({
     id: '/guide/section-1',
@@ -180,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/checkout/activating': typeof AuthenticatedCheckoutActivatingRoute
   '/guide/section-1': typeof AuthenticatedGuideSection1Route
+  '/guide/section-2': typeof AuthenticatedGuideSection2Route
   '/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
   '/checkout/': typeof AuthenticatedCheckoutIndexRoute
   '/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
@@ -203,6 +211,7 @@ export interface FileRoutesByTo {
   '/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/checkout/activating': typeof AuthenticatedCheckoutActivatingRoute
   '/guide/section-1': typeof AuthenticatedGuideSection1Route
+  '/guide/section-2': typeof AuthenticatedGuideSection2Route
   '/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
   '/checkout': typeof AuthenticatedCheckoutIndexRoute
   '/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
@@ -230,6 +239,7 @@ export interface FileRoutesById {
   '/_authenticated/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/_authenticated/checkout/activating': typeof AuthenticatedCheckoutActivatingRoute
   '/_authenticated/guide/section-1': typeof AuthenticatedGuideSection1Route
+  '/_authenticated/guide/section-2': typeof AuthenticatedGuideSection2Route
   '/_authenticated/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
   '/_authenticated/checkout/': typeof AuthenticatedCheckoutIndexRoute
   '/_coach/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
@@ -256,6 +266,7 @@ export interface FileRouteTypes {
     | '/assessment/$type'
     | '/checkout/activating'
     | '/guide/section-1'
+    | '/guide/section-2'
     | '/report/$sessionId'
     | '/checkout/'
     | '/coach/assessee/$userId'
@@ -279,6 +290,7 @@ export interface FileRouteTypes {
     | '/assessment/$type'
     | '/checkout/activating'
     | '/guide/section-1'
+    | '/guide/section-2'
     | '/report/$sessionId'
     | '/checkout'
     | '/coach/assessee/$userId'
@@ -305,6 +317,7 @@ export interface FileRouteTypes {
     | '/_authenticated/assessment/$type'
     | '/_authenticated/checkout/activating'
     | '/_authenticated/guide/section-1'
+    | '/_authenticated/guide/section-2'
     | '/_authenticated/report/$sessionId'
     | '/_authenticated/checkout/'
     | '/_coach/coach/assessee/$userId'
@@ -454,6 +467,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReportSessionIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/guide/section-2': {
+      id: '/_authenticated/guide/section-2'
+      path: '/guide/section-2'
+      fullPath: '/guide/section-2'
+      preLoaderRoute: typeof AuthenticatedGuideSection2RouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/guide/section-1': {
       id: '/_authenticated/guide/section-1'
       path: '/guide/section-1'
@@ -522,6 +542,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedAssessmentTypeRoute: typeof AuthenticatedAssessmentTypeRoute
   AuthenticatedGuideSection1Route: typeof AuthenticatedGuideSection1Route
+  AuthenticatedGuideSection2Route: typeof AuthenticatedGuideSection2Route
   AuthenticatedReportSessionIdRoute: typeof AuthenticatedReportSessionIdRoute
 }
 
@@ -533,6 +554,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedAssessmentTypeRoute: AuthenticatedAssessmentTypeRoute,
   AuthenticatedGuideSection1Route: AuthenticatedGuideSection1Route,
+  AuthenticatedGuideSection2Route: AuthenticatedGuideSection2Route,
   AuthenticatedReportSessionIdRoute: AuthenticatedReportSessionIdRoute,
 }
 
