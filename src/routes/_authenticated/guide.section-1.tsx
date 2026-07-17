@@ -11,6 +11,7 @@ import { ArrowLeft, ArrowRight, ExternalLink, Check } from "lucide-react";
 import { ASSESSMENT_LIST, type AssessmentType } from "@/lib/assessments";
 import { toast } from "sonner";
 import { verifyDiscCode } from "@/lib/disc-verify.functions";
+import { SectionVideo } from "@/components/scale/SectionVideo";
 
 export const Route = createFileRoute("/_authenticated/guide/section-1")({
   head: () => ({
@@ -240,6 +241,8 @@ function SectionOnePage() {
           <ArrowLeft className="h-4 w-4" /> Back to dashboard
         </Link>
       </div>
+
+      <SectionVideo sectionNumber={1} sectionTitle="Begin Your Leadership Optimization Cycle" />
 
       <div className="mb-6">
         <div className="flex items-center justify-between text-xs font-medium uppercase tracking-widest text-muted-foreground">
