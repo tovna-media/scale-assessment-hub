@@ -158,7 +158,7 @@ function SectionOnePage() {
       };
       const { data, error } = await supabase
         .from("optimizer_section_progress")
-        .upsert(payload, { onConflict: "user_id,section_number" })
+        .upsert([payload], { onConflict: "user_id,section_number" })
         .select("id")
         .maybeSingle();
       if (error) {
