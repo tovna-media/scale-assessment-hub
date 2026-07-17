@@ -108,8 +108,7 @@ function CoachDashboardIndex() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [typeFilter, setTypeFilter] = useState<string>("all");
-  const [needsAttention, setNeedsAttention] = useState(false);
+  const [engagementFilter, setEngagementFilter] = useState<"all" | "stalled" | "reassess" | "none">("all");
   const [sortBy, setSortBy] = useState<"last_active" | "name" | "sub" | "section">("last_active");
 
   useEffect(() => {
@@ -286,8 +285,11 @@ function CoachDashboardIndex() {
   const filtered = useMemo(() => {
     const list = rows.filter((r) => {
       if (statusFilter !== "all" && r.status !== statusFilter) return false;
-      if (typeFilter !== "all" && !r.types.has(typeFilter as AssessmentType)) return false;
-      if (needsAttention && !(r.stalled || r.awaitingReassessment || r.subStatus === "past_due")) return false;
+      if (engagementFilter !== "all") {
+        if (engagementFilter === "stalled" && !r.stalled) return false;
+        if (engagementFilter === "reassess" && !r.awaitingReassessment) return false;
+        if (engagementFilter === "none" && (r.stalled || r.awaitingReassessment || r.subStatus === "past_due")) return false;
+      }
       if (search) {
         const q = search.toLowerCase();
         if (!r.email.toLowerCase().includes(q) && !(r.full_name?.toLowerCase() ?? "").includes(q)) return false;
@@ -312,7 +314,7 @@ function CoachDashboardIndex() {
       }
     });
     return list;
-  }, [rows, statusFilter, typeFilter, needsAttention, search, sortBy]);
+  }, [rows, statusFilter, engagementFilter, search, sortBy]);
 
   const funnelMax = Math.max(1, ...FUNNEL_STEPS.map((s) => funnel[s.key]));
 
@@ -416,13 +418,13 @@ function CoachDashboardIndex() {
             {STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
           </SelectContent>
         </Select>
-        <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="w-56"><SelectValue placeholder="Assessment" /></SelectTrigger>
+        <Select value={engagementFilter} onValueChange={(v) => setEngagementFilter(v as typeof engagementFilter)}>
+          <SelectTrigger className="w-56"><SelectValue placeholder="Engagement" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All assessments</SelectItem>
-            {Object.values(ASSESSMENTS).map((a) => (
-              <SelectItem key={a.type} value={a.type}>{a.shortTitle}</SelectItem>
-            ))}
+            <SelectItem value="all">Engagement: All</SelectItem>
+            <SelectItem value="stalled">Stalled</SelectItem>
+            <SelectItem value="reassess">Awaiting re-assessment</SelectItem>
+            <SelectItem value="none">None</SelectItem>
           </SelectContent>
         </Select>
         <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
@@ -434,15 +436,6 @@ function CoachDashboardIndex() {
             <SelectItem value="section">Sort: Section</SelectItem>
           </SelectContent>
         </Select>
-        <Button
-          variant={needsAttention ? "default" : "outline"}
-          size="sm"
-          onClick={() => setNeedsAttention((v) => !v)}
-          className={needsAttention ? "bg-[color:var(--rl-purple)] hover:bg-[color:var(--rl-purple-deep)]" : ""}
-        >
-          <AlertTriangle className="mr-2 h-4 w-4" />
-          Needs attention
-        </Button>
       </div>
 
       <div className="mt-4 overflow-x-auto rounded-2xl border border-[color:var(--fr-hairline)] bg-white shadow-[var(--shadow-card)]">
@@ -461,7 +454,7 @@ function CoachDashboardIndex() {
                 <th className="px-4 py-3 font-semibold">Cycle / Section</th>
                 <th className="px-4 py-3 font-semibold">Latest score</th>
                 <th className="px-4 py-3 font-semibold">Last activity</th>
-                <th className="px-4 py-3 font-semibold">Flags</th>
+                <th className="px-4 py-3 font-semibold">Engagement</th>
                 <th className="px-4 py-3 font-semibold">Pipeline</th>
                 <th className="px-4 py-3 font-semibold text-right">Actions</th>
               </tr>
