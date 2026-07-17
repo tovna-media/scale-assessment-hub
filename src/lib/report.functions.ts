@@ -15,6 +15,64 @@ const InputSchema = z.object({
   sessionId: z.string().uuid(),
 });
 
+const ASSESSMENT_TYPES: AssessmentType[] = [
+  "inner_capacity",
+  "personal_leadership",
+  "business_audit",
+];
+
+async function computeEligibility(
+  supabase: {
+    from: (t: string) => {
+      select: (s: string) => {
+        eq: (col: string, v: string) => Promise<{
+          data: Array<{ assessment_type: AssessmentType; gap_report: string | null }> | null;
+        }>;
+      };
+    };
+  },
+  userId: string,
+) {
+  const { data } = await supabase
+    .from("assessment_sessions")
+    .select("assessment_type, gap_report")
+    .eq("user_id", userId);
+  const rows = data ?? [];
+  const reportsGenerated = rows.filter((r) => r.gap_report).length;
+  const required = reportsGenerated + 1;
+  const counts: Record<AssessmentType, number> = {
+    inner_capacity: 0,
+    personal_leadership: 0,
+    business_audit: 0,
+  };
+  for (const r of rows) counts[r.assessment_type] += 1;
+  const perTypeReady: Record<AssessmentType, boolean> = {
+    inner_capacity: counts.inner_capacity >= required,
+    personal_leadership: counts.personal_leadership >= required,
+    business_audit: counts.business_audit >= required,
+  };
+  const readyCount = ASSESSMENT_TYPES.filter((t) => perTypeReady[t]).length;
+  return {
+    reportsGenerated,
+    required,
+    counts,
+    perTypeReady,
+    readyCount,
+    total: 3,
+    allowed: readyCount === 3,
+    isFirstRound: reportsGenerated === 0,
+  };
+}
+
+export const getGapReportEligibility = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    return computeEligibility(
+      context.supabase as unknown as Parameters<typeof computeEligibility>[0],
+      context.userId,
+    );
+  });
+
 type SessionRow = {
   id: string;
   assessment_type: AssessmentType;
@@ -248,24 +306,26 @@ export const generateGapReport = createServerFn({ method: "POST" })
     {
       const { data: prof } = await supabase
         .from("profiles")
-        .select("free_pass_used, subscribed")
+        .select("free_pass_used")
         .eq("id", userId)
         .maybeSingle();
       freePassAlreadyUsed = Boolean((prof as { free_pass_used?: boolean } | null)?.free_pass_used);
-      subscribed = Boolean((prof as { subscribed?: boolean } | null)?.subscribed);
-    }
-
-    // Gate: require all three assessments
-    {
-      const { data: typesRows } = await supabase
-        .from("assessment_sessions")
-        .select("assessment_type")
-        .eq("user_id", userId);
-      const distinct = new Set((typesRows ?? []).map((r) => r.assessment_type));
-      if (distinct.size < 3) {
-        throw new Error("Complete all three assessments to generate your Gap Report.");
+      try {
+        const { data: subRpc } = await supabase.rpc("has_active_subscription", {
+          _user_id: userId,
+        });
+        subscribed = Boolean(subRpc);
+      } catch {
+        subscribed = false;
       }
     }
+
+    // Compute round-based eligibility. Report N+1 requires each of the 3
+    // assessments to have been taken at least N+1 times.
+    const eligibility = await computeEligibility(
+      supabase as unknown as Parameters<typeof computeEligibility>[0],
+      userId,
+    );
 
     // Load triggering session (with retry — may have just been written)
     let session: SessionRow | null = null;
@@ -301,6 +361,13 @@ export const generateGapReport = createServerFn({ method: "POST" })
     }
 
     // No existing report on this session — we're about to generate a NEW one.
+    // Enforce the round-based rule: all three assessments must be at (or above)
+    // the required count for the next report.
+    if (!eligibility.allowed) {
+      throw new Error(
+        `Retake all three assessments to generate your next Gap Report (${eligibility.readyCount} of 3 retaken this round).`,
+      );
+    }
     // Block non-subscribers who have already used their free pass.
     if (freePassAlreadyUsed && !subscribed) {
       throw new Error("PAYWALL: You've used your free SCALE report. Subscribe to generate another.");

@@ -14,6 +14,8 @@ import {
   type AssessmentType,
 } from "@/lib/assessments";
 import { generateGapReport } from "@/lib/report.functions";
+import { getGapReportEligibility } from "@/lib/report.functions";
+import { getSubscriptionStatus } from "@/lib/payments.functions";
 import { generatePdfReport } from "@/lib/pdf-report.functions";
 import { logFunnelEvent } from "@/lib/funnel.functions";
 import { useServerFn } from "@tanstack/react-start";
@@ -54,6 +56,8 @@ function ReportPage() {
   const generate = useServerFn(generateGapReport);
   const generatePdf = useServerFn(generatePdfReport);
   const logEvent = useServerFn(logFunnelEvent);
+  const checkEligibility = useServerFn(getGapReportEligibility);
+  const checkSub = useServerFn(getSubscriptionStatus);
   const [session, setSession] = useState<SessionFull | null>(null);
   const [takenTypes, setTakenTypes] = useState<Set<AssessmentType>>(new Set());
   const [latestResponses, setLatestResponses] = useState<LatestResponses>({});
@@ -62,6 +66,30 @@ function ReportPage() {
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [progress, setProgress] = useState(0);
   const [statusMessage, setStatusMessage] = useState("Generating your report...");
+  const [subscribed, setSubscribed] = useState(false);
+  const [eligibility, setEligibility] = useState<{
+    readyCount: number;
+    total: number;
+    allowed: boolean;
+    isFirstRound: boolean;
+    perTypeReady: Record<AssessmentType, boolean>;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    void checkSub({}).then((s) => setSubscribed(Boolean(s.active))).catch(() => {});
+    void checkEligibility({})
+      .then((e) =>
+        setEligibility({
+          readyCount: e.readyCount,
+          total: e.total,
+          allowed: e.allowed,
+          isFirstRound: e.isFirstRound,
+          perTypeReady: e.perTypeReady as Record<AssessmentType, boolean>,
+        }),
+      )
+      .catch(() => {});
+  }, [user, checkSub, checkEligibility, session?.id]);
 
   useEffect(() => {
     if (!user) return;
@@ -252,6 +280,7 @@ function ReportPage() {
         latestResponses={latestResponses}
         onDownloadPdf={handleDownloadPdf}
         downloadingPdf={downloadingPdf}
+        subscribed={subscribed}
       />
     );
   }
@@ -262,6 +291,7 @@ function ReportPage() {
       session={session}
       takenTypes={takenTypes}
       onGenerateGapReport={handleGenerateGapReport}
+      eligibility={eligibility}
     />
   );
 }
@@ -272,15 +302,28 @@ function AssessmentResultView({
   session,
   takenTypes,
   onGenerateGapReport,
+  eligibility,
 }: {
   session: SessionFull;
   takenTypes: Set<AssessmentType>;
   onGenerateGapReport: () => void;
+  eligibility: {
+    readyCount: number;
+    total: number;
+    allowed: boolean;
+    isFirstRound: boolean;
+    perTypeReady: Record<AssessmentType, boolean>;
+  } | null;
 }) {
   const def = ASSESSMENTS[session.assessment_type];
   const max = maxScoreFor(session.assessment_type);
+  const isFirstRound = eligibility?.isFirstRound ?? true;
   const allComplete = ALL_TYPES.every((t) => takenTypes.has(t));
-  const missing = ALL_TYPES.filter((t) => !takenTypes.has(t));
+  const canGenerate = Boolean(eligibility?.allowed);
+  const missing = isFirstRound
+    ? ALL_TYPES.filter((t) => !takenTypes.has(t))
+    : ALL_TYPES.filter((t) => !(eligibility?.perTypeReady[t] ?? false));
+  const readyCount = eligibility?.readyCount ?? 0;
 
   // Re-derive structured result from stored raw responses
   const numericResponses = useMemo(() => {
@@ -336,13 +379,15 @@ function AssessmentResultView({
 
       {/* Next-step nudge */}
       <div className="mt-8 rounded-2xl border border-[var(--accent-blue)]/30 bg-primary/5 p-6 sm:p-8">
-        {allComplete ? (
+        {canGenerate ? (
           <>
             <p className="text-xs font-medium uppercase tracking-widest text-[var(--accent-blue)]">
               You're ready
             </p>
             <h2 className="mt-1 font-display text-2xl font-semibold text-foreground">
-              All three assessments complete — generate your Gap Report
+              {isFirstRound
+                ? "All three assessments complete — generate your Gap Report"
+                : "All three assessments retaken — generate your next Gap Report"}
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
               Combine Inner Capacity, Personal Leadership, and Business Audit into a single,
@@ -351,6 +396,29 @@ function AssessmentResultView({
             <Button size="lg" className="mt-5" onClick={onGenerateGapReport}>
               <Sparkles className="mr-2 h-4 w-4" /> Generate Gap Report
             </Button>
+          </>
+        ) : !isFirstRound ? (
+          <>
+            <p className="text-xs font-medium uppercase tracking-widest text-[var(--accent-blue)]">
+              Next round
+            </p>
+            <h2 className="mt-1 font-display text-xl font-semibold text-foreground">
+              Retake all 3 assessments to unlock your next Gap Report ({readyCount} of 3 retaken)
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Each new report requires a fresh set of all three assessments so it reflects where
+              you are now.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              {missing.map((t) => (
+                <Button key={t} asChild>
+                  <Link to="/assessment/$type" params={{ type: t }}>
+                    Retake {ASSESSMENTS[t].shortTitle}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              ))}
+            </div>
           </>
         ) : (
           <>
@@ -363,9 +431,11 @@ function AssessmentResultView({
                 : `Take the ${ASSESSMENTS[missing[0]].shortTitle} and ${ASSESSMENTS[missing[1]].shortTitle} assessments next`}
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              {missing.length === 1
-                ? "One assessment left. Complete it to unlock your full SCALE Gap Report."
-                : "Complete both to unlock your full SCALE Gap Report — they're designed to work together."}
+              {allComplete
+                ? "Loading your Gap Report status…"
+                : missing.length === 1
+                  ? "One assessment left. Complete it to unlock your full SCALE Gap Report."
+                  : "Complete both to unlock your full SCALE Gap Report — they're designed to work together."}
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
               {missing.map((t) => (
@@ -522,11 +592,13 @@ function ReportView({
   latestResponses,
   onDownloadPdf,
   downloadingPdf,
+  subscribed,
 }: {
   session: SessionFull;
   latestResponses: LatestResponses;
   onDownloadPdf: () => void;
   downloadingPdf: boolean;
+  subscribed: boolean;
 }) {
   const ic = useMemo(
     () => scoreInnerCapacity(latestResponses.inner_capacity ?? {}),
@@ -562,11 +634,13 @@ function ReportView({
               </>
             )}
           </Button>
-          <Button asChild className="bg-[#433993] text-white hover:bg-[#433993]/90">
-            <Link to="/fully-resourced">
-              Get Fully Resourced <span className="ml-2 text-sm opacity-80">$97/mo</span>
-            </Link>
-          </Button>
+          {!subscribed && (
+            <Button asChild className="bg-[#433993] text-white hover:bg-[#433993]/90">
+              <Link to="/fully-resourced">
+                Get Fully Resourced <span className="ml-2 text-sm opacity-80">$97/mo</span>
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -604,20 +678,22 @@ function ReportView({
           title="DIY Path"
           desc="Self-directed implementation using the SCALE framework."
         />
-        <PathCard
-          title="Fully Resourced"
-          desc="The full SCALE system: guided 90-day plan, Coach Rich AI, live dashboard, digital book, and unlimited assessments."
-          to="/fully-resourced"
-          recommended
-        />
+        {!subscribed && (
+          <PathCard
+            title="Fully Resourced"
+            desc="The full SCALE system: guided 90-day plan, Coach Rich AI, live dashboard, digital book, and unlimited assessments."
+            to="/fully-resourced"
+            recommended
+          />
+        )}
       </div>
 
       <div className="mt-8 flex flex-wrap gap-3 no-print">
-        <Button asChild size="lg" className="bg-[#433993] text-white hover:bg-[#433993]/90">
-          <Link to="/fully-resourced">
-            Get Fully Resourced — $97/month
-          </Link>
-        </Button>
+        {!subscribed && (
+          <Button asChild size="lg" className="bg-[#433993] text-white hover:bg-[#433993]/90">
+            <Link to="/fully-resourced">Get Fully Resourced — $97/month</Link>
+          </Button>
+        )}
         <Button variant="outline" size="lg" onClick={onDownloadPdf} disabled={downloadingPdf}>
           {downloadingPdf ? "Preparing…" : "Download My Report (PDF)"}
         </Button>

@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, FileText, Lock, Sparkles } from "lucide-react";
 import { format } from "date-fns";
 import { logFunnelEvent } from "@/lib/funnel.functions";
-import { createBillingPortalSession } from "@/lib/payments.functions";
+import { createBillingPortalSession, getSubscriptionStatus } from "@/lib/payments.functions";
+import { getGapReportEligibility } from "@/lib/report.functions";
 import { getStripeEnvironment, isStripeConfigured } from "@/lib/stripe";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -31,8 +32,18 @@ function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [freePassUsed, setFreePassUsed] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
+  const [eligibility, setEligibility] = useState<{
+    reportsGenerated: number;
+    readyCount: number;
+    total: number;
+    allowed: boolean;
+    isFirstRound: boolean;
+    perTypeReady: Record<AssessmentType, boolean>;
+  } | null>(null);
   const logEvent = useServerFn(logFunnelEvent);
   const openPortal = useServerFn(createBillingPortalSession);
+  const checkSub = useServerFn(getSubscriptionStatus);
+  const checkEligibility = useServerFn(getGapReportEligibility);
 
   useEffect(() => {
     if (!user) return;
@@ -47,15 +58,29 @@ function DashboardPage() {
       });
     supabase
       .from("profiles")
-      .select("free_pass_used, subscribed")
+      .select("free_pass_used")
       .eq("id", user.id)
       .maybeSingle()
       .then(({ data }) => {
-        const p = data as { free_pass_used?: boolean; subscribed?: boolean } | null;
+        const p = data as { free_pass_used?: boolean } | null;
         setFreePassUsed(Boolean(p?.free_pass_used));
-        setSubscribed(Boolean(p?.subscribed));
       });
-  }, [user]);
+    void checkSub({})
+      .then((s) => setSubscribed(Boolean(s.active)))
+      .catch(() => setSubscribed(false));
+    void checkEligibility({})
+      .then((e) =>
+        setEligibility({
+          reportsGenerated: e.reportsGenerated,
+          readyCount: e.readyCount,
+          total: e.total,
+          allowed: e.allowed,
+          isFirstRound: e.isFirstRound,
+          perTypeReady: e.perTypeReady as Record<AssessmentType, boolean>,
+        }),
+      )
+      .catch(() => setEligibility(null));
+  }, [user, checkSub, checkEligibility]);
 
   const paywalled = freePassUsed && !subscribed;
 
@@ -87,12 +112,27 @@ function DashboardPage() {
   }
 
   const completedTypes = new Set(sessions.map((s) => s.assessment_type));
-  const completedCount = completedTypes.size;
-  const allThreeDone = completedCount === 3;
-  const hasGapReport = sessions.some((s) => !!s.gap_report);
-  const showGapBanner = !hasGapReport;
   const nextIncomplete = ASSESSMENT_LIST.find((a) => !completedTypes.has(a.type));
+  const nextRetake =
+    eligibility && !eligibility.isFirstRound
+      ? ASSESSMENT_LIST.find((a) => !eligibility.perTypeReady[a.type])
+      : undefined;
+  const nextTarget = nextRetake ?? nextIncomplete ?? ASSESSMENT_LIST[0];
+  const nextLabel = nextRetake
+    ? `Retake ${nextRetake.shortTitle}`
+    : nextIncomplete
+      ? `Take ${nextIncomplete.shortTitle}`
+      : "Continue";
   const latestSession = sessions[0];
+  const readyCount = eligibility?.readyCount ?? 0;
+  const canGenerate = Boolean(eligibility?.allowed);
+  const isFirstRound = eligibility?.isFirstRound ?? true;
+  // Show the report banner if we're still waiting on this round's retakes,
+  // OR (first round) still missing assessments. Hide once the current round's
+  // report has been generated and no retakes have started yet.
+  const showGapBanner =
+    eligibility !== null &&
+    (canGenerate || readyCount > 0 || (isFirstRound && completedTypes.size < 3));
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
@@ -200,17 +240,23 @@ function DashboardPage() {
               SCALE Gap Report
             </p>
             <h2 className="mt-1 font-display text-xl font-semibold text-foreground">
-              {allThreeDone
-                ? "You're ready to generate your full SCALE Gap Report"
-                : `Complete all 3 assessments to unlock your Gap Report (${completedCount}/3 done)`}
+              {canGenerate
+                ? isFirstRound
+                  ? "You're ready to generate your full SCALE Gap Report"
+                  : "You're ready to generate your next SCALE Gap Report"
+                : isFirstRound
+                  ? `Complete all 3 assessments to unlock your Gap Report (${completedTypes.size}/3 done)`
+                  : `Retake all 3 assessments to unlock your next Gap Report (${readyCount} of 3 retaken)`}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              {allThreeDone
+              {canGenerate
                 ? "Combine your results into one unified report with cross-connection analysis."
-                : "Your personalized report ties together Inner Capacity, Personal Leadership, and Business Audit."}
+                : isFirstRound
+                  ? "Your personalized report ties together Inner Capacity, Personal Leadership, and Business Audit."
+                  : "Each new report requires a fresh set of all three assessments so it reflects where you are now."}
             </p>
           </div>
-          {allThreeDone && latestSession ? (
+          {canGenerate && latestSession ? (
             <Button
               asChild
               size="lg"
@@ -227,9 +273,9 @@ function DashboardPage() {
               size="lg"
               className="bg-[#433993] text-white hover:bg-[#433993]/90"
             >
-              <Link to="/assessment/$type" params={{ type: (nextIncomplete ?? ASSESSMENT_LIST[0]).type }}>
+              <Link to="/assessment/$type" params={{ type: nextTarget.type }}>
                 <ArrowRight className="mr-2 h-4 w-4" />
-                {nextIncomplete ? `Take ${nextIncomplete.shortTitle}` : "Continue"}
+                {nextLabel}
               </Link>
             </Button>
           )}
