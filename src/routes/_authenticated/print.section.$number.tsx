@@ -57,7 +57,7 @@ function PrintSectionPage() {
     return (
       <main className="mx-auto max-w-2xl px-4 py-10">
         <p className="text-sm text-muted-foreground">An active Fully Resourced subscription is required to print sections.</p>
-        <SubscribeBtn />
+        <Button className="mt-4" onClick={() => plansDialog.open()}>Subscribe</Button>
       </main>
     );
   }
