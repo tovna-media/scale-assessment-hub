@@ -31,7 +31,7 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 }
 
 // Configuration
-const SITE_NAME = "leader-growth-path"
+const SITE_NAME = "Get Fully Resourced"
 const SENDER_DOMAIN = "notify.getfullyresourced.com"
 const ROOT_DOMAIN = "getfullyresourced.com"
 const FROM_DOMAIN = "getfullyresourced.com"

@@ -106,6 +106,19 @@ async function handleSubscriptionUpsert(
         subscription_id: sub.id,
         plan: priceIdOf(sub),
       });
+      // Send activation email only on the first transition into active (from a
+      // non-active prior state). invoice.payment_succeeded handles ongoing renewals.
+      if (!prevStatus || (prevStatus !== 'active' && prevStatus !== 'trialing')) {
+        await sendSubscriptionEmail(userId, 'subscription-activated', {
+          plan: priceIdOf(sub) ?? undefined,
+        });
+      } else {
+        // Same-account plan change while active — treat as update
+        await sendSubscriptionEmail(userId, 'subscription-updated', {
+          plan: priceIdOf(sub) ?? undefined,
+          changeType: 'change',
+        });
+      }
     } else if (sub.status === 'past_due') {
       await notifyGhlSubscriptionEvent(userId, 'subscription_past_due', {
         subscription_id: sub.id,
@@ -113,6 +126,9 @@ async function handleSubscriptionUpsert(
     } else if (sub.status === 'canceled' || sub.status === 'unpaid') {
       await notifyGhlSubscriptionEvent(userId, 'subscription_canceled', {
         subscription_id: sub.id,
+      });
+      await sendSubscriptionEmail(userId, 'subscription-canceled', {
+        endsAt: isoFromUnix(periodEnd) ?? undefined,
       });
     }
   }
@@ -149,10 +165,15 @@ async function handleInvoicePaymentFailed(
 
 async function handleInvoicePaymentSucceeded(
   admin: Admin,
-  invoice: StripeObj & { subscription?: string },
+  invoice: StripeObj & { subscription?: string; amount_paid?: number; currency?: string; billing_reason?: string },
 ) {
   const subId = invoice.subscription;
   if (!subId || typeof subId !== 'string') return;
+  const { data: row } = await admin
+    .from('subscriptions')
+    .select('user_id, price_id')
+    .eq('stripe_subscription_id', subId)
+    .maybeSingle();
   await admin
     .from('subscriptions')
     .update({
@@ -161,6 +182,40 @@ async function handleInvoicePaymentSucceeded(
       updated_at: new Date().toISOString(),
     })
     .eq('stripe_subscription_id', subId);
+
+  const r = row as { user_id?: string; price_id?: string | null } | null;
+  if (!r?.user_id) return;
+  // Skip the first invoice (billing_reason === 'subscription_create') — the
+  // subscription-activated email already covers that. Send for renewals only.
+  if (invoice.billing_reason && invoice.billing_reason === 'subscription_create') return;
+  const amount = typeof invoice.amount_paid === 'number' && invoice.currency
+    ? new Intl.NumberFormat('en-US', { style: 'currency', currency: invoice.currency.toUpperCase() })
+        .format(invoice.amount_paid / 100)
+    : undefined;
+  await sendSubscriptionEmail(r.user_id, 'payment-succeeded', {
+    plan: r.price_id ?? undefined,
+    amount,
+  });
+}
+
+async function sendSubscriptionEmail(
+  userId: string,
+  templateName: 'subscription-activated' | 'subscription-canceled' | 'subscription-updated' | 'payment-succeeded',
+  extra: Record<string, unknown>,
+) {
+  try {
+    const { getUserEmailAndName, sendTransactionalEmailServer } = await import('@/lib/email/send.server');
+    const { email, name } = await getUserEmailAndName(userId);
+    if (!email) return;
+    await sendTransactionalEmailServer({
+      templateName,
+      recipientEmail: email,
+      idempotencyKey: `${templateName}-${userId}-${Date.now()}`,
+      templateData: { name: name ?? undefined, ...extra },
+    });
+  } catch (e) {
+    console.error('[webhook] failed to send subscription email', templateName, e);
+  }
 }
 
 export const Route = createFileRoute('/api/public/payments/webhook')({
