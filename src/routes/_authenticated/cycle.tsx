@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { getSubscriptionStatus } from "@/lib/payments.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowRight, Check, Lock, PlayCircle, Printer } from "lucide-react";
+import { usePlansDialog } from "@/components/PlansDialog";
 
 export const Route = createFileRoute("/_authenticated/cycle")({
   head: () => ({ meta: [{ title: "My Cycle — Fully Resourced" }] }),
