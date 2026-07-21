@@ -616,6 +616,7 @@ function ReportView({
   downloadingPdf: boolean;
   subscribed: boolean;
 }) {
+  const plansDialog = usePlansDialog();
   const ic = useMemo(
     () => scoreInnerCapacity(latestResponses.inner_capacity ?? {}),
     [latestResponses.inner_capacity],
