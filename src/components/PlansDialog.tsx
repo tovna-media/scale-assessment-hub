@@ -58,7 +58,6 @@ function PlansDialog({ subscribed, onClose }: { subscribed: boolean; onClose: ()
       return;
     }
     setBusy("upgrade");
-    const popup = window.open("about:blank", "_blank", "noopener,noreferrer");
     try {
       const priceId = billing === "annual" ? ANNUAL_PRICE_ID : MONTHLY_PRICE_ID;
       const returnUrl = `${window.location.origin}/checkout/activating?session_id={CHECKOUT_SESSION_ID}`;
@@ -72,14 +71,8 @@ function PlansDialog({ subscribed, onClose }: { subscribed: boolean; onClose: ()
       });
       if ("error" in result) throw new Error(result.error);
       if (!result.url) throw new Error("No checkout URL returned");
-      if (popup && !popup.closed) {
-        popup.location.href = result.url;
-      } else {
-        window.location.href = result.url;
-      }
-      setBusy(null);
+      window.location.href = result.url;
     } catch (e) {
-      if (popup && !popup.closed) popup.close();
       toast.error(e instanceof Error ? e.message : "Could not open checkout.");
       setBusy(null);
     }
@@ -91,7 +84,6 @@ function PlansDialog({ subscribed, onClose }: { subscribed: boolean; onClose: ()
       return;
     }
     setBusy("downgrade");
-    const popup = window.open("about:blank", "_blank", "noopener,noreferrer");
     try {
       const result = await openPortal({
         data: {
@@ -100,14 +92,8 @@ function PlansDialog({ subscribed, onClose }: { subscribed: boolean; onClose: ()
         },
       });
       if ("error" in result) throw new Error(result.error);
-      if (popup && !popup.closed) {
-        popup.location.href = result.url;
-      } else {
-        window.location.href = result.url;
-      }
-      setBusy(null);
+      window.location.href = result.url;
     } catch (e) {
-      if (popup && !popup.closed) popup.close();
       toast.error(e instanceof Error ? e.message : "Could not open billing portal.");
       setBusy(null);
     }
