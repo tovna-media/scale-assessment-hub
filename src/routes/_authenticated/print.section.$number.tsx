@@ -66,8 +66,8 @@ function PrintSectionPage() {
     <>
       <div className="no-print sticky top-0 z-10 flex items-center justify-between border-b border-border bg-white/90 px-4 py-3 backdrop-blur">
         <Button asChild variant="ghost" size="sm">
-          <Link to="/guide/section-$number".replace("$number", String(sectionNumber)) as never}>
-            <ArrowLeft className="mr-1.5 h-4 w-4" /> Back to section
+          <Link to="/cycle">
+            <ArrowLeft className="mr-1.5 h-4 w-4" /> Back to My Cycle
           </Link>
         </Button>
         <p className="text-xs text-muted-foreground">
