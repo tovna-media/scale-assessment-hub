@@ -12,7 +12,21 @@ import { sendTransactionalEmail } from "@/lib/email/send";
 import { Logo } from "@/components/scale/Logo";
 
 export const Route = createFileRoute("/signup")({
-  head: () => ({ meta: [{ title: "Create your account — Fully Resourced Leadership System" }] }),
+  head: () => ({
+    meta: [
+      { title: "Create your account — Fully Resourced Leadership System" },
+      {
+        name: "description",
+        content: "Create a Fully Resourced account to take the three SCALE assessments and generate your personalized leadership Gap Report.",
+      },
+      { property: "og:title", content: "Create your account — Fully Resourced Leadership System" },
+      { property: "og:description", content: "Start the three SCALE assessments and get a personalized leadership Gap Report from coach Rich Lohman." },
+      { property: "og:url", content: "https://scale.richlohman.com/signup" },
+      { name: "twitter:title", content: "Create your account — Fully Resourced Leadership System" },
+      { name: "twitter:description", content: "Start the three SCALE assessments and get a personalized leadership Gap Report." },
+    ],
+    links: [{ rel: "canonical", href: "https://scale.richlohman.com/signup" }],
+  }),
   component: SignupPage,
 });
 

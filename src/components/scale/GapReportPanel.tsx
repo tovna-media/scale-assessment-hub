@@ -43,7 +43,7 @@ export function GapReportPanel({ className }: { className?: string }) {
             size="sm"
             className="gap-2 bg-gradient-to-r from-[#5b19bf] to-[#2a0a64] text-[13px] text-white shadow-md hover:from-[#6b23d8] hover:to-[#3a1080] hover:shadow-lg"
           >
-            <BookOpen className="h-4 w-4" /> Access your gap report here
+            <BookOpen className="h-4 w-4" /> Access your full SCALE Gap Report
           </Button>
         </SheetTrigger>
         <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-lg">
