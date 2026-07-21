@@ -1,0 +1,16 @@
+# Fully Resourced Leadership System
+
+> The SCALE Assessment Hub and Fully Resourced Leadership System by coach Rich Lohman. Members complete three leadership assessments to receive a personalized SCALE Gap Report and follow a 12-section leadership development guide.
+
+The site is primarily a members-only application. Public pages are limited to sign-in, sign-up, and legal.
+
+## Pages
+
+- [Sign in](/): Sign in to the Fully Resourced Leadership System.
+- [Create account](/signup): Create a Fully Resourced account and start the SCALE assessments.
+- [Reset password](/forgot-password): Request a password reset email.
+
+## Optional
+
+- [Privacy Policy](/privacy): How SCALE handles member data.
+- [Terms of Service](/terms): Terms for the SCALE Gap Report and Fully Resourced membership.
