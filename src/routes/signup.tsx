@@ -103,8 +103,8 @@ function SignupPage() {
           </p>
           {success ? (
             <div className="mt-8 space-y-6 text-center">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-purple/10">
-                <Mail className="h-8 w-8 text-brand-purple" />
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-rl-purple-cta/10">
+                <Mail className="h-8 w-8 text-rl-purple-cta" />
               </div>
               <div className="space-y-2">
                 <h2 className="font-display text-lg font-semibold text-foreground">
