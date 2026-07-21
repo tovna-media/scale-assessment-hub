@@ -729,20 +729,20 @@ function PathCard({
   desc,
   recommended,
   href,
-  to,
+  onClick,
 }: {
   title: string;
   desc: string;
   recommended?: boolean;
   href?: string;
-  to?: "/fully-resourced";
+  onClick?: () => void;
 }) {
   const classes =
     "rounded-xl border p-5 " +
     (recommended
       ? "border-[var(--accent-blue)] bg-primary text-primary-foreground shadow-md"
       : "border-border bg-card") +
-    (href || to ? " hover:shadow-md transition-shadow" : "");
+    (href || onClick ? " hover:shadow-md transition-shadow" : "");
   const content = (
     <>
       {recommended && (
@@ -764,11 +764,11 @@ function PathCard({
       </p>
     </>
   );
-  if (to) {
+  if (onClick) {
     return (
-      <Link to={to} className={classes + " block"}>
+      <button type="button" onClick={onClick} className={classes + " block w-full text-left"}>
         {content}
-      </Link>
+      </button>
     );
   }
   if (href) {
