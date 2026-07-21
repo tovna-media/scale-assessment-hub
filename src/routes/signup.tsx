@@ -10,6 +10,7 @@ import { logFunnelEvent } from "@/lib/funnel.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { sendTransactionalEmail } from "@/lib/email/send";
 import { Logo } from "@/components/scale/Logo";
+import { Mail } from "lucide-react";
 
 export const Route = createFileRoute("/signup")({
   head: () => ({
