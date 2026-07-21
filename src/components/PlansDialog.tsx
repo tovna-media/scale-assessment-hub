@@ -105,20 +105,20 @@ function PlansDialog({ subscribed, onClose }: { subscribed: boolean; onClose: ()
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/60 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] overflow-y-auto bg-black/60 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       onClick={onClose}
     >
       <div
-        className="relative my-8 w-full max-w-4xl rounded-2xl bg-white p-6 shadow-2xl sm:p-8"
+        className="relative mx-auto my-8 w-full max-w-4xl rounded-2xl bg-white p-6 pt-14 shadow-2xl sm:p-8 sm:pt-8"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
           aria-label="Close"
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-full p-2 text-[var(--fr-muted-ink)] hover:bg-[var(--fr-surface)]"
+          className="absolute right-4 top-4 z-10 rounded-full bg-white p-2 text-[var(--fr-muted-ink)] shadow-sm hover:bg-[var(--fr-surface)]"
         >
           <X className="h-5 w-5" />
         </button>
