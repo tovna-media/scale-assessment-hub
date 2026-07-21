@@ -51,6 +51,7 @@ import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/em
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as CoachCoachAssesseeUserIdRouteImport } from './routes/_coach/coach.assessee.$userId'
+import { Route as AuthenticatedPrintSectionNumberRouteImport } from './routes/_authenticated/print.section.$number'
 
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
   id: '/unsubscribe',
@@ -282,6 +283,12 @@ const CoachCoachAssesseeUserIdRoute =
     path: '/assessee/$userId',
     getParentRoute: () => CoachCoachRoute,
   } as any)
+const AuthenticatedPrintSectionNumberRoute =
+  AuthenticatedPrintSectionNumberRouteImport.update({
+    id: '/print/section/$number',
+    path: '/print/section/$number',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -317,6 +324,7 @@ export interface FileRoutesByFullPath {
   '/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/checkout/': typeof AuthenticatedCheckoutIndexRoute
+  '/print/section/$number': typeof AuthenticatedPrintSectionNumberRoute
   '/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -358,6 +366,7 @@ export interface FileRoutesByTo {
   '/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/checkout': typeof AuthenticatedCheckoutIndexRoute
+  '/print/section/$number': typeof AuthenticatedPrintSectionNumberRoute
   '/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -403,6 +412,7 @@ export interface FileRoutesById {
   '/_authenticated/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/_authenticated/checkout/': typeof AuthenticatedCheckoutIndexRoute
+  '/_authenticated/print/section/$number': typeof AuthenticatedPrintSectionNumberRoute
   '/_coach/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -447,6 +457,7 @@ export interface FileRouteTypes {
     | '/report/$sessionId'
     | '/lovable/email/suppression'
     | '/checkout/'
+    | '/print/section/$number'
     | '/coach/assessee/$userId'
     | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
@@ -488,6 +499,7 @@ export interface FileRouteTypes {
     | '/report/$sessionId'
     | '/lovable/email/suppression'
     | '/checkout'
+    | '/print/section/$number'
     | '/coach/assessee/$userId'
     | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
@@ -532,6 +544,7 @@ export interface FileRouteTypes {
     | '/_authenticated/report/$sessionId'
     | '/lovable/email/suppression'
     | '/_authenticated/checkout/'
+    | '/_authenticated/print/section/$number'
     | '/_coach/coach/assessee/$userId'
     | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
@@ -858,6 +871,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoachCoachAssesseeUserIdRouteImport
       parentRoute: typeof CoachCoachRoute
     }
+    '/_authenticated/print/section/$number': {
+      id: '/_authenticated/print/section/$number'
+      path: '/print/section/$number'
+      fullPath: '/print/section/$number'
+      preLoaderRoute: typeof AuthenticatedPrintSectionNumberRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
@@ -896,6 +916,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedGuideSection8Route: typeof AuthenticatedGuideSection8Route
   AuthenticatedGuideSection9Route: typeof AuthenticatedGuideSection9Route
   AuthenticatedReportSessionIdRoute: typeof AuthenticatedReportSessionIdRoute
+  AuthenticatedPrintSectionNumberRoute: typeof AuthenticatedPrintSectionNumberRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -918,6 +939,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedGuideSection8Route: AuthenticatedGuideSection8Route,
   AuthenticatedGuideSection9Route: AuthenticatedGuideSection9Route,
   AuthenticatedReportSessionIdRoute: AuthenticatedReportSessionIdRoute,
+  AuthenticatedPrintSectionNumberRoute: AuthenticatedPrintSectionNumberRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
