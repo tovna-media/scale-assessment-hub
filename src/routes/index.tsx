@@ -17,11 +17,6 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/")({
   validateSearch: searchSchema,
-  head: () => ({ ... })
-  ...
-});
-
-export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Sign in — Fully Resourced Leadership System" },
@@ -43,6 +38,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   const navigate = useNavigate();
   const { session, role, loading } = useAuth();
+  const search = useSearch({ from: Route.id });
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -52,6 +48,12 @@ function Index() {
       navigate({ to: role === "coach" ? "/coach" : "/dashboard" });
     }
   }, [session, role, loading, navigate]);
+
+  useEffect(() => {
+    if (search.email) {
+      setEmail(search.email);
+    }
+  }, [search.email]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -82,6 +84,13 @@ function Index() {
           <p className="mt-2 text-center text-sm text-muted-foreground">
             Become the leader your business needs you to be.
           </p>
+
+          {search.message && (
+            <div className="mt-6 flex items-start gap-3 rounded-xl border border-rl-purple-cta/20 bg-rl-purple-cta/5 p-4">
+              <Mail className="mt-0.5 h-5 w-5 shrink-0 text-rl-purple-cta" />
+              <p className="text-sm text-foreground">{search.message}</p>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-5">
             <div className="space-y-2">
