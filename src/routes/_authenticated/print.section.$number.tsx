@@ -8,6 +8,7 @@ import { getSubscriptionStatus } from "@/lib/payments.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { PrintHeader, PrintFooter, SectionPrint } from "@/components/scale/PrintDoc";
 import { SECTION_TITLES } from "@/lib/section-print";
+import { usePlansDialog } from "@/components/PlansDialog";
 
 export const Route = createFileRoute("/_authenticated/print/section/$number")({
   head: () => ({ meta: [{ title: "Print section — Fully Resourced" }] }),
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/_authenticated/print/section/$number")({
 
 function PrintSectionPage() {
   const { user } = useAuth();
+  const plansDialog = usePlansDialog();
   const { number } = useParams({ from: "/_authenticated/print/section/$number" });
   const sectionNumber = parseInt(number, 10);
   const checkSub = useServerFn(getSubscriptionStatus);
