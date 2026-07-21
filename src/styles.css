@@ -182,3 +182,20 @@
   .print-break-before { page-break-before: always; }
   .print-break-inside-avoid { page-break-inside: avoid; }
 }
+
+@media print {
+  @page { margin: 0.6in 0.55in; }
+  html, body { background: white !important; color: #000 !important; }
+  /* Hide app chrome */
+  aside, header, nav, .no-print { display: none !important; }
+  /* Neutralize AppShell padding so print starts flush */
+  .lg\:pl-64 { padding-left: 0 !important; }
+  main { min-height: 0 !important; }
+  a { color: inherit !important; text-decoration: none !important; }
+  .print-doc { color: #000; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+  .print-doc h1, .print-doc h2, .print-doc h3 { color: #5B2D8E; }
+  .print-section { page-break-inside: auto; }
+  .print-section + .print-section { page-break-before: always; }
+  .print-avoid { page-break-inside: avoid; }
+  .print-footer { position: fixed; bottom: 0.25in; left: 0; right: 0; text-align: center; font-size: 10px; color: #444; }
+}

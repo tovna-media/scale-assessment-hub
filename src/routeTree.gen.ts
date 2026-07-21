@@ -30,6 +30,7 @@ import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedCheckoutIndexRouteImport } from './routes/_authenticated/checkout.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as AuthenticatedReportSessionIdRouteImport } from './routes/_authenticated/report.$sessionId'
+import { Route as AuthenticatedPrintAllRouteImport } from './routes/_authenticated/print.all'
 import { Route as AuthenticatedGuideSection9RouteImport } from './routes/_authenticated/guide.section-9'
 import { Route as AuthenticatedGuideSection8RouteImport } from './routes/_authenticated/guide.section-8'
 import { Route as AuthenticatedGuideSection7RouteImport } from './routes/_authenticated/guide.section-7'
@@ -51,6 +52,7 @@ import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/em
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as CoachCoachAssesseeUserIdRouteImport } from './routes/_coach/coach.assessee.$userId'
+import { Route as AuthenticatedPrintSectionNumberRouteImport } from './routes/_authenticated/print.section.$number'
 
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
   id: '/unsubscribe',
@@ -158,6 +160,11 @@ const AuthenticatedReportSessionIdRoute =
     path: '/report/$sessionId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedPrintAllRoute = AuthenticatedPrintAllRouteImport.update({
+  id: '/print/all',
+  path: '/print/all',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedGuideSection9Route =
   AuthenticatedGuideSection9RouteImport.update({
     id: '/guide/section-9',
@@ -282,6 +289,12 @@ const CoachCoachAssesseeUserIdRoute =
     path: '/assessee/$userId',
     getParentRoute: () => CoachCoachRoute,
   } as any)
+const AuthenticatedPrintSectionNumberRoute =
+  AuthenticatedPrintSectionNumberRouteImport.update({
+    id: '/print/section/$number',
+    path: '/print/section/$number',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -314,9 +327,11 @@ export interface FileRoutesByFullPath {
   '/guide/section-7': typeof AuthenticatedGuideSection7Route
   '/guide/section-8': typeof AuthenticatedGuideSection8Route
   '/guide/section-9': typeof AuthenticatedGuideSection9Route
+  '/print/all': typeof AuthenticatedPrintAllRoute
   '/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/checkout/': typeof AuthenticatedCheckoutIndexRoute
+  '/print/section/$number': typeof AuthenticatedPrintSectionNumberRoute
   '/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -355,9 +370,11 @@ export interface FileRoutesByTo {
   '/guide/section-7': typeof AuthenticatedGuideSection7Route
   '/guide/section-8': typeof AuthenticatedGuideSection8Route
   '/guide/section-9': typeof AuthenticatedGuideSection9Route
+  '/print/all': typeof AuthenticatedPrintAllRoute
   '/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/checkout': typeof AuthenticatedCheckoutIndexRoute
+  '/print/section/$number': typeof AuthenticatedPrintSectionNumberRoute
   '/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -400,9 +417,11 @@ export interface FileRoutesById {
   '/_authenticated/guide/section-7': typeof AuthenticatedGuideSection7Route
   '/_authenticated/guide/section-8': typeof AuthenticatedGuideSection8Route
   '/_authenticated/guide/section-9': typeof AuthenticatedGuideSection9Route
+  '/_authenticated/print/all': typeof AuthenticatedPrintAllRoute
   '/_authenticated/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/_authenticated/checkout/': typeof AuthenticatedCheckoutIndexRoute
+  '/_authenticated/print/section/$number': typeof AuthenticatedPrintSectionNumberRoute
   '/_coach/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -444,9 +463,11 @@ export interface FileRouteTypes {
     | '/guide/section-7'
     | '/guide/section-8'
     | '/guide/section-9'
+    | '/print/all'
     | '/report/$sessionId'
     | '/lovable/email/suppression'
     | '/checkout/'
+    | '/print/section/$number'
     | '/coach/assessee/$userId'
     | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
@@ -485,9 +506,11 @@ export interface FileRouteTypes {
     | '/guide/section-7'
     | '/guide/section-8'
     | '/guide/section-9'
+    | '/print/all'
     | '/report/$sessionId'
     | '/lovable/email/suppression'
     | '/checkout'
+    | '/print/section/$number'
     | '/coach/assessee/$userId'
     | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
@@ -529,9 +552,11 @@ export interface FileRouteTypes {
     | '/_authenticated/guide/section-7'
     | '/_authenticated/guide/section-8'
     | '/_authenticated/guide/section-9'
+    | '/_authenticated/print/all'
     | '/_authenticated/report/$sessionId'
     | '/lovable/email/suppression'
     | '/_authenticated/checkout/'
+    | '/_authenticated/print/section/$number'
     | '/_coach/coach/assessee/$userId'
     | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
@@ -711,6 +736,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReportSessionIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/print/all': {
+      id: '/_authenticated/print/all'
+      path: '/print/all'
+      fullPath: '/print/all'
+      preLoaderRoute: typeof AuthenticatedPrintAllRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/guide/section-9': {
       id: '/_authenticated/guide/section-9'
       path: '/guide/section-9'
@@ -858,6 +890,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoachCoachAssesseeUserIdRouteImport
       parentRoute: typeof CoachCoachRoute
     }
+    '/_authenticated/print/section/$number': {
+      id: '/_authenticated/print/section/$number'
+      path: '/print/section/$number'
+      fullPath: '/print/section/$number'
+      preLoaderRoute: typeof AuthenticatedPrintSectionNumberRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
@@ -895,7 +934,9 @@ interface AuthenticatedRouteChildren {
   AuthenticatedGuideSection7Route: typeof AuthenticatedGuideSection7Route
   AuthenticatedGuideSection8Route: typeof AuthenticatedGuideSection8Route
   AuthenticatedGuideSection9Route: typeof AuthenticatedGuideSection9Route
+  AuthenticatedPrintAllRoute: typeof AuthenticatedPrintAllRoute
   AuthenticatedReportSessionIdRoute: typeof AuthenticatedReportSessionIdRoute
+  AuthenticatedPrintSectionNumberRoute: typeof AuthenticatedPrintSectionNumberRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -917,7 +958,9 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedGuideSection7Route: AuthenticatedGuideSection7Route,
   AuthenticatedGuideSection8Route: AuthenticatedGuideSection8Route,
   AuthenticatedGuideSection9Route: AuthenticatedGuideSection9Route,
+  AuthenticatedPrintAllRoute: AuthenticatedPrintAllRoute,
   AuthenticatedReportSessionIdRoute: AuthenticatedReportSessionIdRoute,
+  AuthenticatedPrintSectionNumberRoute: AuthenticatedPrintSectionNumberRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

@@ -12,6 +12,8 @@ import { Slider } from "@/components/ui/slider";
 import { ArrowLeft, ArrowRight, Check, Minus, TrendingDown, TrendingUp, X } from "lucide-react";
 import { toast } from "sonner";
 import { SectionVideo } from "@/components/scale/SectionVideo";
+import { PrintSectionButton } from "@/components/scale/PrintSectionButton";
+import { hasPrintableContent } from "@/lib/section-print";
 import { GapReportPanel } from "@/components/scale/GapReportPanel";
 
 export const Route = createFileRoute("/_authenticated/guide/section-3")({
@@ -336,10 +338,11 @@ function SectionThreePage() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 pb-32 pt-8 sm:px-6">
-      <div className="mb-6">
+      <div className="mb-6 flex items-center justify-between gap-3">
         <Link to="/cycle" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> My Cycle
         </Link>
+        <PrintSectionButton section={3} hasContent={hasPrintableContent(d)} />
       </div>
       <SectionVideo sectionNumber={3} sectionTitle="Leadership Performance Dashboard" />
 

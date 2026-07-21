@@ -12,6 +12,8 @@ import { Slider } from "@/components/ui/slider";
 import { ArrowLeft, ArrowRight, Check, X, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { SectionVideo } from "@/components/scale/SectionVideo";
+import { PrintSectionButton } from "@/components/scale/PrintSectionButton";
+import { hasPrintableContent } from "@/lib/section-print";
 import { GapReportPanel } from "@/components/scale/GapReportPanel";
 import { useServerFn } from "@tanstack/react-start";
 import { getGapReportEligibility } from "@/lib/report.functions";
@@ -221,10 +223,11 @@ function SectionTwelvePage() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 pb-32 pt-8 sm:px-6">
-      <div className="mb-6">
+      <div className="mb-6 flex items-center justify-between gap-3">
         <Link to="/cycle" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> My Cycle
         </Link>
+        <PrintSectionButton section={12} hasContent={hasPrintableContent(d)} />
       </div>
 
       <SectionVideo sectionNumber={12} sectionTitle="Leadership Optimization Review" />
