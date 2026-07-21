@@ -11,7 +11,17 @@ export const Route = createFileRoute("/forgot-password")({
   head: () => ({
     meta: [
       { title: "Reset password — Fully Resourced Leadership System" },
+      {
+        name: "description",
+        content: "Request a password reset email for your Fully Resourced Leadership System account.",
+      },
+      { property: "og:title", content: "Reset password — Fully Resourced Leadership System" },
+      { property: "og:description", content: "Request a password reset email for your Fully Resourced account." },
+      { property: "og:url", content: "https://scale.richlohman.com/forgot-password" },
+      { name: "twitter:title", content: "Reset password — Fully Resourced Leadership System" },
+      { name: "twitter:description", content: "Request a password reset email for your Fully Resourced account." },
     ],
+    links: [{ rel: "canonical", href: "https://scale.richlohman.com/forgot-password" }],
   }),
   component: ForgotPasswordPage,
 });
