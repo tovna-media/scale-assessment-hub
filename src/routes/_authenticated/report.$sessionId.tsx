@@ -696,7 +696,7 @@ function ReportView({
         {!subscribed && (
           <PathCard
             title="Fully Resourced"
-            desc="The full SCALE system: guided 90-day plan, Coach Rich AI, live dashboard, digital book, and unlimited assessments."
+            desc="The full SCALE system: guided 90-day plan, Fully Resourced AI Coach, live dashboard, digital book, and unlimited assessments."
             to="/fully-resourced"
             recommended
           />
