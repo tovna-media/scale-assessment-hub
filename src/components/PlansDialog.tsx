@@ -71,7 +71,8 @@ function PlansDialog({ subscribed, onClose }: { subscribed: boolean; onClose: ()
       });
       if ("error" in result) throw new Error(result.error);
       if (!result.url) throw new Error("No checkout URL returned");
-      window.location.href = result.url;
+      window.open(result.url, "_blank", "noopener,noreferrer");
+      setBusy(null);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not open checkout.");
       setBusy(null);
@@ -92,7 +93,8 @@ function PlansDialog({ subscribed, onClose }: { subscribed: boolean; onClose: ()
         },
       });
       if ("error" in result) throw new Error(result.error);
-      window.location.href = result.url;
+      window.open(result.url, "_blank", "noopener,noreferrer");
+      setBusy(null);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not open billing portal.");
       setBusy(null);
