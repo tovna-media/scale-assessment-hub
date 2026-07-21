@@ -227,6 +227,7 @@ function DashboardPage() {
 
   function handleSubscribeClick() {
     void logEvent({ data: { event_type: "clicked_subscribe" } }).catch(() => {});
+    plansDialog.open();
   }
 
   const displayName = profile.firstName || profile.fullName?.split(" ")[0] || (user?.email ? user.email.split("@")[0] : "");
