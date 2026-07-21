@@ -13,7 +13,6 @@ import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as LoginRouteImport } from './routes/login'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as CoachRouteImport } from './routes/_coach'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
@@ -70,11 +69,6 @@ const SignupRoute = SignupRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
@@ -286,7 +280,6 @@ const AuthenticatedPrintSectionNumberRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
-  '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
@@ -328,7 +321,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
-  '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
@@ -373,7 +365,6 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_coach': typeof CoachRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
-  '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
@@ -417,7 +408,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/forgot-password'
-    | '/login'
     | '/privacy'
     | '/signup'
     | '/terms'
@@ -459,7 +449,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/forgot-password'
-    | '/login'
     | '/privacy'
     | '/signup'
     | '/terms'
@@ -503,7 +492,6 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/_coach'
     | '/forgot-password'
-    | '/login'
     | '/privacy'
     | '/signup'
     | '/terms'
@@ -548,7 +536,6 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   CoachRoute: typeof CoachRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
-  LoginRoute: typeof LoginRoute
   PrivacyRoute: typeof PrivacyRoute
   SignupRoute: typeof SignupRoute
   TermsRoute: typeof TermsRoute
@@ -592,13 +579,6 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forgot-password': {
@@ -944,7 +924,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   CoachRoute: CoachRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
-  LoginRoute: LoginRoute,
   PrivacyRoute: PrivacyRoute,
   SignupRoute: SignupRoute,
   TermsRoute: TermsRoute,
