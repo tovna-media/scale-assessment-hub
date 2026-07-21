@@ -101,81 +101,105 @@ function SignupPage() {
           <p className="mt-2 text-center text-sm text-muted-foreground">
             Become the leader your business needs you to be.
           </p>
-          <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">First name</Label>
-                <Input
-                  id="firstName"
-                  type="text"
-                  required
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  autoComplete="given-name"
-                />
+          {success ? (
+            <div className="mt-8 space-y-6 text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-purple/10">
+                <Mail className="h-8 w-8 text-brand-purple" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName">Last name</Label>
-                <Input
-                  id="lastName"
-                  type="text"
-                  required
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  autoComplete="family-name"
-                />
+                <h2 className="font-display text-lg font-semibold text-foreground">
+                  Account created successfully
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Check your email at <strong className="text-foreground">{email}</strong> to activate your account. Once activated, you can sign in and begin your SCALE assessment.
+                </p>
               </div>
+              <Button
+                asChild
+                className="w-full bg-rl-purple-cta text-white hover:bg-rl-purple-cta/90"
+              >
+                <Link to="/">Back to sign in</Link>
+              </Button>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
-              <Input
-                id="phone"
-                type="tel"
-                required
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                autoComplete="tel"
-                placeholder="(555) 123-4567"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                required
-                minLength={8}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="new-password"
-              />
-              <p className="text-xs text-muted-foreground">At least 8 characters.</p>
-            </div>
-            <Button
-              type="submit"
-              className="w-full bg-rl-purple-cta text-white hover:bg-rl-purple-cta/90"
-              disabled={submitting}
-            >
-              {submitting ? "Creating account…" : "Create account"}
-            </Button>
-          </form>
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            Already have an account?{" "}
-            <Link to="/" className="font-medium text-rl-purple-cta hover:underline">
-              Sign in
-            </Link>
-          </p>
+          ) : (
+            <>
+              <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName">First name</Label>
+                    <Input
+                      id="firstName"
+                      type="text"
+                      required
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      autoComplete="given-name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName">Last name</Label>
+                    <Input
+                      id="lastName"
+                      type="text"
+                      required
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      autoComplete="family-name"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="email"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    autoComplete="tel"
+                    placeholder="(555) 123-4567"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    required
+                    minLength={8}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="new-password"
+                  />
+                  <p className="text-xs text-muted-foreground">At least 8 characters.</p>
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full bg-rl-purple-cta text-white hover:bg-rl-purple-cta/90"
+                  disabled={submitting}
+                >
+                  {submitting ? "Creating account…" : "Create account"}
+                </Button>
+              </form>
+              <p className="mt-6 text-center text-sm text-muted-foreground">
+                Already have an account?{" "}
+                <Link to="/" className="font-medium text-rl-purple-cta hover:underline">
+                  Sign in
+                </Link>
+              </p>
+            </>
+          )}
         </div>
         <p className="mt-8 text-center text-xs text-muted-foreground">
           Powered by the Fully Resourced Leadership System®
