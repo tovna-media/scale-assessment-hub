@@ -41,12 +41,13 @@ function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    if (!loading && session) {
+    if (!loading && session && !success) {
       navigate({ to: role === "coach" ? "/coach" : "/dashboard" });
     }
-  }, [session, role, loading, navigate]);
+  }, [session, role, loading, navigate, success]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -71,6 +72,7 @@ function SignupPage() {
       toast.error(error.message);
       return;
     }
+    setSuccess(true);
     toast.success("Account created. Welcome to SCALE.");
     // Fire-and-forget funnel event.
     void logEvent({ data: { event_type: "signed_up" } }).catch(() => {});
@@ -81,7 +83,6 @@ function SignupPage() {
       idempotencyKey: `welcome-${email}`,
       templateData: { name: firstName || fullName || undefined },
     }).catch(() => {});
-    // Session is set automatically; redirect via useEffect
   }
 
   return (
