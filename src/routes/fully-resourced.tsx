@@ -11,13 +11,13 @@ export const Route = createFileRoute('/fully-resourced')({
       {
         name: 'description',
         content:
-          'The full SCALE system for $97/month: a 90-day guided leadership plan, Coach Rich AI, a live Performance Dashboard, the digital "Fully Resourced" book, and unlimited assessments and gap reports.',
+          'The full SCALE system for $97/month: a 90-day guided leadership plan, Fully Resourced AI Coach, a live Performance Dashboard, the digital "Fully Resourced" book, and unlimited assessments and gap reports.',
       },
       { property: 'og:title', content: 'Fully Resourced — $97/month' },
       {
         property: 'og:description',
         content:
-          '90-day guided leadership plan, Coach Rich AI, live Performance Dashboard, the digital book, and unlimited assessments and gap reports.',
+          '90-day guided leadership plan, Fully Resourced AI Coach, live Performance Dashboard, the digital book, and unlimited assessments and gap reports.',
       },
     ],
   }),
@@ -30,7 +30,7 @@ const PILLARS: Array<{ title: string; body: string }> = [
     body: 'A structured, coach-designed cycle that moves your biggest gap forward — one focused sprint at a time.',
   },
   {
-    title: 'Coach Rich AI',
+    title: 'Fully Resourced AI Coach',
     body: "Ask questions and get Rich's frameworks and coaching on demand, tuned to your assessment results.",
   },
   {
@@ -90,7 +90,7 @@ function OfferPage() {
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
             The SCALE Gap Report shows you where the gap is. Fully Resourced is how you close it — a
-            guided 90-day cycle, Coach Rich AI, a live dashboard, the digital book, and unlimited
+            guided 90-day cycle, Fully Resourced AI Coach, a live dashboard, the digital book, and unlimited
             assessments.
           </p>
 

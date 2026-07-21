@@ -427,7 +427,7 @@ function DashboardPage() {
                 You've used your 1-free Gap Report
               </h4>
               <p className="mt-1 text-sm text-[var(--fr-muted-ink)]">
-                Get the full system for $97/month: your guided cycle, Coach Rich AI, live dashboard, the digital book, and unlimited assessments.
+                Get the full system for $97/month: your guided cycle, Fully Resourced AI Coach, live dashboard, the digital book, and unlimited assessments.
               </p>
             </div>
           </div>
