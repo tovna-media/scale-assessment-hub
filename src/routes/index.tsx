@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,19 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
 import { Logo } from "@/components/scale/Logo";
+import { Mail } from "lucide-react";
+import { z } from "zod";
+
+const searchSchema = z.object({
+  message: z.string().optional(),
+  email: z.string().optional(),
+});
+
+export const Route = createFileRoute("/")({
+  validateSearch: searchSchema,
+  head: () => ({ ... })
+  ...
+});
 
 export const Route = createFileRoute("/")({
   head: () => ({
