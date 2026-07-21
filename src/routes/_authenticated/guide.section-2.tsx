@@ -272,13 +272,14 @@ function SectionTwoPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 pb-32 pt-8 sm:px-6">
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between gap-3">
         <Link
           to="/cycle"
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" /> My Cycle
         </Link>
+        <PrintSectionButton section={2} hasContent={hasPrintableContent(d)} />
       </div>
 
       <SectionVideo sectionNumber={2} sectionTitle="Lead Yourself" />
