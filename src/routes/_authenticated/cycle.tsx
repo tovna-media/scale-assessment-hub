@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { getSubscriptionStatus } from "@/lib/payments.functions";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowRight, Check, Lock, PlayCircle } from "lucide-react";
+import { ArrowRight, Check, Lock, PlayCircle, Printer } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/cycle")({
   head: () => ({ meta: [{ title: "My Cycle — Fully Resourced" }] }),
@@ -58,8 +58,20 @@ function CyclePage() {
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-8 sm:py-10">
       <div className="mb-6">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--rl-purple)]">Optimized Leader Guide</p>
-        <h2 className="mt-2 text-3xl font-bold tracking-tight text-[var(--fr-ink)] sm:text-4xl">My Cycle</h2>
-        <p className="mt-1 text-sm text-[var(--fr-muted-ink)]">Twelve sections. Complete them in order to unlock your next Gap Report.</p>
+        <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight text-[var(--fr-ink)] sm:text-4xl">My Cycle</h2>
+            <p className="mt-1 text-sm text-[var(--fr-muted-ink)]">Twelve sections. Complete them in order to unlock your next Gap Report.</p>
+          </div>
+          {subscribed && maxCompleted > 0 && (
+            <Button asChild variant="outline" size="sm" className="no-print">
+              <Link to="/print/all" target="_blank" rel="noopener">
+                <Printer className="mr-1.5 h-3.5 w-3.5" />
+                Print all completed sections
+              </Link>
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="mb-8 rounded-2xl border border-[var(--fr-hairline)] bg-white p-5 shadow-[var(--shadow-card)]">
