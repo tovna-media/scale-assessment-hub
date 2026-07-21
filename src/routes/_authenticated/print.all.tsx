@@ -7,6 +7,7 @@ import { Printer, ArrowLeft } from "lucide-react";
 import { getSubscriptionStatus } from "@/lib/payments.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { PrintHeader, PrintFooter, SectionPrint } from "@/components/scale/PrintDoc";
+import { usePlansDialog } from "@/components/PlansDialog";
 
 export const Route = createFileRoute("/_authenticated/print/all")({
   head: () => ({ meta: [{ title: "Print all sections — Fully Resourced" }] }),
@@ -21,6 +22,7 @@ interface Row {
 
 function PrintAllPage() {
   const { user } = useAuth();
+  const plansDialog = usePlansDialog();
   const checkSub = useServerFn(getSubscriptionStatus);
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<Row[]>([]);
