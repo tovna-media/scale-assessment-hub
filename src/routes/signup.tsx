@@ -89,7 +89,7 @@ function SignupPage() {
     navigate({
       to: "/",
       search: {
-        message: "Account created successfully. Check your email to activate your account.",
+        message: "Account created successfully. Sign in with your email and password to continue.",
         email,
       },
     });
