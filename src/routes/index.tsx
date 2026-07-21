@@ -16,7 +16,13 @@ export const Route = createFileRoute("/")({
         name: "description",
         content: "Sign in to the Fully Resourced Leadership System to continue your leadership journey.",
       },
+      { property: "og:title", content: "Sign in — Fully Resourced Leadership System" },
+      { property: "og:description", content: "Sign in to access your SCALE Gap Report and the 12-section Optimized Leader Guide." },
+      { property: "og:url", content: "https://scale.richlohman.com/" },
+      { name: "twitter:title", content: "Sign in — Fully Resourced Leadership System" },
+      { name: "twitter:description", content: "Sign in to access your SCALE Gap Report and the 12-section Optimized Leader Guide." },
     ],
+    links: [{ rel: "canonical", href: "https://scale.richlohman.com/" }],
   }),
   component: Index,
 });
