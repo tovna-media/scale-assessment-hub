@@ -22,6 +22,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, ArrowRight, Download, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { sendTransactionalEmail } from "@/lib/email/send";
+import { usePlansDialog } from "@/components/PlansDialog";
 
 export const Route = createFileRoute("/_authenticated/report/$sessionId")({
   head: () => ({ meta: [{ title: "Your assessment results" }] }),
@@ -650,10 +651,11 @@ function ReportView({
             )}
           </Button>
           {!subscribed && (
-            <Button asChild className="bg-[#433993] text-white hover:bg-[#433993]/90">
-              <Link to="/fully-resourced">
-                Get Fully Resourced <span className="ml-2 text-sm opacity-80">$97/mo</span>
-              </Link>
+            <Button
+              className="bg-[#433993] text-white hover:bg-[#433993]/90"
+              onClick={() => plansDialog.open()}
+            >
+              Get Fully Resourced <span className="ml-2 text-sm opacity-80">$97/mo</span>
             </Button>
           )}
         </div>
@@ -697,7 +699,7 @@ function ReportView({
           <PathCard
             title="Fully Resourced"
             desc="The full SCALE system: guided 90-day plan, Fully Resourced AI Coach, live dashboard, digital book, and unlimited assessments."
-            to="/fully-resourced"
+            onClick={() => plansDialog.open()}
             recommended
           />
         )}
@@ -705,8 +707,12 @@ function ReportView({
 
       <div className="mt-8 flex flex-wrap gap-3 no-print">
         {!subscribed && (
-          <Button asChild size="lg" className="bg-[#433993] text-white hover:bg-[#433993]/90">
-            <Link to="/fully-resourced">Get Fully Resourced — $97/month</Link>
+          <Button
+            size="lg"
+            className="bg-[#433993] text-white hover:bg-[#433993]/90"
+            onClick={() => plansDialog.open()}
+          >
+            Get Fully Resourced — $97/month
           </Button>
         )}
         <Button variant="outline" size="lg" onClick={onDownloadPdf} disabled={downloadingPdf}>
