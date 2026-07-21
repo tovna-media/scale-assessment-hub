@@ -48,6 +48,6 @@ function titleFor(path: string): string {
   if (path.startsWith("/assessment")) return "Assessment";
   if (path.startsWith("/report")) return "Gap Report";
   if (path.startsWith("/guide")) return "Optimization Cycle";
-  if (path.startsWith("/checkout")) return "Checkout";
+  if (path.startsWith("/checkout")) return "Activating";
   return "Fully Resourced";
 }

@@ -36,8 +36,8 @@ function TermsPage() {
       </div>
 
       <div className="mt-10 text-sm">
-        <Link to="/fully-resourced" className="underline">
-          Back to Fully Resourced
+        <Link to="/dashboard" className="underline">
+          Back to Dashboard
         </Link>
       </div>
     </main>
