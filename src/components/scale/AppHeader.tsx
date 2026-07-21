@@ -10,7 +10,7 @@ export function AppHeader({ variant = "assessee" }: { variant?: "assessee" | "co
 
   const handleSignOut = async () => {
     await signOut();
-    navigate({ to: variant === "coach" ? "/coach/login" : "/" });
+    navigate({ to: "/" });
   };
 
   return (
