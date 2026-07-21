@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,8 +7,16 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
 import { Logo } from "@/components/scale/Logo";
+import { Mail } from "lucide-react";
+import { z } from "zod";
+
+const searchSchema = z.object({
+  message: z.string().optional(),
+  email: z.string().optional(),
+});
 
 export const Route = createFileRoute("/")({
+  validateSearch: searchSchema,
   head: () => ({
     meta: [
       { title: "Sign in — Fully Resourced Leadership System" },
@@ -30,6 +38,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   const navigate = useNavigate();
   const { session, role, loading } = useAuth();
+  const search = useSearch({ from: Route.id });
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -39,6 +48,12 @@ function Index() {
       navigate({ to: role === "coach" ? "/coach" : "/dashboard" });
     }
   }, [session, role, loading, navigate]);
+
+  useEffect(() => {
+    if (search.email) {
+      setEmail(search.email);
+    }
+  }, [search.email]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -69,6 +84,13 @@ function Index() {
           <p className="mt-2 text-center text-sm text-muted-foreground">
             Become the leader your business needs you to be.
           </p>
+
+          {search.message && (
+            <div className="mt-6 flex items-start gap-3 rounded-xl border border-rl-purple-cta/20 bg-rl-purple-cta/5 p-4">
+              <Mail className="mt-0.5 h-5 w-5 shrink-0 text-rl-purple-cta" />
+              <p className="text-sm text-foreground">{search.message}</p>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-5">
             <div className="space-y-2">
