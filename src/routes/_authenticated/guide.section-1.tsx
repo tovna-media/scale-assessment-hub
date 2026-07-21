@@ -13,6 +13,8 @@ import { toast } from "sonner";
 import { verifyDiscCode } from "@/lib/disc-verify.functions";
 import { SectionVideo } from "@/components/scale/SectionVideo";
 import { GapReportPanel } from "@/components/scale/GapReportPanel";
+import { PrintSectionButton } from "@/components/scale/PrintSectionButton";
+import { hasPrintableContent } from "@/lib/section-print";
 
 export const Route = createFileRoute("/_authenticated/guide/section-1")({
   head: () => ({
@@ -234,13 +236,17 @@ function SectionOnePage() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 pb-24 pt-8 sm:px-6">
-      <div className="mb-6">
+      <div className="mb-6 flex items-center justify-between gap-3">
         <Link
           to="/dashboard"
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" /> Back to dashboard
         </Link>
+        <PrintSectionButton
+          section={1}
+          hasContent={hasPrintableContent({ disc_completed: discCompleted, disc_key_code: discCode, reflections })}
+        />
       </div>
 
       <SectionVideo sectionNumber={1} sectionTitle="Begin Your Leadership Optimization Cycle" />
