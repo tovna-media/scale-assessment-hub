@@ -9,9 +9,10 @@ import { toast } from "sonner";
 import { logFunnelEvent } from "@/lib/funnel.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { sendTransactionalEmail } from "@/lib/email/send";
+import { Logo } from "@/components/scale/Logo";
 
 export const Route = createFileRoute("/signup")({
-  head: () => ({ meta: [{ title: "Create your account — SCALE Assessment Hub" }] }),
+  head: () => ({ meta: [{ title: "Create your account — Fully Resourced Leadership System" }] }),
   component: SignupPage,
 });
 
@@ -69,18 +70,22 @@ function SignupPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
-      <div className="w-full max-w-md">
-        <Link to="/" className="mb-8 flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground font-display font-bold">S</div>
-          <span className="font-display text-base font-semibold">SCALE</span>
-        </Link>
-        <div className="rounded-xl border border-border bg-card p-8 shadow-sm">
-          <h1 className="font-display text-2xl font-semibold text-foreground">Create your account</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Start your first SCALE assessment in under a minute.
+    <div
+      className="flex min-h-screen flex-col items-center justify-center px-4 py-12"
+      style={{ background: "var(--fr-signin-gradient)" }}
+    >
+      <div className="w-full max-w-[420px]">
+        <div className="rounded-2xl bg-white p-8 shadow-xl sm:p-10">
+          <div className="mb-6 flex justify-center">
+            <Logo className="h-10 w-auto" />
+          </div>
+          <h1 className="text-center font-display text-2xl font-semibold text-foreground">
+            Create your account
+          </h1>
+          <p className="mt-2 text-center text-sm text-muted-foreground">
+            Become the leader your business needs you to be.
           </p>
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <form onSubmit={handleSubmit} className="mt-8 space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label htmlFor="firstName">First name</Label>
@@ -141,17 +146,24 @@ function SignupPage() {
               />
               <p className="text-xs text-muted-foreground">At least 8 characters.</p>
             </div>
-            <Button type="submit" className="w-full" disabled={submitting}>
+            <Button
+              type="submit"
+              className="w-full bg-rl-purple-cta text-white hover:bg-rl-purple-cta/90"
+              disabled={submitting}
+            >
               {submitting ? "Creating account…" : "Create account"}
             </Button>
           </form>
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Already have an account?{" "}
-            <Link to="/login" className="font-medium text-foreground hover:underline">
+            <Link to="/" className="font-medium text-rl-purple-cta hover:underline">
               Sign in
             </Link>
           </p>
         </div>
+        <p className="mt-8 text-center text-xs text-muted-foreground">
+          Powered by the Fully Resourced Leadership System®
+        </p>
       </div>
     </div>
   );
