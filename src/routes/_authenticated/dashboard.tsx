@@ -10,6 +10,7 @@ import { getSubscriptionStatus } from "@/lib/payments.functions";
 import { getGapReportEligibility } from "@/lib/report.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { usePlansDialog } from "@/components/PlansDialog";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Home — Fully Resourced" }] }),
@@ -166,6 +167,7 @@ function DashboardPage() {
   const logEvent = useServerFn(logFunnelEvent);
   const checkSub = useServerFn(getSubscriptionStatus);
   const checkEligibility = useServerFn(getGapReportEligibility);
+  const plansDialog = usePlansDialog();
 
   useEffect(() => {
     if (!user) return;
@@ -226,6 +228,7 @@ function DashboardPage() {
 
   function handleSubscribeClick() {
     void logEvent({ data: { event_type: "clicked_subscribe" } }).catch(() => {});
+    plansDialog.open();
   }
 
   const displayName = profile.firstName || profile.fullName?.split(" ")[0] || (user?.email ? user.email.split("@")[0] : "");
@@ -346,14 +349,11 @@ function DashboardPage() {
             </p>
           </div>
           <Button
-            asChild
             size="lg"
             className="w-full shrink-0 bg-white text-[#2a0a64] hover:bg-white/90 sm:w-auto"
             onClick={handleSubscribeClick}
           >
-            <Link to="/checkout">
-              <Sparkles className="mr-2 h-4 w-4" /> Upgrade Now
-            </Link>
+            <Sparkles className="mr-2 h-4 w-4" /> Upgrade Now
           </Button>
         </div>
       )}
@@ -457,10 +457,8 @@ function DashboardPage() {
               </p>
             </div>
           </div>
-          <Button size="lg" onClick={handleSubscribeClick} asChild>
-            <Link to="/fully-resourced">
-              Get Fully Resourced <span className="ml-2 text-sm opacity-80">$97/mo</span>
-            </Link>
+          <Button size="lg" onClick={handleSubscribeClick}>
+            Get Fully Resourced <span className="ml-2 text-sm opacity-80">$97/mo</span>
           </Button>
         </div>
       )}

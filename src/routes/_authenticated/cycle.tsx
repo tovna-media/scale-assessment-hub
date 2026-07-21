@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { getSubscriptionStatus } from "@/lib/payments.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowRight, Check, Lock, PlayCircle, Printer } from "lucide-react";
+import { usePlansDialog } from "@/components/PlansDialog";
 
 export const Route = createFileRoute("/_authenticated/cycle")({
   head: () => ({ meta: [{ title: "My Cycle — Fully Resourced" }] }),
@@ -32,6 +33,7 @@ interface Progress { section_number: number; completed: boolean; }
 function CyclePage() {
   const { user } = useAuth();
   const checkSub = useServerFn(getSubscriptionStatus);
+  const plansDialog = usePlansDialog();
   const [progress, setProgress] = useState<Progress[]>([]);
   const [subscribed, setSubscribed] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -89,7 +91,7 @@ function CyclePage() {
       {!subscribed && (
         <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50/70 p-5 text-sm text-[var(--fr-ink)]">
           Get Fully Resourced ($97/mo) to work through the full 12-section cycle.
-          <Button size="sm" asChild className="ml-4"><Link to="/fully-resourced">Subscribe</Link></Button>
+          <Button size="sm" className="ml-4" onClick={() => plansDialog.open()}>Subscribe</Button>
         </div>
       )}
 

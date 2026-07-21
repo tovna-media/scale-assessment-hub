@@ -19,9 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
-import { createBillingPortalSession } from "@/lib/payments.functions";
 import { getSubscriptionStatus } from "@/lib/payments.functions";
-import { getStripeEnvironment, isStripeConfigured } from "@/lib/stripe";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/scale/Logo";
 import {
@@ -30,6 +28,7 @@ import {
   AICoachPanel,
   useAICoach,
 } from "@/components/scale/AICoachWidget";
+import { PlansDialogProvider, usePlansDialog } from "@/components/PlansDialog";
 
 type NavItem = {
   label: string;
@@ -85,17 +84,44 @@ export function AppShell({
 }) {
   return (
     <AICoachProvider>
-      <AppShellInner pageTitle={pageTitle}>{children}</AppShellInner>
+      <AppShellWithSub pageTitle={pageTitle}>{children}</AppShellWithSub>
     </AICoachProvider>
+  );
+}
+
+function AppShellWithSub({
+  pageTitle,
+  children,
+}: {
+  pageTitle: string;
+  children: ReactNode;
+}) {
+  const { user } = useAuth();
+  const [subscribed, setSubscribed] = useState(false);
+  const checkSub = useServerFn(getSubscriptionStatus);
+  useEffect(() => {
+    if (!user) return;
+    void checkSub({})
+      .then((s) => setSubscribed(Boolean(s.active)))
+      .catch(() => setSubscribed(false));
+  }, [user, checkSub]);
+  return (
+    <PlansDialogProvider subscribed={subscribed}>
+      <AppShellInner pageTitle={pageTitle} subscribed={subscribed}>
+        {children}
+      </AppShellInner>
+    </PlansDialogProvider>
   );
 }
 
 function AppShellInner({
   pageTitle,
   children,
+  subscribed,
 }: {
   pageTitle: string;
   children: ReactNode;
+  subscribed: boolean;
 }) {
   const { user, signOut, role } = useAuth();
   const navigate = useNavigate();
@@ -103,43 +129,19 @@ function AppShellInner({
   const currentPath = routerState.location.pathname;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [subscribed, setSubscribed] = useState(false);
   const name = useDisplayName();
   const initials = initialsOf(name, user?.email);
-  const openPortal = useServerFn(createBillingPortalSession);
-  const checkSub = useServerFn(getSubscriptionStatus);
   const aiCoach = useAICoach();
-
-  useEffect(() => {
-    if (!user) return;
-    void checkSub({})
-      .then((s) => setSubscribed(Boolean(s.active)))
-      .catch(() => setSubscribed(false));
-  }, [user, checkSub]);
+  const plansDialog = usePlansDialog();
 
   const handleSignOut = async () => {
     await signOut();
     navigate({ to: "/" });
   };
 
-  async function handleManageBilling() {
+  function handleManageBilling() {
     setMenuOpen(false);
-    if (!isStripeConfigured()) {
-      toast.error("Payments are not configured yet.");
-      return;
-    }
-    try {
-      const result = await openPortal({
-        data: {
-          returnUrl: `${window.location.origin}/dashboard`,
-          environment: getStripeEnvironment(),
-        },
-      });
-      if ("error" in result) throw new Error(result.error);
-      window.open(result.url, "_blank", "noopener,noreferrer");
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not open billing portal.");
-    }
+    plansDialog.open();
   }
 
   const sidebarContent = (
@@ -212,15 +214,18 @@ function AppShellInner({
       </nav>
       <div className="border-t border-white/10 px-3 py-3">
         {!subscribed && (
-          <Link
-            to="/checkout"
-            onClick={() => setMobileOpen(false)}
+          <button
+            type="button"
+            onClick={() => {
+              setMobileOpen(false);
+              plansDialog.open();
+            }}
             className="mb-2 flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(91,45,142,0.45)] transition hover:brightness-110"
             style={{ background: "#5B2D8E" }}
           >
             <Zap style={{ width: 16, height: 16 }} />
             Upgrade Now
-          </Link>
+          </button>
         )}
         {role === "coach" && (
           <Link

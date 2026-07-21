@@ -14,7 +14,6 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as FullyResourcedRouteImport } from './routes/fully-resourced'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as CoachRouteImport } from './routes/_coach'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
@@ -27,8 +26,6 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedPerformanceRouteImport } from './routes/_authenticated/performance'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCycleRouteImport } from './routes/_authenticated/cycle'
-import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
-import { Route as AuthenticatedCheckoutIndexRouteImport } from './routes/_authenticated/checkout.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as AuthenticatedReportSessionIdRouteImport } from './routes/_authenticated/report.$sessionId'
 import { Route as AuthenticatedPrintAllRouteImport } from './routes/_authenticated/print.all'
@@ -78,11 +75,6 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FullyResourcedRoute = FullyResourcedRouteImport.update({
-  id: '/fully-resourced',
-  path: '/fully-resourced',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
@@ -144,17 +136,6 @@ const AuthenticatedCycleRoute = AuthenticatedCycleRouteImport.update({
   path: '/cycle',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
-  id: '/checkout',
-  path: '/checkout',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedCheckoutIndexRoute =
-  AuthenticatedCheckoutIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthenticatedCheckoutRoute,
-  } as any)
 const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   id: '/lovable/email/suppression',
   path: '/lovable/email/suppression',
@@ -245,9 +226,9 @@ const AuthenticatedGuideSection1Route =
   } as any)
 const AuthenticatedCheckoutActivatingRoute =
   AuthenticatedCheckoutActivatingRouteImport.update({
-    id: '/activating',
-    path: '/activating',
-    getParentRoute: () => AuthenticatedCheckoutRoute,
+    id: '/checkout/activating',
+    path: '/checkout/activating',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedAssessmentTypeRoute =
   AuthenticatedAssessmentTypeRouteImport.update({
@@ -305,13 +286,11 @@ const AuthenticatedPrintSectionNumberRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
-  '/fully-resourced': typeof FullyResourcedRoute
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
-  '/checkout': typeof AuthenticatedCheckoutRouteWithChildren
   '/cycle': typeof AuthenticatedCycleRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/performance': typeof AuthenticatedPerformanceRoute
@@ -337,7 +316,6 @@ export interface FileRoutesByFullPath {
   '/print/all': typeof AuthenticatedPrintAllRoute
   '/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
-  '/checkout/': typeof AuthenticatedCheckoutIndexRoute
   '/print/section/$number': typeof AuthenticatedPrintSectionNumberRoute
   '/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -350,7 +328,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
-  '/fully-resourced': typeof FullyResourcedRoute
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
@@ -381,7 +358,6 @@ export interface FileRoutesByTo {
   '/print/all': typeof AuthenticatedPrintAllRoute
   '/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
-  '/checkout': typeof AuthenticatedCheckoutIndexRoute
   '/print/section/$number': typeof AuthenticatedPrintSectionNumberRoute
   '/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -397,13 +373,11 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_coach': typeof CoachRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
-  '/fully-resourced': typeof FullyResourcedRoute
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
-  '/_authenticated/checkout': typeof AuthenticatedCheckoutRouteWithChildren
   '/_authenticated/cycle': typeof AuthenticatedCycleRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/performance': typeof AuthenticatedPerformanceRoute
@@ -429,7 +403,6 @@ export interface FileRoutesById {
   '/_authenticated/print/all': typeof AuthenticatedPrintAllRoute
   '/_authenticated/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
-  '/_authenticated/checkout/': typeof AuthenticatedCheckoutIndexRoute
   '/_authenticated/print/section/$number': typeof AuthenticatedPrintSectionNumberRoute
   '/_coach/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -444,13 +417,11 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/forgot-password'
-    | '/fully-resourced'
     | '/login'
     | '/privacy'
     | '/signup'
     | '/terms'
     | '/unsubscribe'
-    | '/checkout'
     | '/cycle'
     | '/dashboard'
     | '/performance'
@@ -476,7 +447,6 @@ export interface FileRouteTypes {
     | '/print/all'
     | '/report/$sessionId'
     | '/lovable/email/suppression'
-    | '/checkout/'
     | '/print/section/$number'
     | '/coach/assessee/$userId'
     | '/api/public/payments/webhook'
@@ -489,7 +459,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/forgot-password'
-    | '/fully-resourced'
     | '/login'
     | '/privacy'
     | '/signup'
@@ -520,7 +489,6 @@ export interface FileRouteTypes {
     | '/print/all'
     | '/report/$sessionId'
     | '/lovable/email/suppression'
-    | '/checkout'
     | '/print/section/$number'
     | '/coach/assessee/$userId'
     | '/api/public/payments/webhook'
@@ -535,13 +503,11 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/_coach'
     | '/forgot-password'
-    | '/fully-resourced'
     | '/login'
     | '/privacy'
     | '/signup'
     | '/terms'
     | '/unsubscribe'
-    | '/_authenticated/checkout'
     | '/_authenticated/cycle'
     | '/_authenticated/dashboard'
     | '/_authenticated/performance'
@@ -567,7 +533,6 @@ export interface FileRouteTypes {
     | '/_authenticated/print/all'
     | '/_authenticated/report/$sessionId'
     | '/lovable/email/suppression'
-    | '/_authenticated/checkout/'
     | '/_authenticated/print/section/$number'
     | '/_coach/coach/assessee/$userId'
     | '/api/public/payments/webhook'
@@ -583,7 +548,6 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   CoachRoute: typeof CoachRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
-  FullyResourcedRoute: typeof FullyResourcedRoute
   LoginRoute: typeof LoginRoute
   PrivacyRoute: typeof PrivacyRoute
   SignupRoute: typeof SignupRoute
@@ -635,13 +599,6 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/fully-resourced': {
-      id: '/fully-resourced'
-      path: '/fully-resourced'
-      fullPath: '/fully-resourced'
-      preLoaderRoute: typeof FullyResourcedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forgot-password': {
@@ -727,20 +684,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/cycle'
       preLoaderRoute: typeof AuthenticatedCycleRouteImport
       parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/checkout': {
-      id: '/_authenticated/checkout'
-      path: '/checkout'
-      fullPath: '/checkout'
-      preLoaderRoute: typeof AuthenticatedCheckoutRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/checkout/': {
-      id: '/_authenticated/checkout/'
-      path: '/'
-      fullPath: '/checkout/'
-      preLoaderRoute: typeof AuthenticatedCheckoutIndexRouteImport
-      parentRoute: typeof AuthenticatedCheckoutRoute
     }
     '/lovable/email/suppression': {
       id: '/lovable/email/suppression'
@@ -849,10 +792,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/checkout/activating': {
       id: '/_authenticated/checkout/activating'
-      path: '/activating'
+      path: '/checkout/activating'
       fullPath: '/checkout/activating'
       preLoaderRoute: typeof AuthenticatedCheckoutActivatingRouteImport
-      parentRoute: typeof AuthenticatedCheckoutRoute
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/assessment/$type': {
       id: '/_authenticated/assessment/$type'
@@ -920,28 +863,13 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AuthenticatedCheckoutRouteChildren {
-  AuthenticatedCheckoutActivatingRoute: typeof AuthenticatedCheckoutActivatingRoute
-  AuthenticatedCheckoutIndexRoute: typeof AuthenticatedCheckoutIndexRoute
-}
-
-const AuthenticatedCheckoutRouteChildren: AuthenticatedCheckoutRouteChildren = {
-  AuthenticatedCheckoutActivatingRoute: AuthenticatedCheckoutActivatingRoute,
-  AuthenticatedCheckoutIndexRoute: AuthenticatedCheckoutIndexRoute,
-}
-
-const AuthenticatedCheckoutRouteWithChildren =
-  AuthenticatedCheckoutRoute._addFileChildren(
-    AuthenticatedCheckoutRouteChildren,
-  )
-
 interface AuthenticatedRouteChildren {
-  AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRouteWithChildren
   AuthenticatedCycleRoute: typeof AuthenticatedCycleRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedPerformanceRoute: typeof AuthenticatedPerformanceRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedAssessmentTypeRoute: typeof AuthenticatedAssessmentTypeRoute
+  AuthenticatedCheckoutActivatingRoute: typeof AuthenticatedCheckoutActivatingRoute
   AuthenticatedGuideSection1Route: typeof AuthenticatedGuideSection1Route
   AuthenticatedGuideSection10Route: typeof AuthenticatedGuideSection10Route
   AuthenticatedGuideSection11Route: typeof AuthenticatedGuideSection11Route
@@ -960,12 +888,12 @@ interface AuthenticatedRouteChildren {
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedCheckoutRoute: AuthenticatedCheckoutRouteWithChildren,
   AuthenticatedCycleRoute: AuthenticatedCycleRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedPerformanceRoute: AuthenticatedPerformanceRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedAssessmentTypeRoute: AuthenticatedAssessmentTypeRoute,
+  AuthenticatedCheckoutActivatingRoute: AuthenticatedCheckoutActivatingRoute,
   AuthenticatedGuideSection1Route: AuthenticatedGuideSection1Route,
   AuthenticatedGuideSection10Route: AuthenticatedGuideSection10Route,
   AuthenticatedGuideSection11Route: AuthenticatedGuideSection11Route,
@@ -1016,7 +944,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   CoachRoute: CoachRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
-  FullyResourcedRoute: FullyResourcedRoute,
   LoginRoute: LoginRoute,
   PrivacyRoute: PrivacyRoute,
   SignupRoute: SignupRoute,
