@@ -332,6 +332,32 @@ function DashboardPage() {
         nextSectionTo={nextSectionTo}
       />
 
+      {!subscribed && (
+        <div
+          className="mt-6 flex flex-col gap-4 rounded-2xl p-6 text-white shadow-[0_16px_40px_rgba(42,10,100,0.35)] sm:flex-row sm:items-center sm:justify-between"
+          style={{ background: "linear-gradient(135deg, #2a0a64 0%, #5B2D8E 100%)" }}
+        >
+          <div className="min-w-0">
+            <h3 className="text-xl font-semibold tracking-tight sm:text-2xl">
+              Ready to close your gaps?
+            </h3>
+            <p className="mt-1 text-sm text-white/85">
+              Everything that turns your gaps into your next level as a leader is one click away.
+            </p>
+          </div>
+          <Button
+            asChild
+            size="lg"
+            className="w-full shrink-0 bg-white text-[#2a0a64] hover:bg-white/90 sm:w-auto"
+            onClick={handleSubscribeClick}
+          >
+            <Link to="/checkout">
+              <Sparkles className="mr-2 h-4 w-4" /> Upgrade Now
+            </Link>
+          </Button>
+        </div>
+      )}
+
       {/* Stat cards */}
       <div className="mt-6 grid gap-4 md:grid-cols-3">
         <StatCard
