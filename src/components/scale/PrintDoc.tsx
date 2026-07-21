@@ -36,7 +36,7 @@ export function PrintHeader({ memberName, memberEmail }: { memberName: string; m
 export function PrintFooter() {
   return (
     <div className="print-footer">
-      RichLohman.com &nbsp;|&nbsp; rich@richlohman.com &nbsp;|&nbsp; (616) 299-9165
+      Powered by the Fully Resourced Leadership System®
     </div>
   );
 }
