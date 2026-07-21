@@ -167,6 +167,7 @@ function DashboardPage() {
   const logEvent = useServerFn(logFunnelEvent);
   const checkSub = useServerFn(getSubscriptionStatus);
   const checkEligibility = useServerFn(getGapReportEligibility);
+  const plansDialog = usePlansDialog();
 
   useEffect(() => {
     if (!user) return;
