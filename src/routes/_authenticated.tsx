@@ -15,7 +15,7 @@ function AuthLayout() {
   useEffect(() => {
     if (loading) return;
     if (!session) {
-      navigate({ to: "/" });
+      navigate({ to: "/login" });
       return;
     }
     if (role === "coach") {

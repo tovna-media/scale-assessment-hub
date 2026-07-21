@@ -14,7 +14,7 @@ function CoachLayout() {
   useEffect(() => {
     if (loading) return;
     if (!session) {
-      navigate({ to: "/" });
+      navigate({ to: "/coach/login" });
       return;
     }
     if (role !== "coach") {
