@@ -83,3 +83,12 @@ export function formatDate(iso?: string | null): string {
   if (isNaN(d.getTime())) return String(iso);
   return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 }
+
+export function hasPrintableContent(data: unknown): boolean {
+  if (!data || typeof data !== "object") return false;
+  for (const [k, v] of Object.entries(data as Record<string, unknown>)) {
+    if (k === "step" || k === "part") continue;
+    if (!isEmptyValue(v)) return true;
+  }
+  return false;
+}
