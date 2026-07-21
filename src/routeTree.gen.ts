@@ -15,6 +15,7 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FullyResourcedRouteImport } from './routes/fully-resourced'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as CoachRouteImport } from './routes/_coach'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
@@ -82,6 +83,11 @@ const LoginRoute = LoginRouteImport.update({
 const FullyResourcedRoute = FullyResourcedRouteImport.update({
   id: '/fully-resourced',
   path: '/fully-resourced',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoachRoute = CoachRouteImport.update({
@@ -298,6 +304,7 @@ const AuthenticatedPrintSectionNumberRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/fully-resourced': typeof FullyResourcedRoute
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
@@ -342,6 +349,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/fully-resourced': typeof FullyResourcedRoute
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
@@ -388,6 +396,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_coach': typeof CoachRouteWithChildren
+  '/forgot-password': typeof ForgotPasswordRoute
   '/fully-resourced': typeof FullyResourcedRoute
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
@@ -434,6 +443,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/forgot-password'
     | '/fully-resourced'
     | '/login'
     | '/privacy'
@@ -478,6 +488,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/forgot-password'
     | '/fully-resourced'
     | '/login'
     | '/privacy'
@@ -523,6 +534,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/_coach'
+    | '/forgot-password'
     | '/fully-resourced'
     | '/login'
     | '/privacy'
@@ -570,6 +582,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   CoachRoute: typeof CoachRouteWithChildren
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   FullyResourcedRoute: typeof FullyResourcedRoute
   LoginRoute: typeof LoginRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -629,6 +642,13 @@ declare module '@tanstack/react-router' {
       path: '/fully-resourced'
       fullPath: '/fully-resourced'
       preLoaderRoute: typeof FullyResourcedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_coach': {
@@ -995,6 +1015,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   CoachRoute: CoachRouteWithChildren,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   FullyResourcedRoute: FullyResourcedRoute,
   LoginRoute: LoginRoute,
   PrivacyRoute: PrivacyRoute,
@@ -1014,3 +1035,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
