@@ -56,7 +56,7 @@ function PrintAllPage() {
     return (
       <main className="mx-auto max-w-2xl px-4 py-10">
         <p className="text-sm text-muted-foreground">An active Fully Resourced subscription is required to print sections.</p>
-        <Button asChild className="mt-4"><Link to="/fully-resourced">Subscribe</Link></Button>
+        <SubscribeBtn />
       </main>
     );
   }
