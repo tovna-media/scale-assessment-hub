@@ -64,6 +64,7 @@
   --color-rl-purple: var(--rl-purple);
   --color-rl-purple-deep: var(--rl-purple-deep);
   --color-rl-purple-soft: var(--rl-purple-soft);
+  --color-rl-purple-cta: var(--rl-purple-cta);
   --color-success: var(--success);
   --color-warning: var(--warning);
 }
@@ -74,6 +75,8 @@
   --rl-purple-deep: #2a0a64;
   --rl-purple: #5b19bf;
   --rl-purple-soft: #9a5cff;
+  --rl-purple-cta: #5B2D8E;
+  --fr-signin-gradient: linear-gradient(135deg, #eef4ff 0%, #ffffff 50%, #f4edff 100%);
   --fr-sidebar-from: #17052e;
   --fr-sidebar-to: #10051f;
   --fr-ink: #07070b;
@@ -124,6 +127,8 @@
 .dark {
   --background: oklch(0.129 0.042 264.695);
   --foreground: oklch(0.984 0.003 247.858);
+  --rl-purple-cta: #5B2D8E;
+  --fr-signin-gradient: linear-gradient(135deg, #eef4ff 0%, #ffffff 50%, #f4edff 100%);
   --card: oklch(0.208 0.042 265.755);
   --card-foreground: oklch(0.984 0.003 247.858);
   --popover: oklch(0.208 0.042 265.755);
