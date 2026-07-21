@@ -349,14 +349,11 @@ function DashboardPage() {
             </p>
           </div>
           <Button
-            asChild
             size="lg"
             className="w-full shrink-0 bg-white text-[#2a0a64] hover:bg-white/90 sm:w-auto"
             onClick={handleSubscribeClick}
           >
-            <Link to="/checkout">
-              <Sparkles className="mr-2 h-4 w-4" /> Upgrade Now
-            </Link>
+            <Sparkles className="mr-2 h-4 w-4" /> Upgrade Now
           </Button>
         </div>
       )}
@@ -460,10 +457,8 @@ function DashboardPage() {
               </p>
             </div>
           </div>
-          <Button size="lg" onClick={handleSubscribeClick} asChild>
-            <Link to="/fully-resourced">
-              Get Fully Resourced <span className="ml-2 text-sm opacity-80">$97/mo</span>
-            </Link>
+          <Button size="lg" onClick={handleSubscribeClick}>
+            Get Fully Resourced <span className="ml-2 text-sm opacity-80">$97/mo</span>
           </Button>
         </div>
       )}
