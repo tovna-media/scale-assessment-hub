@@ -4,7 +4,7 @@ import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 
 const StripeEnvSchema = z.enum(['sandbox', 'live']);
 
-type CheckoutResult = { clientSecret: string } | { error: string };
+type CheckoutResult = { url: string } | { error: string };
 type PortalResult = { url: string } | { error: string };
 type StatusResult = {
   active: boolean;
@@ -73,8 +73,8 @@ export const createSubscriptionCheckout = createServerFn({ method: 'POST' })
       const session = await stripe.checkout.sessions.create({
         line_items: [{ price: data.priceId, quantity: 1 }],
         mode: 'subscription',
-        ui_mode: 'embedded_page',
-        return_url: data.returnUrl,
+        success_url: data.returnUrl,
+        cancel_url: `${new URL(data.returnUrl).origin}/dashboard`,
         customer: customerId,
         metadata: {
           userId,
@@ -104,7 +104,7 @@ export const createSubscriptionCheckout = createServerFn({ method: 'POST' })
         console.error('[funnel] checkout events insert failed', e);
       }
 
-      return { clientSecret: session.client_secret ?? '' };
+      return { url: session.url ?? '' };
     } catch (error) {
       const { getStripeErrorMessage } = await import('@/lib/stripe.server');
       return { error: getStripeErrorMessage(error) };
