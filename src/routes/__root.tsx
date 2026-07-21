@@ -45,6 +45,7 @@ export const Route = createRootRoute({
       { property: "og:image:height", content: "1200" },
       { property: "og:image:alt", content: "SCALE Assessment Hub by Rich Lohman" },
       { name: "twitter:image", content: "https://scale.richlohman.com/__l5e/assets-v1/c1f30759-9a92-42db-832c-3bdc879b0518/og-image.jpg" },
+      { name: "google-site-verification", content: "K0gDBRRzKKDAfFiwdnH_697-PSQB1F-ev32hm0ykrJQ" },
     ],
     links: [
       {
