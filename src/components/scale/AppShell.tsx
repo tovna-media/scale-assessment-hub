@@ -5,6 +5,7 @@ import {
   RefreshCw,
   TrendingUp,
   Sparkles,
+  MessageCircle,
   BookOpen,
   User as UserIcon,
   LogOut,
@@ -18,9 +19,16 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { createBillingPortalSession } from "@/lib/payments.functions";
+import { getSubscriptionStatus } from "@/lib/payments.functions";
 import { getStripeEnvironment, isStripeConfigured } from "@/lib/stripe";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/scale/Logo";
+import {
+  AICoachProvider,
+  AICoachLauncher,
+  AICoachPanel,
+  useAICoach,
+} from "@/components/scale/AICoachWidget";
 
 type NavItem = {
   label: string;
@@ -29,13 +37,14 @@ type NavItem = {
   match?: string;
   href?: string;
   soon?: boolean;
+  action?: "open-ai-coach";
 };
 
 const NAV: NavItem[] = [
   { to: "/dashboard", label: "Home", icon: Home, match: "/dashboard" },
   { to: "/cycle", label: "My Cycle", icon: RefreshCw, match: "/cycle" },
   { to: "/performance", label: "Performance", icon: TrendingUp, match: "/performance" },
-  { label: "Coach Rich AI", icon: Sparkles, soon: true },
+  { label: "Fully Resourced AI Coach", icon: MessageCircle, action: "open-ai-coach" },
   { label: "The Book", icon: BookOpen, soon: true },
 ];
 
@@ -73,15 +82,39 @@ export function AppShell({
   pageTitle: string;
   children: ReactNode;
 }) {
+  return (
+    <AICoachProvider>
+      <AppShellInner pageTitle={pageTitle}>{children}</AppShellInner>
+    </AICoachProvider>
+  );
+}
+
+function AppShellInner({
+  pageTitle,
+  children,
+}: {
+  pageTitle: string;
+  children: ReactNode;
+}) {
   const { user, signOut, role } = useAuth();
   const navigate = useNavigate();
   const routerState = useRouterState();
   const currentPath = routerState.location.pathname;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [subscribed, setSubscribed] = useState(false);
   const name = useDisplayName();
   const initials = initialsOf(name, user?.email);
   const openPortal = useServerFn(createBillingPortalSession);
+  const checkSub = useServerFn(getSubscriptionStatus);
+  const aiCoach = useAICoach();
+
+  useEffect(() => {
+    if (!user) return;
+    void checkSub({})
+      .then((s) => setSubscribed(Boolean(s.active)))
+      .catch(() => setSubscribed(false));
+  }, [user, checkSub]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -118,7 +151,7 @@ export function AppShell({
         <span className="text-base font-semibold tracking-tight">Fully Resourced</span>
       </div>
       <nav className="mt-2 flex-1 px-3">
-        {NAV.map((item) => {
+        {NAV.filter((item) => item.action !== "open-ai-coach" || subscribed).map((item) => {
           const isActive = Boolean(item.match && currentPath.startsWith(item.match));
           const Icon = item.icon;
           const commonCls = cn(
@@ -127,6 +160,23 @@ export function AppShell({
               ? "bg-[var(--rl-purple)] text-white shadow-[0_8px_24px_rgba(91,25,191,0.45)]"
               : "text-white/75 hover:bg-white/5 hover:text-white",
           );
+          if (item.action === "open-ai-coach") {
+            return (
+              <button
+                key={item.label}
+                type="button"
+                title="Fully Resourced AI Coach"
+                onClick={() => {
+                  setMobileOpen(false);
+                  aiCoach.setOpen(true);
+                }}
+                className={cn(commonCls, "w-full text-left")}
+              >
+                <Icon style={{ width: 18, height: 18 }} />
+                <span className="flex-1">{item.label}</span>
+              </button>
+            );
+          }
           if (item.soon) {
             return (
               <button
@@ -250,6 +300,8 @@ export function AppShell({
         </header>
         <main className="min-h-[calc(100vh-4rem)]">{children}</main>
       </div>
+      {subscribed && <AICoachLauncher />}
+      {subscribed && <AICoachPanel />}
     </div>
   );
 }
