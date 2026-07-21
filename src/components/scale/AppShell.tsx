@@ -12,6 +12,7 @@ import {
   Menu,
   Shield,
   CreditCard,
+  Zap,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
@@ -210,6 +211,17 @@ function AppShellInner({
         })}
       </nav>
       <div className="border-t border-white/10 px-3 py-3">
+        {!subscribed && (
+          <Link
+            to="/checkout"
+            onClick={() => setMobileOpen(false)}
+            className="mb-2 flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(91,45,142,0.45)] transition hover:brightness-110"
+            style={{ background: "#5B2D8E" }}
+          >
+            <Zap style={{ width: 16, height: 16 }} />
+            Upgrade Now
+          </Link>
+        )}
         {role === "coach" && (
           <Link
             to="/coach"
