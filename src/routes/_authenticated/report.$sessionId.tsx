@@ -436,6 +436,18 @@ function AssessmentResultView({
               ))}
             </div>
           </>
+        ) : missing.length === 0 ? (
+          <>
+            <p className="text-xs font-medium uppercase tracking-widest text-[var(--accent-blue)]">
+              You're almost there
+            </p>
+            <h2 className="mt-1 font-display text-xl font-semibold text-foreground">
+              Loading your Gap Report status…
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              One moment while we check your assessments.
+            </p>
+          </>
         ) : (
           <>
             <p className="text-xs font-medium uppercase tracking-widest text-[var(--accent-blue)]">
