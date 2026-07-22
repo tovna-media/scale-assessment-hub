@@ -60,14 +60,6 @@ function PlansDialog({ subscribed, onClose }: { subscribed: boolean; onClose: ()
     }
     setBusy("upgrade");
     setCheckoutUrl(null);
-    // Open the tab while the click still has browser user activation. Stripe
-    // cannot render inside the Lovable mobile preview iframe, and opening a tab
-    // only after the server request is commonly blocked by mobile Safari.
-    const checkoutWindow = window.open("", "_blank");
-    if (checkoutWindow) {
-      checkoutWindow.document.title = "Opening secure checkout…";
-      checkoutWindow.document.body.textContent = "Opening secure checkout…";
-    }
     try {
       const priceId = billing === "annual" ? ANNUAL_PRICE_ID : MONTHLY_PRICE_ID;
       const returnUrl = `${window.location.origin}/checkout/activating?session_id={CHECKOUT_SESSION_ID}`;
@@ -81,19 +73,21 @@ function PlansDialog({ subscribed, onClose }: { subscribed: boolean; onClose: ()
       });
       if ("error" in result) throw new Error(result.error);
       if (!result.url) throw new Error("No checkout URL returned");
-      if (checkoutWindow && !checkoutWindow.closed) {
-        checkoutWindow.location.replace(result.url);
+      // Navigate the top-level window when possible so mobile browsers (and
+      // embedded preview iframes) reliably reach Stripe. Fall back to the
+      // current window, then to a visible link if the browser blocks it.
+      try {
+        if (window.top && window.top !== window.self) {
+          window.top.location.href = result.url;
+        } else {
+          window.location.href = result.url;
+        }
         onClose();
-      } else if (window.self === window.top) {
-        window.location.assign(result.url);
-      } else {
-        // Embedded mobile previews may block popups. Preserve the URL so the
-        // user can continue with a normal link, which browsers always allow.
+      } catch {
         setCheckoutUrl(result.url);
         setBusy(null);
       }
     } catch (e) {
-      checkoutWindow?.close();
       toast.error(e instanceof Error ? e.message : "Could not open checkout.");
       setBusy(null);
     }
