@@ -443,7 +443,7 @@ function DashboardPage() {
             <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--rl-purple)]">Performance</p>
               <h4 className="mt-1 text-base font-semibold text-[var(--fr-ink)]">
-                {perfLatest !== null ? `Your latest composite: ${perfLatest}/100` : "See your growth over time"}
+                {perfLatest !== null ? `Your latest gap report: ${perfLatest}/100` : "See your growth over time"}
               </h4>
               {perfPoints.length > 0 ? (
                 <div className="mt-2"><Sparkline points={perfPoints} /></div>
