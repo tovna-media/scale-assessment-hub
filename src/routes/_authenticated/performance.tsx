@@ -106,11 +106,12 @@ function PerformancePage() {
   const [snapshots, setSnapshots] = useState<SnapshotRow[]>([]);
   const [gapReport, setGapReport] = useState<GapReportRow | null>(null);
   const [loading, setLoading] = useState(true);
+  const [completedSections, setCompletedSections] = useState(0);
 
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const [s, snap, gr] = await Promise.all([
+      const [s, snap, gr, prog] = await Promise.all([
         supabase.from("assessment_sessions")
           .select("id, assessment_type, overall_score, created_at, gap_report, primary_gap, primary_gap_score, primary_gap_level")
           .eq("user_id", user.id).order("created_at", { ascending: true }),
@@ -120,10 +121,15 @@ function PerformancePage() {
         supabase.from("gap_reports")
           .select("id, pdf_path, generated_at, primary_gap, primary_gap_level, inner_capacity_score, leadership_score, business_score")
           .eq("user_id", user.id).maybeSingle(),
+        supabase.from("optimizer_section_progress")
+          .select("section_number, completed")
+          .eq("user_id", user.id),
       ]);
       setSessions((s.data ?? []) as SessionRow[]);
       setSnapshots((snap.data ?? []) as SnapshotRow[]);
       setGapReport((gr.data ?? null) as GapReportRow | null);
+      const rows = (prog.data ?? []) as Array<{ section_number: number; completed?: boolean }>;
+      setCompletedSections(rows.filter((r) => r.completed && r.section_number >= 1 && r.section_number <= 12).length);
       setLoading(false);
     })();
   }, [user]);
@@ -146,6 +152,9 @@ function PerformancePage() {
       chart: series.map((s) => ({ label: format(new Date(s.created_at), "MMM d"), value: pctOf(s.overall_score, max) })),
     };
   });
+
+  const allThreeTaken = ASSESSMENT_LIST.every((a) => perType[a.type].length > 0);
+  const retakeUnlocked = allThreeTaken && Boolean(gapReport) && completedSections >= 12;
 
   // Overall composite % across all three (per date, using latest per type up to that date)
   const composite = useMemo(() => {
@@ -193,7 +202,7 @@ function PerformancePage() {
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--rl-purple)]">Your growth</p>
         <h2 className="mt-2 text-3xl font-bold tracking-tight text-[var(--fr-ink)] sm:text-4xl">Performance</h2>
         <p className="mt-1 text-sm text-[var(--fr-muted-ink)]">
-          Every score, rating, and marker you've captured — over time. Retake an assessment or open any Gap Report from here.
+          Every score, rating, and marker you've captured — over time. Open any Gap Report, and start a new cycle once you've completed all 12 sections.
         </p>
       </div>
 
@@ -213,9 +222,15 @@ function PerformancePage() {
                 </div>
                 <div className="mt-2 text-xs text-[var(--fr-muted-ink)]">Latest {format(new Date(s.latest.created_at), "MMM d, yyyy")}</div>
                 <div className="mt-3"><TinyLineChart data={s.chart} domain={[0, 100]} /></div>
-                <Button variant="outline" size="sm" asChild className="mt-4 w-full">
-                  <Link to="/assessment/$type" params={{ type: s.def.type }}>Retake assessment</Link>
-                </Button>
+                {retakeUnlocked ? (
+                  <Button variant="outline" size="sm" asChild className="mt-4 w-full">
+                    <Link to="/assessment/$type" params={{ type: s.def.type }}>Retake assessment</Link>
+                  </Button>
+                ) : (
+                  <Button variant="outline" size="sm" disabled className="mt-4 w-full" title="Retakes unlock after all 3 assessments, your Gap Report, and all 12 sections are complete.">
+                    Retake locked
+                  </Button>
+                )}
               </>
             ) : (
               <>
