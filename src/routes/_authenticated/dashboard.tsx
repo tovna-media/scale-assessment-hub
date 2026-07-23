@@ -153,7 +153,8 @@ function DashboardPage() {
     shownUpgradePrompt.current = true;
     plansDialog.open();
     navigate({ to: "/dashboard", search: {}, replace: true });
-  }, [upgrade, navigate]);
+   
+  }, [upgrade, navigate, plansDialog]);
 
   const [sessions, setSessions] = useState<SessionRow[]>([]);
   const [loading, setLoading] = useState(true);
