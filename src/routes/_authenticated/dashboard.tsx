@@ -848,3 +848,35 @@ function StatCard({
   );
 }
 
+function LockedFeatureCard({
+  icon,
+  title,
+  body,
+  onUpgrade,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  body: string;
+  onUpgrade: () => void;
+}) {
+  return (
+    <div className="relative flex flex-col rounded-2xl border border-[var(--fr-hairline)] bg-white p-5 shadow-[var(--shadow-card)]">
+      <div className="mb-3 flex items-start justify-between">
+        <span className="grid h-10 w-10 place-items-center rounded-xl bg-[var(--fr-lilac)] text-[var(--rl-purple)]">
+          {icon}
+        </span>
+        <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-600">
+          <Lock className="h-3 w-3" /> Locked
+        </span>
+      </div>
+      <h4 className="text-base font-semibold text-[var(--fr-ink)]">{title}</h4>
+      <p className="mt-1 text-sm text-[var(--fr-muted-ink)]">{body}</p>
+      <div className="mt-4">
+        <Button size="sm" variant="outline" onClick={onUpgrade} className="w-full">
+          <Sparkles className="mr-2 h-3.5 w-3.5" /> Upgrade to unlock
+        </Button>
+      </div>
+    </div>
+  );
+}
+
