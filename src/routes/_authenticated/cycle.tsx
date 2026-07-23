@@ -106,7 +106,10 @@ function CyclePage() {
           return (
             <li
               key={s.number}
+              onClick={!subscribed ? () => plansDialog.open() : undefined}
               className={`flex flex-col gap-3 rounded-2xl border p-5 sm:flex-row sm:items-center sm:justify-between ${
+                !subscribed ? "cursor-pointer transition hover:border-[var(--rl-purple-soft)] hover:bg-white" : ""
+              } ${
                 done ? "border-emerald-200 bg-emerald-50/40" :
                 available ? "border-[var(--rl-purple-soft)] bg-white shadow-[var(--shadow-card)]" :
                 "border-[var(--fr-hairline)] bg-[var(--fr-surface)]/40"
@@ -127,10 +130,18 @@ function CyclePage() {
                 </div>
               </div>
               <div className="shrink-0">
-                {done && built && s.path && (
+                {!subscribed && built ? (
+                  <Button
+                    size="sm"
+                    onClick={(e) => { e.stopPropagation(); plansDialog.open(); }}
+                  >
+                    <Lock className="mr-1.5 h-3.5 w-3.5" /> Upgrade to unlock
+                  </Button>
+                ) : null}
+                {subscribed && done && built && s.path && (
                   <Button variant="outline" size="sm" asChild><Link to={s.path as "/guide/section-1"}>Review</Link></Button>
                 )}
-                {available && built && s.path && (
+                {subscribed && available && built && s.path && (
                   <Button size="sm" asChild><Link to={s.path as "/guide/section-1"}>Start <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Link></Button>
                 )}
                 {!built && (
