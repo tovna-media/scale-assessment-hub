@@ -293,15 +293,6 @@ function DashboardPage() {
     : nextIncomplete
       ? `Take ${nextIncomplete.shortTitle}`
       : "Continue";
-  const showGapBanner =
-    eligibility !== null &&
-    (
-      // Before the first Gap Report: show while assessments remain, or when ready to generate.
-      (isFirstRound && (completedTypes.size < 3 || canGenerate)) ||
-      // After a report exists: only show once the end-of-cycle
-      // re-assessment window is open (Section 12, Part 5 reached).
-      (!isFirstRound && eligibility.reassessmentUnlocked)
-    );
   const hasAnyReport = (eligibility?.reportsGenerated ?? 0) > 0;
   const nextAssessmentTo = `/assessment/${nextTarget.type}`;
   const nextSectionTo = `/guide/section-${nextSection}`;
