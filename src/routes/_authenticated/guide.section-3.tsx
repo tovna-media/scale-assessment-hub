@@ -682,6 +682,9 @@ function D3Skills({ d, update }: { d: SectionData; update: <K extends keyof Sect
 function D4Drivers({ d, update }: { d: SectionData; update: <K extends keyof SectionData>(k: K, v: SectionData[K]) => void }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Review the Success Drivers from your Lead Yourself Plan.</p>
+      </GuideNote>
       <SectionBlock label="Evaluate" hint="Slide the progress percent for each Success Driver.">
         <div className="space-y-3">
       {d.drivers.map((dr, i) => (
@@ -727,6 +730,9 @@ function D4Drivers({ d, update }: { d: SectionData; update: <K extends keyof Sec
 function D5Standards({ d, update }: { d: SectionData; update: <K extends keyof SectionData>(k: K, v: SectionData[K]) => void }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Leadership rises or falls to the standards you consistently accept.</p>
+      </GuideNote>
       <SectionBlock label="Evaluate" hint="Rate each standard 1–10.">
         <div className="space-y-3">
         {d.standards_ratings.map((s, i) => (
@@ -818,6 +824,9 @@ function D6Reflection({ d, update }: { d: SectionData; update: <K extends keyof 
 function D7Actions({ d, update }: { d: SectionData; update: <K extends keyof SectionData>(k: K, v: SectionData[K]) => void }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Transfer the highest priorities from this dashboard into a focused action plan for the next phase of your Leadership Optimization Cycle.</p>
+      </GuideNote>
       {d.priorities.map((p, i) => (
         <div key={i} className="rounded-2xl border border-border bg-card p-4">
           <div className="flex items-center gap-3">
@@ -871,6 +880,11 @@ function D7Actions({ d, update }: { d: SectionData; update: <K extends keyof Sec
 function StepCommitment({ d, update }: { d: SectionData; update: <K extends keyof SectionData>(k: K, v: SectionData[K]) => void }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>The value of this dashboard is found in what you do after you complete it.</p>
+        <p className="mt-2">Complete the statement below.</p>
+        <p className="mt-2 italic">During the next phase of my Leadership Optimization Cycle, I commit to executing the plans I have developed, measuring my progress honestly, and continually raising my standards so I become the leader my goals require.</p>
+      </GuideNote>
       <div className="rounded-2xl border border-[#433993]/30 bg-gradient-to-br from-[#f6f2ff] to-white p-6">
         <p className="text-sm leading-relaxed text-foreground">
           I commit to living this Leadership Performance Dashboard for the next cycle. I will hold my
