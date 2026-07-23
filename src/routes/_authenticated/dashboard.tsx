@@ -148,13 +148,12 @@ function DashboardPage() {
     navigate({ to: "/dashboard", search: {}, replace: true });
   }, [checkout, navigate]);
 
-  const plansDialogRef = usePlansDialog();
   useEffect(() => {
     if (!upgrade || shownUpgradePrompt.current) return;
     shownUpgradePrompt.current = true;
-    plansDialogRef.open();
+    plansDialog.open();
     navigate({ to: "/dashboard", search: {}, replace: true });
-  }, [upgrade, plansDialogRef, navigate]);
+  }, [upgrade, navigate]);
 
   const [sessions, setSessions] = useState<SessionRow[]>([]);
   const [loading, setLoading] = useState(true);
