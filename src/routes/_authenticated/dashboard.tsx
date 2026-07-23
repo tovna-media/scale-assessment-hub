@@ -323,7 +323,6 @@ function DashboardPage() {
       {/* Main assessment nudge — single hero card with counter and clear CTA */}
       <AssessmentNudgeCard
         takenCount={takenCount}
-        completedTypes={completedTypes}
         canGenerate={canGenerate}
         isFirstRound={isFirstRound}
         readyCount={readyCount}
