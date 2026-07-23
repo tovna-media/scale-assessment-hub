@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
-import { ASSESSMENT_LIST, maxScoreFor, type AssessmentType, type AssessmentDef } from "@/lib/assessments";
+import { ASSESSMENT_LIST, maxScoreFor, COMBINED_MAX, type AssessmentType, type AssessmentDef } from "@/lib/assessments";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ArrowUpRight, ArrowDownRight, Lock, Sparkles, Minus, Target, FileText, BookOpen, RefreshCw, MessageCircle, LineChart, Download } from "lucide-react";
 import { logFunnelEvent } from "@/lib/funnel.functions";
@@ -332,6 +332,21 @@ function DashboardPage() {
       return rounds;
     })();
     const perfLatest = perfPoints.length > 0 ? Math.round(perfPoints[perfPoints.length - 1]) : null;
+    const reportSession = reportSessions[0] ?? null;
+    const latestByType = ASSESSMENT_LIST.map((a) => {
+      const list = perType[a.type];
+      return list[list.length - 1] ?? null;
+    });
+    const combinedTotal = latestByType.every((s) => s !== null)
+      ? latestByType.reduce((sum, s) => sum + (s?.overall_score ?? 0), 0)
+      : null;
+    const reportDate = reportSession
+      ? new Date(reportSession.created_at).toLocaleDateString(undefined, {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        })
+      : null;
     return (
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-8 sm:py-10">
         <div className="mb-6">
@@ -443,13 +458,16 @@ function DashboardPage() {
             <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--rl-purple)]">Performance</p>
               <h4 className="mt-1 text-base font-semibold text-[var(--fr-ink)]">
-                {perfLatest !== null ? `Your latest gap report: ${perfLatest}/100` : "See your growth over time"}
+                {combinedTotal !== null
+                  ? `Your latest gap report: ${combinedTotal}/${COMBINED_MAX}`
+                  : "See your growth over time"}
               </h4>
-              {perfPoints.length > 0 ? (
+              {reportDate && combinedTotal !== null ? (
+                <p className="mt-0.5 text-xs text-[var(--fr-muted-ink)]">Generated {reportDate}</p>
+              ) : null}
+              {perfPoints.length >= 2 ? (
                 <div className="mt-2"><Sparkline points={perfPoints} /></div>
-              ) : (
-                <p className="mt-1 text-sm text-[var(--fr-muted-ink)]">Trend charts unlock once you have assessment history.</p>
-              )}
+              ) : null}
             </div>
           </div>
           <Button asChild variant="outline" className="shrink-0">
