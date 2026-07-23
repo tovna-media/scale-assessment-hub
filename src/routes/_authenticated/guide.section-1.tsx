@@ -16,6 +16,7 @@ import { GapReportPanel } from "@/components/scale/GapReportPanel";
 import { PrintSectionButton } from "@/components/scale/PrintSectionButton";
 import { hasPrintableContent } from "@/lib/section-print";
 import { AboutSectionSheet } from "@/components/scale/AboutSectionSheet";
+import { JourneyFlowchartDialog } from "@/components/scale/JourneyFlowchartDialog";
 
 export const Route = createFileRoute("/_authenticated/guide/section-1")({
   head: () => ({
