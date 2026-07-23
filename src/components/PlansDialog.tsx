@@ -107,12 +107,24 @@ function PlansDialog({ subscribed, onClose }: { subscribed: boolean; onClose: ()
         },
       });
       if ("error" in result) throw new Error(result.error);
-      window.location.href = result.url;
+      if (!result.url) throw new Error("No billing portal URL returned");
+      try {
+        if (window.top && window.top !== window.self) {
+          window.top.location.href = result.url;
+        } else {
+          window.location.href = result.url;
+        }
+        onClose();
+      } catch (navErr) {
+        console.error("[PlansDialog] portal navigation failed", navErr);
+        window.location.href = result.url;
+      }
     } catch (e) {
+      console.error("[PlansDialog] downgrade failed", e);
       toast.error(e instanceof Error ? e.message : "Could not open billing portal.");
       setBusy(null);
     }
-  }, [openPortal]);
+  }, [onClose, openPortal]);
 
   const paidPrice = billing === "annual" ? "$82" : "$97";
 
