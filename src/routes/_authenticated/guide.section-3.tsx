@@ -541,6 +541,9 @@ function TrendButtons({ value, onChange }: { value: Trend; onChange: (t: Trend) 
 function D1Fuel({ d, update, prev }: { d: SectionData; update: <K extends keyof SectionData>(k: K, v: SectionData[K]) => void; prev: SectionData | null }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Rate your current progress in each area.</p>
+      </GuideNote>
       <SectionBlock label="Evaluate" hint="Rate each FUEL area 1–10. Trend compares to your last review.">
         <div className="space-y-3">
       {FUEL_AREAS.map((a) => {
@@ -586,6 +589,9 @@ function D1Fuel({ d, update, prev }: { d: SectionData; update: <K extends keyof 
 function D2Capacity({ d, update }: { d: SectionData; update: <K extends keyof SectionData>(k: K, v: SectionData[K]) => void }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Review your Inner Capacity Assessment and compare your current reality to your previous review.</p>
+      </GuideNote>
       <SectionBlock label="Evaluate" hint="For each capacity, tap Worse / Same / Better vs last cycle.">
         <div className="space-y-3">
       {CAPACITY_AREAS.map((a) => (
@@ -618,6 +624,10 @@ function D2Capacity({ d, update }: { d: SectionData; update: <K extends keyof Se
 function D3Skills({ d, update }: { d: SectionData; update: <K extends keyof SectionData>(k: K, v: SectionData[K]) => void }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Review your Leadership Assessment.</p>
+        <p className="mt-2">Select ONE leadership skill to intentionally develop during this Leadership Optimization Cycle.</p>
+      </GuideNote>
       <SectionBlock label="Evaluate" hint="Set Current and Desired level for each skill (1–10).">
         <div className="space-y-3">
       {d.skills.map((s, i) => (
