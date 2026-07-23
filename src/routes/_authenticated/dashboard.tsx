@@ -148,14 +148,6 @@ function DashboardPage() {
     navigate({ to: "/dashboard", search: {}, replace: true });
   }, [checkout, navigate]);
 
-  useEffect(() => {
-    if (!upgrade || shownUpgradePrompt.current) return;
-    shownUpgradePrompt.current = true;
-    plansDialog.open();
-    navigate({ to: "/dashboard", search: {}, replace: true });
-   
-  }, [upgrade, navigate, plansDialog]);
-
   const [sessions, setSessions] = useState<SessionRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [freePassUsed, setFreePassUsed] = useState(false);
@@ -178,6 +170,13 @@ function DashboardPage() {
   const checkSub = useServerFn(getSubscriptionStatus);
   const checkEligibility = useServerFn(getGapReportEligibility);
   const plansDialog = usePlansDialog();
+
+  useEffect(() => {
+    if (!upgrade || shownUpgradePrompt.current) return;
+    shownUpgradePrompt.current = true;
+    plansDialog.open();
+    navigate({ to: "/dashboard", search: {}, replace: true });
+  }, [upgrade, navigate, plansDialog]);
 
   useEffect(() => {
     if (!user) return;
