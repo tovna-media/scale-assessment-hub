@@ -1,6 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,7 +7,7 @@ import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
 import { logFunnelEvent } from "@/lib/funnel.functions";
 import { useServerFn } from "@tanstack/react-start";
-import { sendTransactionalEmail } from "@/lib/email/send";
+import { signupUser } from "@/lib/signup.functions";
 import { Logo } from "@/components/scale/Logo";
 
 export const Route = createFileRoute("/signup")({
@@ -34,6 +33,7 @@ function SignupPage() {
   const navigate = useNavigate();
   const { session, role, loading } = useAuth();
   const logEvent = useServerFn(logFunnelEvent);
+  const doSignup = useServerFn(signupUser);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
@@ -50,41 +50,21 @@ function SignupPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setSubmitting(true);
-    const redirectUrl = `${window.location.origin}/dashboard`;
-    const fullName = `${firstName} ${lastName}`.trim();
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          full_name: fullName,
-          first_name: firstName,
-          last_name: lastName,
-          phone,
-        },
-      },
-    });
+    const result = await doSignup({
+      data: { email, password, firstName, lastName, phone },
+    }).catch((err: unknown) => ({
+      ok: false as const,
+      error: err instanceof Error ? err.message : "Signup failed",
+    }));
     setSubmitting(false);
-    if (error) {
-      toast.error(error.message);
+
+    if (!result.ok) {
+      toast.error(result.error);
       return;
     }
 
-    // If auto-confirm created a session, sign out so the user lands on the login page.
-    if (data.session) {
-      await supabase.auth.signOut();
-    }
-
-    // Fire-and-forget funnel event.
+    // Fire-and-forget funnel event (best effort — no session yet).
     void logEvent({ data: { event_type: "signed_up" } }).catch(() => {});
-    // Fire-and-forget welcome email.
-    void sendTransactionalEmail({
-      templateName: "welcome",
-      recipientEmail: email,
-      idempotencyKey: `welcome-${email}`,
-      templateData: { name: firstName || fullName || undefined },
-    }).catch(() => {});
 
     navigate({
       to: "/",
