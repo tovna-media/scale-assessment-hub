@@ -413,6 +413,14 @@ function SectionBlock({ label, hint, children }: { label: string; hint?: string;
   );
 }
 
+function GuideNote({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="rounded-xl border-l-4 border-[#5b19bf] bg-[#f6f2ff] p-4 text-sm leading-relaxed text-foreground">
+      {children}
+    </div>
+  );
+}
+
 function LabeledTextarea({ label, value, onChange, placeholder, rows = 3 }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; rows?: number }) {
   return (
     <div>
