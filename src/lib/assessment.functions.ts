@@ -18,12 +18,10 @@ async function isUserSubscribed(
 }
 
 // After a member has generated their first Gap Report, retaking any
-// assessment is LOCKED until they reach the end-of-cycle re-assessment:
-// Section 12, Part 5 ("Complete a New GAP Report"). Reaching that point
-// requires sections 1–11 complete AND opening Section 12 at least to Part 5.
-const REASSESSMENT_SECTION = 12;
-const REASSESSMENT_PART = 5;
-const PRIOR_SECTIONS_REQUIRED = REASSESSMENT_SECTION - 1; // 1..11
+// assessment is LOCKED until they finish the full cycle: all 12
+// Optimized Leader Guide sections must be marked complete.
+const TOTAL_SECTIONS = 12;
+const PRIOR_SECTIONS_REQUIRED = TOTAL_SECTIONS; // must complete all 12
 
 export async function computeRetakeLock(
   supabase: {
@@ -58,12 +56,11 @@ export async function computeRetakeLock(
     data?: { step?: number } | null;
   }>;
   const completedPriorSections = rows.filter(
-    (r) => r.completed && r.section_number >= 1 && r.section_number <= PRIOR_SECTIONS_REQUIRED,
+    (r) => r.completed && r.section_number >= 1 && r.section_number <= TOTAL_SECTIONS,
   ).length;
-  const section12 = rows.find((r) => r.section_number === REASSESSMENT_SECTION);
+  const section12 = rows.find((r) => r.section_number === TOTAL_SECTIONS);
   const section12Step = Number(section12?.data?.step ?? 0) || 0;
-  const reassessmentUnlocked =
-    completedPriorSections >= PRIOR_SECTIONS_REQUIRED && section12Step >= REASSESSMENT_PART;
+  const reassessmentUnlocked = completedPriorSections >= PRIOR_SECTIONS_REQUIRED;
   const locked = reportsGenerated > 0 && !reassessmentUnlocked;
   return {
     locked,
@@ -75,7 +72,7 @@ export async function computeRetakeLock(
 }
 
 const RETAKE_LOCK_MESSAGE =
-  "Retakes unlock at the end of your cycle. Work through the sections and reach Section 12, Part 5 to start your re-assessment.";
+  "Retakes unlock once you complete all 12 sections of your cycle. Finish every section to start your re-assessment.";
 
 const InputSchema = z.object({
   assessment_type: z.enum(["inner_capacity", "personal_leadership", "business_audit"]),
