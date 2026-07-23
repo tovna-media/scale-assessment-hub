@@ -453,86 +453,61 @@ function DashboardPage() {
   );
 }
 
-function HeroFocusCard({
-  inCycle,
-  cycleWeek,
-  cycleLength,
-  cycleProgressPct,
-  nextSection,
-  priorityGap,
-  subscribed,
-  section1Complete,
+function AssessmentNudgeCard({
   takenCount,
-  nextAssessmentTo,
-  nextSectionTo,
-  hasAnyReport,
+  completedTypes,
+  canGenerate,
+  isFirstRound,
+  readyCount,
+  latestSession,
+  nextTarget,
+  nextLabel,
 }: {
-  inCycle: boolean;
-  cycleWeek: number;
-  cycleLength: number;
-  cycleProgressPct: number;
-  nextSection: number;
-  priorityGap: { name: string; score: number | null } | null;
-  subscribed: boolean;
-  section1Complete: boolean;
   takenCount: number;
-  nextAssessmentTo: string;
-  nextSectionTo: string;
-  hasAnyReport: boolean;
+  completedTypes: Set<AssessmentType>;
+  canGenerate: boolean;
+  isFirstRound: boolean;
+  readyCount: number;
+  latestSession: SessionRow | undefined;
+  nextTarget: AssessmentType | undefined;
+  nextLabel: string;
 }) {
-  // Determine hero state
-  let eyebrow = "Get started";
-  let heading = "Take your first assessment";
-  let body = "Complete your three SCALE assessments to unlock your personalized Gap Report and 12-week cycle.";
-  let ctaLabel = takenCount === 0 ? "Start your first assessment" : "Continue your assessments";
-  let ctaTo: string = nextAssessmentTo;
-  let ctaDisabled = false;
-  let ringValue = takenCount;
-  let ringMax = 3;
-  let ringLabel = "TAKEN";
+  const ringValue = takenCount;
+  const ringMax = 3;
+  let eyebrow = "SCALE Gap Report";
+  let heading: string;
+  let body: string;
+  let ctaLabel: string;
+  let ctaTo: string;
 
-  if (subscribed && !section1Complete) {
-    if (hasAnyReport) {
-      eyebrow = "Cycle · Section 1";
-      heading = "Begin your Leadership Optimization Cycle";
-      body = "Confirm your assessments, lock in your Priority Gap, and answer five reflection questions.";
-      ctaLabel = "Start Section 1";
-      ctaTo = "/guide/section-1";
+  if (canGenerate) {
+    heading = isFirstRound
+      ? "You're ready to generate your full SCALE Gap Report"
+      : "You're ready to generate your next SCALE Gap Report";
+    body = "All three assessments are in. Combine them into one unified report with cross-connection analysis.";
+    ctaLabel = "Generate my Gap Report";
+    ctaTo = latestSession ? `/report/${latestSession.id}` : "#";
+  } else if (isFirstRound) {
+    if (takenCount === 0) {
+      heading = "Take your 3 assessments to unlock your SCALE Gap Report";
+      body = "Your personalized report ties together Inner Capacity, Personal Leadership, and Business Audit. Each assessment takes about 5 minutes.";
+      ctaLabel = "Start your first assessment";
     } else {
-      eyebrow = "Cycle · Locked";
-      heading = "Your Leadership Optimization Cycle is almost ready";
-      body = "Once you complete all three assessments and generate your SCALE Gap Report, you'll be able to start Section 1 and begin your Leadership Optimization Cycle.";
-      ctaLabel = takenCount >= 3 ? "Generate your Gap Report" : "Continue your assessments";
-      ctaTo = nextAssessmentTo;
-      ctaDisabled = true;
+      heading = `Complete ${3 - takenCount} more assessment${3 - takenCount === 1 ? "" : "s"} to generate your report`;
+      body = "You’re on your way. Finish the remaining assessments so we can build your full SCALE Gap Report.";
+      ctaLabel = "Continue your assessments";
     }
-  } else if (inCycle && cycleWeek < cycleLength) {
-    eyebrow = `WEEK ${cycleWeek || 1} OF ${cycleLength}`;
-    heading = priorityGap
-      ? `Focus your work on ${priorityGap.name}`
-      : "Continue your cycle";
-    body = priorityGap
-      ? `Your Priority Gap is ${priorityGap.name}. Complete Section ${nextSection} to keep your cycle moving.`
-      : `Complete Section ${nextSection} to keep your cycle moving.`;
-    ctaLabel = `Continue Section ${nextSection}`;
-    ctaTo = nextSectionTo;
-    ringValue = cycleWeek;
-    ringMax = cycleLength;
-    ringLabel = "WEEKS";
-  } else if (inCycle && cycleWeek >= cycleLength) {
-    eyebrow = "Cycle complete";
-    heading = "You've completed your 12-week cycle";
-    body = "Retake your assessments to measure your growth and start a new cycle.";
-    ctaLabel = "Retake assessments";
-    ctaTo = nextAssessmentTo;
-    ringValue = cycleLength;
-    ringMax = cycleLength;
-    ringLabel = "WEEKS";
+    ctaTo = nextTarget ? `/assessment/${nextTarget}` : "#";
+  } else {
+    heading = `Retake all 3 assessments for your next Gap Report (${readyCount} of 3 retaken)`;
+    body = "Refresh your scores before generating your next report.";
+    ctaLabel = nextLabel;
+    ctaTo = nextTarget ? `/assessment/${nextTarget}` : "#";
   }
 
   return (
     <div
-      className="relative overflow-hidden rounded-3xl border border-[var(--fr-hairline)] p-6 shadow-[var(--shadow-card)] sm:p-8"
+      className="relative mb-6 overflow-hidden rounded-3xl border border-[var(--fr-hairline)] p-6 shadow-[var(--shadow-card)] sm:p-8"
       style={{ background: "linear-gradient(120deg, #f4eeff 0%, #ffffff 55%, #e9deff 100%)" }}
     >
       {/* Decorative chevrons */}
@@ -554,13 +529,120 @@ function HeroFocusCard({
           </h3>
           <p className="mt-2 max-w-xl text-sm text-[var(--fr-muted-ink)]">{body}</p>
 
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            {canGenerate && latestSession ? (
+              <Button asChild size="lg">
+                <Link to="/report/$sessionId" params={{ sessionId: latestSession.id }}>
+                  <FileText className="mr-2 h-4 w-4" /> {ctaLabel}
+                </Link>
+              </Button>
+            ) : (
+              <Button asChild size="lg">
+                <Link to="/assessment/$type" params={{ type: nextTarget?.type ?? "business_audit" }}>
+                  <ArrowRight className="mr-2 h-4 w-4" /> {ctaLabel}
+                </Link>
+              </Button>
+            )}
+            <span className="text-xs text-[var(--fr-muted-ink)]">
+              {takenCount === 3 ? "All 3 assessments done" : "Takes about 5 minutes each"}
+            </span>
+          </div>
+        </div>
+
+        <div className="shrink-0 self-center">
+          <Ring value={ringValue} max={ringMax} size={132} stroke={10}>
+            <div className="text-3xl font-bold text-[var(--fr-ink)] leading-none">
+              {ringValue}<span className="text-lg font-medium text-[var(--fr-muted-ink)]"> / {ringMax}</span>
+            </div>
+            <div className="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--fr-muted-ink)]">
+              TAKEN
+            </div>
+          </Ring>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CycleCard({
+  inCycle,
+  cycleWeek,
+  cycleLength,
+  cycleProgressPct,
+  nextSection,
+  priorityGap,
+  section1Complete,
+  hasAnyReport,
+  nextAssessmentTo,
+  nextSectionTo,
+}: {
+  inCycle: boolean;
+  cycleWeek: number;
+  cycleLength: number;
+  cycleProgressPct: number;
+  nextSection: number;
+  priorityGap: { name: string; score: number | null } | null;
+  section1Complete: boolean;
+  hasAnyReport: boolean;
+  nextAssessmentTo: string;
+  nextSectionTo: string;
+}) {
+  let eyebrow = "Cycle · Locked";
+  let heading = "Your Leadership Optimization Cycle is almost ready";
+  let body = "Once you complete all three assessments and generate your SCALE Gap Report, you'll be able to start Section 1 and begin your Leadership Optimization Cycle.";
+  let ctaLabel = "Continue your assessments";
+  let ctaTo: string = nextAssessmentTo;
+  let ctaDisabled = true;
+
+  if (inCycle && cycleWeek < cycleLength) {
+    eyebrow = `WEEK ${cycleWeek || 1} OF ${cycleLength}`;
+    heading = priorityGap
+      ? `Focus your work on ${priorityGap.name}`
+      : "Continue your cycle";
+    body = priorityGap
+      ? `Your Priority Gap is ${priorityGap.name}. Complete Section ${nextSection} to keep your cycle moving.`
+      : `Complete Section ${nextSection} to keep your cycle moving.`;
+    ctaLabel = `Continue Section ${nextSection}`;
+    ctaTo = nextSectionTo;
+    ctaDisabled = false;
+  } else if (inCycle && cycleWeek >= cycleLength) {
+    eyebrow = "Cycle complete";
+    heading = "You've completed your 12-week cycle";
+    body = "Retake your assessments to measure your growth and start a new cycle.";
+    ctaLabel = "Retake assessments";
+    ctaTo = nextAssessmentTo;
+    ctaDisabled = false;
+  } else if (hasAnyReport && section1Complete) {
+    // In cycle but not inCycle? Actually if section1Complete then inCycle is true.
+    // Keep as fallback for locked state.
+  } else if (hasAnyReport && !section1Complete) {
+    eyebrow = "Cycle · Section 1";
+    heading = "Begin your Leadership Optimization Cycle";
+    body = "Confirm your assessments, lock in your Priority Gap, and answer five reflection questions.";
+    ctaLabel = "Start Section 1";
+    ctaTo = "/guide/section-1";
+    ctaDisabled = false;
+  }
+
+  return (
+    <div
+      className="mb-6 overflow-hidden rounded-3xl border border-[var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)] sm:p-8"
+    >
+      <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-center">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--rl-purple)]">{eyebrow}</p>
+          <h3 className="mt-2 text-2xl font-bold tracking-tight text-[var(--fr-ink)] sm:text-3xl">
+            {heading}
+          </h3>
+          <p className="mt-2 max-w-xl text-sm text-[var(--fr-muted-ink)]">{body}</p>
+
           {inCycle && (
             <div className="mt-5 max-w-md">
               <div className="flex items-center justify-between text-xs text-[var(--fr-muted-ink)]">
                 <span>Cycle progress</span>
                 <span className="font-semibold text-[var(--fr-ink)]">{cycleProgressPct}%</span>
               </div>
-              <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/70">
+              <div className="mt-2 h-2 overflow-hidden rounded-full bg-[var(--fr-lilac)]">
                 <div
                   className="h-full rounded-full"
                   style={{ width: `${cycleProgressPct}%`, background: `linear-gradient(90deg, ${PURPLE} 0%, ${PURPLE_SOFT} 100%)` }}
@@ -583,12 +665,12 @@ function HeroFocusCard({
         </div>
 
         <div className="shrink-0 self-center">
-          <Ring value={ringValue} max={ringMax} size={132} stroke={10}>
+          <Ring value={inCycle ? cycleWeek : 0} max={cycleLength} size={132} stroke={10}>
             <div className="text-3xl font-bold text-[var(--fr-ink)] leading-none">
-              {ringValue}<span className="text-lg font-medium text-[var(--fr-muted-ink)]"> / {ringMax}</span>
+              {inCycle ? cycleWeek : 0}<span className="text-lg font-medium text-[var(--fr-muted-ink)]"> / {cycleLength}</span>
             </div>
             <div className="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--fr-muted-ink)]">
-              {ringLabel}
+              WEEKS
             </div>
           </Ring>
         </div>
