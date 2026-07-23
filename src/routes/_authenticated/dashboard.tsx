@@ -492,32 +492,53 @@ function DashboardPage() {
         </p>
       </div>
 
-      {/* Main assessment nudge — single hero card with counter and clear CTA */}
-      <AssessmentNudgeCard
-        takenCount={takenCount}
-        canGenerate={canGenerate}
-        isFirstRound={isFirstRound}
-        readyCount={readyCount}
-        latestSession={latestSession}
-        nextTarget={nextTarget}
-        nextLabel={nextLabel}
-      />
-
-      {/* Cycle card — appears only once the user is subscribed and ready to cycle */}
-      {(subscribed || hasAnyReport) && (
-        <CycleCard
-          inCycle={inCycle}
-          cycleWeek={cycleWeek}
-          cycleLength={CYCLE_LENGTH}
-          cycleProgressPct={cycleProgressPct}
-          nextSection={nextSection}
-          priorityGap={priorityGap}
-          section1Complete={section1Complete}
-          hasAnyReport={hasAnyReport}
-          nextAssessmentTo={nextAssessmentTo}
-          nextSectionTo={nextSectionTo}
-        />
-      )}
+      {/* Order is driven by member state:
+          - Before the first Gap Report: nudge (take assessments) first, then locked cycle.
+          - Paid + has a Gap Report: cycle first. The retake nudge only appears
+            once all 12 sections of the current cycle are complete
+            (eligibility.reassessmentUnlocked). Mid-cycle, the retake box is hidden. */}
+      {(() => {
+        const reassessmentUnlocked = Boolean(eligibility?.reassessmentUnlocked);
+        const showNudge = isFirstRound || reassessmentUnlocked;
+        const cycleFirst = subscribed && hasAnyReport;
+        const showCycle = subscribed || hasAnyReport;
+        const nudge = showNudge ? (
+          <AssessmentNudgeCard
+            takenCount={takenCount}
+            canGenerate={canGenerate}
+            isFirstRound={isFirstRound}
+            readyCount={readyCount}
+            latestSession={latestSession}
+            nextTarget={nextTarget}
+            nextLabel={nextLabel}
+          />
+        ) : null;
+        const cycle = showCycle ? (
+          <CycleCard
+            inCycle={inCycle}
+            cycleWeek={cycleWeek}
+            cycleLength={CYCLE_LENGTH}
+            cycleProgressPct={cycleProgressPct}
+            nextSection={nextSection}
+            priorityGap={priorityGap}
+            section1Complete={section1Complete}
+            hasAnyReport={hasAnyReport}
+            nextAssessmentTo={nextAssessmentTo}
+            nextSectionTo={nextSectionTo}
+          />
+        ) : null;
+        return cycleFirst ? (
+          <>
+            {cycle}
+            {nudge}
+          </>
+        ) : (
+          <>
+            {nudge}
+            {cycle}
+          </>
+        );
+      })()}
 
       {!subscribed && (
         <div
