@@ -193,7 +193,6 @@ async function handleInvoicePaymentSucceeded(
         .format(invoice.amount_paid / 100)
     : undefined;
   await sendSubscriptionEmail(r.user_id, 'payment-succeeded', {
-    plan: r.price_id ?? undefined,
     amount,
   });
 }
