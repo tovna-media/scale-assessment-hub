@@ -744,3 +744,18 @@ function Chips({ label, options, values, onChange, other, onOtherChange }: { lab
     </div>
   );
 }
+function AboutSectionButtonS4({ className }: { className?: string }) {
+  return (
+    <AboutSectionSheet title="Section 4: Lead Others" className={className}>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">Principle 2: Lead Others</p>
+      <h4 className="font-display text-lg font-semibold text-foreground">Section Objective</h4>
+      <p>Leadership is not about getting more work out of people.</p>
+      <p>Leadership is about helping people become the best version of themselves.</p>
+      <p>Before you can effectively coach, challenge, develop, or hold someone accountable, you must first understand who they are, what they're building toward, and what they need from you.</p>
+      <p>This section will help you intentionally lead others by listening well, creating clarity, developing people, and strengthening the relationship one conversation at a time.</p>
+      <p className="font-semibold">Remember…</p>
+      <p>People don't need another manager.</p>
+      <p>They need a leader who is willing to understand them before trying to improve them.</p>
+    </AboutSectionSheet>
+  );
+}
