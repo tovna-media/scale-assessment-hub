@@ -791,6 +791,8 @@ function CycleCard({
   hasAnyReport,
   nextAssessmentTo,
   nextSectionTo,
+  nextSectionUnlocked,
+  nextUnlockAt,
 }: {
   inCycle: boolean;
   cycleWeek: number;
@@ -802,6 +804,8 @@ function CycleCard({
   hasAnyReport: boolean;
   nextAssessmentTo: string;
   nextSectionTo: string;
+  nextSectionUnlocked: boolean;
+  nextUnlockAt: Date | null;
 }) {
   let eyebrow = "Cycle · Locked";
   let heading = "Your Leadership Optimization Cycle is almost ready";
@@ -812,15 +816,26 @@ function CycleCard({
 
   if (inCycle && cycleWeek < cycleLength) {
     eyebrow = `WEEK ${cycleWeek || 1} OF ${cycleLength}`;
-    heading = priorityGap
-      ? `Focus your work on ${priorityGap.name}`
-      : "Continue your cycle";
-    body = priorityGap
-      ? `Your Priority Gap is ${priorityGap.name}. Complete Section ${nextSection} to keep your cycle moving.`
-      : `Complete Section ${nextSection} to keep your cycle moving.`;
-    ctaLabel = `Continue Section ${nextSection}`;
-    ctaTo = nextSectionTo;
-    ctaDisabled = false;
+    if (nextSectionUnlocked) {
+      heading = priorityGap
+        ? `Focus your work on ${priorityGap.name}`
+        : "Continue your cycle";
+      body = priorityGap
+        ? `Your Priority Gap is ${priorityGap.name}. Complete Section ${nextSection} to keep your cycle moving.`
+        : `Complete Section ${nextSection} to keep your cycle moving.`;
+      ctaLabel = `Continue Section ${nextSection}`;
+      ctaTo = nextSectionTo;
+      ctaDisabled = false;
+    } else {
+      // Latest section is complete, next one hasn't unlocked by date yet.
+      const latest = cycleWeek; // sections completed so far
+      const dateStr = nextUnlockAt ? formatUnlockDate(nextUnlockAt) : "soon";
+      heading = `Nice work finishing Section ${latest}`;
+      body = `Section ${nextSection} unlocks ${dateStr}. Review Section ${latest} anytime while you wait.`;
+      ctaLabel = `Review Section ${latest}`;
+      ctaTo = `/guide/section-${latest}`;
+      ctaDisabled = false;
+    }
   } else if (inCycle && cycleWeek >= cycleLength) {
     eyebrow = "Cycle complete";
     heading = "You've completed your 12-week cycle";
