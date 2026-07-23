@@ -513,6 +513,13 @@ function StepReviewGap({
 }) {
   return (
     <>
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 1: Review Your GAP Report
+        </p>
+        <p className="mt-2">Before moving forward, review your GAP Report.</p>
+        <p className="mt-2">Identify the most important insights from your assessments.</p>
+      </GuideNote>
       {!md && (
         <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-4 text-sm text-amber-900">
           You don't have a GAP Report yet. You can still complete Section 2 from memory — but generating your first
@@ -535,7 +542,7 @@ function StepReviewGap({
       </section>
       <section>
         <Label htmlFor="patterns" className="text-base font-semibold text-foreground">
-          Looking across your entire GAP Report, what patterns do you notice?
+          Looking across my entire GAP Report, what patterns do I notice?
         </Label>
         <Textarea
           id="patterns"
@@ -560,12 +567,34 @@ function StepUnderstandGaps({
 }) {
   return (
     <>
-      <section className="rounded-2xl border border-border bg-muted/30 p-5 text-sm leading-relaxed text-muted-foreground">
-        <p><span className="font-semibold text-foreground">Knowledge & Skill Gap.</span> "I don't know how." You need additional knowledge, tools, practice, or coaching.</p>
-        <p className="mt-2"><span className="font-semibold text-foreground">Capacity & Standards Gap.</span> "I know what to do." You're simply not doing it consistently — capacity, standards, or discipline need to improve.</p>
-      </section>
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 2: Understanding Your Leadership Gaps
+        </p>
+        <p className="mt-2">
+          Throughout this workbook you'll discover that leadership gaps generally come from one of
+          two places.
+        </p>
+        <div className="mt-3">
+          <p className="font-semibold text-foreground">Knowledge & Skill Gap</p>
+          <p className="mt-1">I don't know how.</p>
+          <p className="mt-1">I need additional knowledge, tools, practice, or coaching.</p>
+        </div>
+        <div className="mt-3">
+          <p className="font-semibold text-foreground">Capacity & Standards Gap</p>
+          <p className="mt-1">I know what to do.</p>
+          <p className="mt-1">
+            I'm simply not doing it consistently because my capacity, standards, or discipline need
+            to improve.
+          </p>
+        </div>
+        <p className="mt-3">Review your Leadership Assessment.</p>
+      </GuideNote>
       <section>
-        <h3 className="text-base font-semibold text-foreground">Which leadership skills require the greatest development?</h3>
+        <h3 className="text-base font-semibold text-foreground">
+          Which leadership skills require the greatest development during this Leadership
+          Optimization Cycle?
+        </h3>
         <p className="text-sm text-muted-foreground">Tap all that apply.</p>
         <div className="mt-3 flex flex-wrap gap-2">
           {SKILL_OPTIONS.map((s) => (
