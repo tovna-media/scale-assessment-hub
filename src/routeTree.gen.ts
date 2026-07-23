@@ -24,6 +24,7 @@ import { Route as CoachSettingsRouteImport } from './routes/_coach/settings'
 import { Route as CoachCoachRouteImport } from './routes/_coach/coach'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedPerformanceRouteImport } from './routes/_authenticated/performance'
+import { Route as AuthenticatedGuideRouteImport } from './routes/_authenticated/guide'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCycleRouteImport } from './routes/_authenticated/cycle'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
@@ -126,6 +127,11 @@ const AuthenticatedPerformanceRoute =
     path: '/performance',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedGuideRoute = AuthenticatedGuideRouteImport.update({
+  id: '/guide',
+  path: '/guide',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -154,75 +160,75 @@ const AuthenticatedPrintAllRoute = AuthenticatedPrintAllRouteImport.update({
 } as any)
 const AuthenticatedGuideSection9Route =
   AuthenticatedGuideSection9RouteImport.update({
-    id: '/guide/section-9',
-    path: '/guide/section-9',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/section-9',
+    path: '/section-9',
+    getParentRoute: () => AuthenticatedGuideRoute,
   } as any)
 const AuthenticatedGuideSection8Route =
   AuthenticatedGuideSection8RouteImport.update({
-    id: '/guide/section-8',
-    path: '/guide/section-8',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/section-8',
+    path: '/section-8',
+    getParentRoute: () => AuthenticatedGuideRoute,
   } as any)
 const AuthenticatedGuideSection7Route =
   AuthenticatedGuideSection7RouteImport.update({
-    id: '/guide/section-7',
-    path: '/guide/section-7',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/section-7',
+    path: '/section-7',
+    getParentRoute: () => AuthenticatedGuideRoute,
   } as any)
 const AuthenticatedGuideSection6Route =
   AuthenticatedGuideSection6RouteImport.update({
-    id: '/guide/section-6',
-    path: '/guide/section-6',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/section-6',
+    path: '/section-6',
+    getParentRoute: () => AuthenticatedGuideRoute,
   } as any)
 const AuthenticatedGuideSection5Route =
   AuthenticatedGuideSection5RouteImport.update({
-    id: '/guide/section-5',
-    path: '/guide/section-5',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/section-5',
+    path: '/section-5',
+    getParentRoute: () => AuthenticatedGuideRoute,
   } as any)
 const AuthenticatedGuideSection4Route =
   AuthenticatedGuideSection4RouteImport.update({
-    id: '/guide/section-4',
-    path: '/guide/section-4',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/section-4',
+    path: '/section-4',
+    getParentRoute: () => AuthenticatedGuideRoute,
   } as any)
 const AuthenticatedGuideSection3Route =
   AuthenticatedGuideSection3RouteImport.update({
-    id: '/guide/section-3',
-    path: '/guide/section-3',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/section-3',
+    path: '/section-3',
+    getParentRoute: () => AuthenticatedGuideRoute,
   } as any)
 const AuthenticatedGuideSection2Route =
   AuthenticatedGuideSection2RouteImport.update({
-    id: '/guide/section-2',
-    path: '/guide/section-2',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/section-2',
+    path: '/section-2',
+    getParentRoute: () => AuthenticatedGuideRoute,
   } as any)
 const AuthenticatedGuideSection12Route =
   AuthenticatedGuideSection12RouteImport.update({
-    id: '/guide/section-12',
-    path: '/guide/section-12',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/section-12',
+    path: '/section-12',
+    getParentRoute: () => AuthenticatedGuideRoute,
   } as any)
 const AuthenticatedGuideSection11Route =
   AuthenticatedGuideSection11RouteImport.update({
-    id: '/guide/section-11',
-    path: '/guide/section-11',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/section-11',
+    path: '/section-11',
+    getParentRoute: () => AuthenticatedGuideRoute,
   } as any)
 const AuthenticatedGuideSection10Route =
   AuthenticatedGuideSection10RouteImport.update({
-    id: '/guide/section-10',
-    path: '/guide/section-10',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/section-10',
+    path: '/section-10',
+    getParentRoute: () => AuthenticatedGuideRoute,
   } as any)
 const AuthenticatedGuideSection1Route =
   AuthenticatedGuideSection1RouteImport.update({
-    id: '/guide/section-1',
-    path: '/guide/section-1',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/section-1',
+    path: '/section-1',
+    getParentRoute: () => AuthenticatedGuideRoute,
   } as any)
 const AuthenticatedCheckoutActivatingRoute =
   AuthenticatedCheckoutActivatingRouteImport.update({
@@ -293,6 +299,7 @@ export interface FileRoutesByFullPath {
   '/unsubscribe': typeof UnsubscribeRoute
   '/cycle': typeof AuthenticatedCycleRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/guide': typeof AuthenticatedGuideRouteWithChildren
   '/performance': typeof AuthenticatedPerformanceRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/coach': typeof CoachCoachRouteWithChildren
@@ -335,6 +342,7 @@ export interface FileRoutesByTo {
   '/unsubscribe': typeof UnsubscribeRoute
   '/cycle': typeof AuthenticatedCycleRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/guide': typeof AuthenticatedGuideRouteWithChildren
   '/performance': typeof AuthenticatedPerformanceRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/coach': typeof CoachCoachRouteWithChildren
@@ -380,6 +388,7 @@ export interface FileRoutesById {
   '/unsubscribe': typeof UnsubscribeRoute
   '/_authenticated/cycle': typeof AuthenticatedCycleRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/guide': typeof AuthenticatedGuideRouteWithChildren
   '/_authenticated/performance': typeof AuthenticatedPerformanceRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_coach/coach': typeof CoachCoachRouteWithChildren
@@ -424,6 +433,7 @@ export interface FileRouteTypes {
     | '/unsubscribe'
     | '/cycle'
     | '/dashboard'
+    | '/guide'
     | '/performance'
     | '/profile'
     | '/coach'
@@ -466,6 +476,7 @@ export interface FileRouteTypes {
     | '/unsubscribe'
     | '/cycle'
     | '/dashboard'
+    | '/guide'
     | '/performance'
     | '/profile'
     | '/coach'
@@ -510,6 +521,7 @@ export interface FileRouteTypes {
     | '/unsubscribe'
     | '/_authenticated/cycle'
     | '/_authenticated/dashboard'
+    | '/_authenticated/guide'
     | '/_authenticated/performance'
     | '/_authenticated/profile'
     | '/_coach/coach'
@@ -671,6 +683,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPerformanceRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/guide': {
+      id: '/_authenticated/guide'
+      path: '/guide'
+      fullPath: '/guide'
+      preLoaderRoute: typeof AuthenticatedGuideRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -708,87 +727,87 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/guide/section-9': {
       id: '/_authenticated/guide/section-9'
-      path: '/guide/section-9'
+      path: '/section-9'
       fullPath: '/guide/section-9'
       preLoaderRoute: typeof AuthenticatedGuideSection9RouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedGuideRoute
     }
     '/_authenticated/guide/section-8': {
       id: '/_authenticated/guide/section-8'
-      path: '/guide/section-8'
+      path: '/section-8'
       fullPath: '/guide/section-8'
       preLoaderRoute: typeof AuthenticatedGuideSection8RouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedGuideRoute
     }
     '/_authenticated/guide/section-7': {
       id: '/_authenticated/guide/section-7'
-      path: '/guide/section-7'
+      path: '/section-7'
       fullPath: '/guide/section-7'
       preLoaderRoute: typeof AuthenticatedGuideSection7RouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedGuideRoute
     }
     '/_authenticated/guide/section-6': {
       id: '/_authenticated/guide/section-6'
-      path: '/guide/section-6'
+      path: '/section-6'
       fullPath: '/guide/section-6'
       preLoaderRoute: typeof AuthenticatedGuideSection6RouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedGuideRoute
     }
     '/_authenticated/guide/section-5': {
       id: '/_authenticated/guide/section-5'
-      path: '/guide/section-5'
+      path: '/section-5'
       fullPath: '/guide/section-5'
       preLoaderRoute: typeof AuthenticatedGuideSection5RouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedGuideRoute
     }
     '/_authenticated/guide/section-4': {
       id: '/_authenticated/guide/section-4'
-      path: '/guide/section-4'
+      path: '/section-4'
       fullPath: '/guide/section-4'
       preLoaderRoute: typeof AuthenticatedGuideSection4RouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedGuideRoute
     }
     '/_authenticated/guide/section-3': {
       id: '/_authenticated/guide/section-3'
-      path: '/guide/section-3'
+      path: '/section-3'
       fullPath: '/guide/section-3'
       preLoaderRoute: typeof AuthenticatedGuideSection3RouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedGuideRoute
     }
     '/_authenticated/guide/section-2': {
       id: '/_authenticated/guide/section-2'
-      path: '/guide/section-2'
+      path: '/section-2'
       fullPath: '/guide/section-2'
       preLoaderRoute: typeof AuthenticatedGuideSection2RouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedGuideRoute
     }
     '/_authenticated/guide/section-12': {
       id: '/_authenticated/guide/section-12'
-      path: '/guide/section-12'
+      path: '/section-12'
       fullPath: '/guide/section-12'
       preLoaderRoute: typeof AuthenticatedGuideSection12RouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedGuideRoute
     }
     '/_authenticated/guide/section-11': {
       id: '/_authenticated/guide/section-11'
-      path: '/guide/section-11'
+      path: '/section-11'
       fullPath: '/guide/section-11'
       preLoaderRoute: typeof AuthenticatedGuideSection11RouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedGuideRoute
     }
     '/_authenticated/guide/section-10': {
       id: '/_authenticated/guide/section-10'
-      path: '/guide/section-10'
+      path: '/section-10'
       fullPath: '/guide/section-10'
       preLoaderRoute: typeof AuthenticatedGuideSection10RouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedGuideRoute
     }
     '/_authenticated/guide/section-1': {
       id: '/_authenticated/guide/section-1'
-      path: '/guide/section-1'
+      path: '/section-1'
       fullPath: '/guide/section-1'
       preLoaderRoute: typeof AuthenticatedGuideSection1RouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedGuideRoute
     }
     '/_authenticated/checkout/activating': {
       id: '/_authenticated/checkout/activating'
@@ -863,13 +882,7 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AuthenticatedRouteChildren {
-  AuthenticatedCycleRoute: typeof AuthenticatedCycleRoute
-  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedPerformanceRoute: typeof AuthenticatedPerformanceRoute
-  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
-  AuthenticatedAssessmentTypeRoute: typeof AuthenticatedAssessmentTypeRoute
-  AuthenticatedCheckoutActivatingRoute: typeof AuthenticatedCheckoutActivatingRoute
+interface AuthenticatedGuideRouteChildren {
   AuthenticatedGuideSection1Route: typeof AuthenticatedGuideSection1Route
   AuthenticatedGuideSection10Route: typeof AuthenticatedGuideSection10Route
   AuthenticatedGuideSection11Route: typeof AuthenticatedGuideSection11Route
@@ -882,18 +895,9 @@ interface AuthenticatedRouteChildren {
   AuthenticatedGuideSection7Route: typeof AuthenticatedGuideSection7Route
   AuthenticatedGuideSection8Route: typeof AuthenticatedGuideSection8Route
   AuthenticatedGuideSection9Route: typeof AuthenticatedGuideSection9Route
-  AuthenticatedPrintAllRoute: typeof AuthenticatedPrintAllRoute
-  AuthenticatedReportSessionIdRoute: typeof AuthenticatedReportSessionIdRoute
-  AuthenticatedPrintSectionNumberRoute: typeof AuthenticatedPrintSectionNumberRoute
 }
 
-const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedCycleRoute: AuthenticatedCycleRoute,
-  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedPerformanceRoute: AuthenticatedPerformanceRoute,
-  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
-  AuthenticatedAssessmentTypeRoute: AuthenticatedAssessmentTypeRoute,
-  AuthenticatedCheckoutActivatingRoute: AuthenticatedCheckoutActivatingRoute,
+const AuthenticatedGuideRouteChildren: AuthenticatedGuideRouteChildren = {
   AuthenticatedGuideSection1Route: AuthenticatedGuideSection1Route,
   AuthenticatedGuideSection10Route: AuthenticatedGuideSection10Route,
   AuthenticatedGuideSection11Route: AuthenticatedGuideSection11Route,
@@ -906,6 +910,32 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedGuideSection7Route: AuthenticatedGuideSection7Route,
   AuthenticatedGuideSection8Route: AuthenticatedGuideSection8Route,
   AuthenticatedGuideSection9Route: AuthenticatedGuideSection9Route,
+}
+
+const AuthenticatedGuideRouteWithChildren =
+  AuthenticatedGuideRoute._addFileChildren(AuthenticatedGuideRouteChildren)
+
+interface AuthenticatedRouteChildren {
+  AuthenticatedCycleRoute: typeof AuthenticatedCycleRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedGuideRoute: typeof AuthenticatedGuideRouteWithChildren
+  AuthenticatedPerformanceRoute: typeof AuthenticatedPerformanceRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedAssessmentTypeRoute: typeof AuthenticatedAssessmentTypeRoute
+  AuthenticatedCheckoutActivatingRoute: typeof AuthenticatedCheckoutActivatingRoute
+  AuthenticatedPrintAllRoute: typeof AuthenticatedPrintAllRoute
+  AuthenticatedReportSessionIdRoute: typeof AuthenticatedReportSessionIdRoute
+  AuthenticatedPrintSectionNumberRoute: typeof AuthenticatedPrintSectionNumberRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedCycleRoute: AuthenticatedCycleRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedGuideRoute: AuthenticatedGuideRouteWithChildren,
+  AuthenticatedPerformanceRoute: AuthenticatedPerformanceRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedAssessmentTypeRoute: AuthenticatedAssessmentTypeRoute,
+  AuthenticatedCheckoutActivatingRoute: AuthenticatedCheckoutActivatingRoute,
   AuthenticatedPrintAllRoute: AuthenticatedPrintAllRoute,
   AuthenticatedReportSessionIdRoute: AuthenticatedReportSessionIdRoute,
   AuthenticatedPrintSectionNumberRoute: AuthenticatedPrintSectionNumberRoute,
