@@ -52,6 +52,7 @@ function SectionOnePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [part, setPart] = useState<1 | 2>(1);
+  const [showJourney, setShowJourney] = useState(false);
   const [loading, setLoading] = useState(true);
   const [rowId, setRowId] = useState<string | null>(null);
   const [discCompleted, setDiscCompleted] = useState(false);
@@ -295,11 +296,18 @@ function SectionOnePage() {
               return;
             }
             toast.success("Section 1 complete.");
-            navigate({ to: "/dashboard" });
+            setShowJourney(true);
           }}
           canFinish={reflectionsDone}
         />
       )}
+      <JourneyFlowchartDialog
+        open={showJourney}
+        onClose={() => {
+          setShowJourney(false);
+          navigate({ to: "/dashboard" });
+        }}
+      />
     </main>
   );
 }
