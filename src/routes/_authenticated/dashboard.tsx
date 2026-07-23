@@ -814,26 +814,6 @@ function StatCard({
   icon?: React.ReactNode;
   empty?: string;
 }) {
-  label,
-  value,
-  suffix,
-  subValue,
-  trailing,
-  progress,
-  sparklinePoints,
-  icon,
-  empty,
-}: {
-  label: string;
-  value: string;
-  suffix?: string;
-  subValue?: string;
-  trailing?: React.ReactNode;
-  progress?: number;
-  sparklinePoints?: number[];
-  icon?: React.ReactNode;
-  empty?: string;
-}) {
   return (
     <div className="rounded-2xl border border-[var(--fr-hairline)] bg-white p-5 shadow-[var(--shadow-card)]">
       <div className="flex items-start justify-between">
