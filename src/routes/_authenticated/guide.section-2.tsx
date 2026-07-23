@@ -635,35 +635,52 @@ function StepFirmCharacter({
 }) {
   return (
     <>
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 3: FUEL Your Leadership
+        </p>
+        <p className="mt-2">Leadership begins by fueling yourself first.</p>
+        <p className="mt-2">Every Lead Yourself Plan is built around four commitments.</p>
+        <p className="mt-3 font-semibold text-foreground">F — Firm Up Your Character</p>
+        <p className="mt-1">Review the Two Types of Character worksheet.</p>
+      </GuideNote>
       <section>
         <h3 className="text-base font-semibold text-foreground">Performance Character</h3>
-        <p className="text-sm text-muted-foreground">Three greatest strengths.</p>
+        <p className="text-sm text-muted-foreground">
+          Which three Performance Character qualities are your greatest strengths?
+        </p>
         <div className="mt-3">
           <NumberedInputs values={d.character_perf_strengths} onChange={(i, v) => updateAt("character_perf_strengths", i, v)} placeholder="e.g. Discipline, Drive, Focus" />
         </div>
-        <p className="mt-4 text-sm text-muted-foreground">Two that require intentional growth.</p>
+        <p className="mt-4 text-sm text-muted-foreground">
+          Which two Performance Character qualities require intentional growth?
+        </p>
         <div className="mt-2">
           <NumberedInputs values={d.character_perf_growth} onChange={(i, v) => updateAt("character_perf_growth", i, v)} placeholder="e.g. Patience, Resilience" />
         </div>
       </section>
       <section>
         <h3 className="text-base font-semibold text-foreground">Moral Character</h3>
-        <p className="text-sm text-muted-foreground">Three qualities that best describe you today.</p>
+        <p className="text-sm text-muted-foreground">
+          Which three Moral Character qualities best describe you today?
+        </p>
         <div className="mt-3">
           <NumberedInputs values={d.character_moral} onChange={(i, v) => updateAt("character_moral", i, v)} placeholder="e.g. Honesty, Integrity, Humility" />
         </div>
         <div className="mt-4">
           <Label htmlFor="moral_focus" className="text-sm font-semibold text-foreground">
-            The moral character quality requiring the greatest attention this cycle
+            Which Moral Character quality requires the greatest attention during this Leadership
+            Optimization Cycle?
           </Label>
           <Input id="moral_focus" className="mt-2" value={d.character_moral_focus} onChange={(e) => update("character_moral_focus", e.target.value)} />
         </div>
       </section>
       <section>
+        <p className="text-sm font-semibold text-foreground">Character → Process → Result</p>
         <Label htmlFor="improve" className="text-sm font-semibold text-foreground">
-          What character qualities must improve to produce better leadership results?
+          What character qualities must improve in order to produce better leadership results?
         </Label>
-        <Textarea id="improve" value={d.character_to_improve} onChange={(e) => update("character_to_improve", e.target.value)} className="mt-2 min-h-[110px]" placeholder="Character → Process → Result" />
+        <Textarea id="improve" value={d.character_to_improve} onChange={(e) => update("character_to_improve", e.target.value)} className="mt-2 min-h-[110px]" />
       </section>
     </>
   );
@@ -678,9 +695,16 @@ function StepUnderstandEmotions({
 }) {
   return (
     <>
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          U — Understand Your Emotions
+        </p>
+        <p className="mt-2">Review your Emotional Energy Awareness Scale.</p>
+      </GuideNote>
       <section>
-        <h3 className="text-base font-semibold text-foreground">Emotional Energy Zone</h3>
-        <p className="text-sm text-muted-foreground">Which zone best describes you most days?</p>
+        <h3 className="text-base font-semibold text-foreground">
+          Which Emotional Energy Zone best describes you most days?
+        </h3>
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
           {EMOTIONAL_ZONES.map((z) => {
             const active = d.emotion_zone === z.value;
@@ -736,9 +760,14 @@ function StepSuccessImage({
   ];
   return (
     <section className="space-y-4">
-      <p className="rounded-2xl border border-border bg-muted/30 p-4 text-sm leading-relaxed text-muted-foreground">
-        If this Leadership Optimization Cycle is successful — what will success look like?
-      </p>
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          E — Envision Your Success
+        </p>
+        <p className="mt-2 font-semibold text-foreground">Your Success Image</p>
+        <p className="mt-2">If this Leadership Optimization Cycle is successful…</p>
+        <p className="mt-2">What will success look like?</p>
+      </GuideNote>
       {fields.map((f) => (
         <div key={f.key}>
           <Label className="text-sm font-semibold text-foreground">{f.label}</Label>
