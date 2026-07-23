@@ -11,6 +11,10 @@ import {
   BarChart, Bar, LabelList,
 } from "recharts";
 import { TablePagination, usePagination } from "@/components/ui/table-pagination";
+import { getSubscriptionStatus } from "@/lib/payments.functions";
+import { useServerFn } from "@tanstack/react-start";
+import { usePlansDialog } from "@/components/PlansDialog";
+import { Lock } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/performance")({
   head: () => ({ meta: [{ title: "Performance — Fully Resourced" }] }),
@@ -107,6 +111,14 @@ function PerformancePage() {
   const [gapReport, setGapReport] = useState<GapReportRow | null>(null);
   const [loading, setLoading] = useState(true);
   const [completedSections, setCompletedSections] = useState(0);
+  const [subscribed, setSubscribed] = useState(false);
+  const checkSub = useServerFn(getSubscriptionStatus);
+  const plansDialog = usePlansDialog();
+
+  useEffect(() => {
+    if (!user) return;
+    void checkSub({}).then((s) => setSubscribed(Boolean(s.active))).catch(() => setSubscribed(false));
+  }, [user, checkSub]);
 
   useEffect(() => {
     if (!user) return;
@@ -222,9 +234,17 @@ function PerformancePage() {
                 </div>
                 <div className="mt-2 text-xs text-[var(--fr-muted-ink)]">Latest {format(new Date(s.latest.created_at), "MMM d, yyyy")}</div>
                 <div className="mt-3"><TinyLineChart data={s.chart} domain={[0, 100]} /></div>
-                {retakeUnlocked ? (
+                {retakeUnlocked && subscribed ? (
                   <Button variant="outline" size="sm" asChild className="mt-4 w-full">
                     <Link to="/assessment/$type" params={{ type: s.def.type }}>Retake assessment</Link>
+                  </Button>
+                ) : !subscribed ? (
+                  <Button
+                    size="sm"
+                    className="mt-4 w-full"
+                    onClick={() => plansDialog.open()}
+                  >
+                    <Lock className="mr-1.5 h-3.5 w-3.5" /> Upgrade to retake
                   </Button>
                 ) : (
                   <Button variant="outline" size="sm" disabled className="mt-4 w-full" title="Retakes unlock after all 3 assessments, your Gap Report, and all 12 sections are complete.">
