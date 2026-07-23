@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
-import { ASSESSMENT_LIST, maxScoreFor, type AssessmentType } from "@/lib/assessments";
+import { ASSESSMENT_LIST, maxScoreFor, type AssessmentType, type AssessmentDef } from "@/lib/assessments";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ArrowUpRight, ArrowDownRight, Lock, Sparkles, Minus, Target, FileText } from "lucide-react";
 import { logFunnelEvent } from "@/lib/funnel.functions";
