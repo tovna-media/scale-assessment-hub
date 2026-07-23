@@ -259,12 +259,20 @@ function DashboardPage() {
 
   const takenCount = assessmentStats.filter((s) => s.latest).length;
 
-  // Gap report score = average of assessment percentages, when at least one taken
-  const gapReportScore = takenCount > 0
-    ? Math.round(assessmentStats.filter((s) => s.latest).reduce((sum, s) => sum + s.percent, 0) / takenCount)
+  // Only show a Gap Report score once the member has actually generated a
+  // SCALE Gap Report. Raw assessment averages don't represent the report.
+  const reportSessions = sessions.filter((s) => s.gap_report);
+  const hasGeneratedReport = reportSessions.length > 0;
+  const gapReportScore = hasGeneratedReport
+    ? Math.round(
+        assessmentStats
+          .filter((s) => s.latest)
+          .reduce((sum, s) => sum + s.percent, 0) /
+          Math.max(1, assessmentStats.filter((s) => s.latest).length),
+      )
     : null;
-  // Trend: current vs previous average across types that have a prev
   const gapReportTrend: number | null = (() => {
+    if (!hasGeneratedReport) return null;
     const withPrev = assessmentStats.filter((s) => s.latest && s.prev);
     if (withPrev.length === 0) return null;
     const cur = withPrev.reduce((s, x) => s + pctOf(x.latest!.overall_score, x.max), 0) / withPrev.length;
@@ -381,7 +389,7 @@ function DashboardPage() {
             }
             return rounds;
           })()}
-          empty={gapReportScore === null ? "Take an assessment to see your first score" : undefined}
+          empty={gapReportScore === null ? "Generate your SCALE Gap Report to see your score" : undefined}
         />
         <StatCard
           label="Cycle progress"
