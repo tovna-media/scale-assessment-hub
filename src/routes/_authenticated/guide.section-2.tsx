@@ -793,9 +793,16 @@ function StepSuccessDrivers({
 }) {
   return (
     <>
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Success Drivers & Top Priority Goal
+        </p>
+      </GuideNote>
       <section>
         <h3 className="text-base font-semibold text-foreground">Success Drivers</h3>
-        <p className="text-sm text-muted-foreground">The five most important actions that move you toward your Success Image.</p>
+        <p className="text-sm text-muted-foreground">
+          What are the five most important actions that will move you toward your Success Image?
+        </p>
         <div className="mt-3">
           <NumberedInputs values={d.success_drivers} onChange={(i, v) => updateAt("success_drivers", i, v)} placeholder="An action you'll execute consistently" />
         </div>
@@ -820,6 +827,11 @@ function StepRoleAndDisc({
 }) {
   return (
     <>
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Clarify Your Role
+        </p>
+      </GuideNote>
       <section>
         <h3 className="text-base font-semibold text-foreground">Clarify Your Role</h3>
         <div className="mt-3 space-y-4">
@@ -828,13 +840,17 @@ function StepRoleAndDisc({
             <Input className="mt-2" value={d.primary_role} onChange={(e) => update("primary_role", e.target.value)} />
           </div>
           <div>
-            <Label className="text-sm font-semibold text-foreground">Five most important responsibilities</Label>
+            <Label className="text-sm font-semibold text-foreground">
+              What are the five most important responsibilities of that role?
+            </Label>
             <div className="mt-2">
               <NumberedInputs values={d.responsibilities} onChange={(i, v) => updateAt("responsibilities", i, v)} />
             </div>
           </div>
           <div>
-            <Label className="text-sm font-semibold text-foreground">Results you are ultimately responsible for producing</Label>
+            <Label className="text-sm font-semibold text-foreground">
+              What results am I ultimately responsible for producing?
+            </Label>
             <Textarea className="mt-2 min-h-[90px]" value={d.role_results} onChange={(e) => update("role_results", e.target.value)} />
           </div>
         </div>
@@ -847,19 +863,21 @@ function StepRoleAndDisc({
             <Input className="mt-2" value={d.disc_style} onChange={(e) => update("disc_style", e.target.value)} placeholder="e.g. D, I, S, C, or a blend" />
           </div>
           <div>
-            <Label className="text-sm font-semibold text-foreground">Greatest strengths</Label>
+            <Label className="text-sm font-semibold text-foreground">My greatest strengths</Label>
             <div className="mt-2">
               <NumberedInputs values={d.disc_strengths} onChange={(i, v) => updateAt("disc_strengths", i, v)} />
             </div>
           </div>
           <div>
-            <Label className="text-sm font-semibold text-foreground">Biggest blind spots</Label>
+            <Label className="text-sm font-semibold text-foreground">My biggest blind spots</Label>
             <div className="mt-2">
               <NumberedInputs values={d.disc_blind_spots} onChange={(i, v) => updateAt("disc_blind_spots", i, v)} />
             </div>
           </div>
           <div>
-            <Label className="text-sm font-semibold text-foreground">How could these blind spots interfere with your Success Image?</Label>
+            <Label className="text-sm font-semibold text-foreground">
+              How could these blind spots interfere with my Success Image?
+            </Label>
             <Textarea className="mt-2 min-h-[90px]" value={d.disc_impact} onChange={(e) => update("disc_impact", e.target.value)} />
           </div>
         </div>
@@ -881,9 +899,18 @@ function StepLeadDaily({
 }) {
   return (
     <>
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          L — Lead Yourself Daily
+        </p>
+        <p className="mt-2">Leadership is built through consistent daily execution.</p>
+      </GuideNote>
       <section>
         <h3 className="text-base font-semibold text-foreground">Leadership Priorities</h3>
-        <p className="text-sm text-muted-foreground">Your three most important areas of growth this cycle.</p>
+        <p className="text-sm text-muted-foreground">
+          What are the three most important areas of growth during this Leadership Optimization
+          Cycle?
+        </p>
         <div className="mt-3">
           <NumberedInputs values={d.daily_priorities} onChange={(i, v) => updateAt("daily_priorities", i, v)} />
         </div>
@@ -901,22 +928,26 @@ function StepLeadDaily({
         </div>
       </section>
       <section>
-        <h3 className="text-base font-semibold text-foreground">Reinforcing behaviors</h3>
-        <p className="text-sm text-muted-foreground">Which daily or weekly behaviors will reinforce those standards?</p>
+        <h3 className="text-base font-semibold text-foreground">
+          Which daily or weekly behaviors will reinforce those standards?
+        </h3>
         <div className="mt-3">
           <NumberedInputs values={d.daily_behaviors} onChange={(i, v) => updateAt("daily_behaviors", i, v)} />
         </div>
       </section>
       <section>
         <h3 className="text-base font-semibold text-foreground">My First Three Actions</h3>
-        <p className="text-sm text-muted-foreground">What will you do during the next seven days?</p>
+        <p className="text-sm text-muted-foreground">What will I do during the next seven days?</p>
         <div className="mt-3">
           <NumberedInputs values={d.first_actions} onChange={(i, v) => updateAt("first_actions", i, v)} />
         </div>
       </section>
       <section>
         <Label className="text-base font-semibold text-foreground">My Support Team</Label>
-        <p className="text-sm text-muted-foreground">Who will encourage, challenge, or hold you accountable?</p>
+        <p className="text-sm text-muted-foreground">
+          Who will encourage, challenge, or hold me accountable during this Leadership Optimization
+          Cycle?
+        </p>
         <Textarea className="mt-2 min-h-[100px]" value={d.support_team} onChange={(e) => update("support_team", e.target.value)} />
       </section>
     </>
@@ -985,6 +1016,7 @@ function StepCommitment({
   return (
     <section className="rounded-2xl border border-[#433993]/30 bg-[#433993]/[0.04] p-6 shadow-sm">
       <h3 className="font-display text-lg font-semibold text-foreground">Leadership Commitment</h3>
+      <p className="mt-2 text-xs text-muted-foreground">Complete the following statement.</p>
       <p className="mt-3 text-sm leading-relaxed text-foreground">
         During this Leadership Optimization Cycle, I commit to becoming the leader my goals require by intentionally
         strengthening my character, managing my emotional energy, keeping my Success Image in front of me, and leading
