@@ -613,7 +613,15 @@ function DashboardPage() {
         <StatCard
           label="Next unlock"
           value={inCycle && cycleWeek < CYCLE_LENGTH ? `Section ${nextSection}` : cycleWeek >= CYCLE_LENGTH ? "Complete" : "—"}
-          subValue={inCycle ? "Available now" : undefined}
+          subValue={
+            inCycle && cycleWeek < CYCLE_LENGTH
+              ? nextSectionUnlocked
+                ? "Available now"
+                : nextUnlockAt
+                  ? `Available ${formatUnlockDate(nextUnlockAt)}`
+                  : undefined
+              : undefined
+          }
           icon={<Lock className="h-4 w-4" />}
           empty={!inCycle ? "Locked until Section 1 is done" : undefined}
         />
