@@ -876,3 +876,19 @@ function StepCommitment({ d, update }: { d: SectionData; update: <K extends keyo
     </div>
   );
 }
+
+function AboutSectionButtonS3({ className }: { className?: string }) {
+  return (
+    <AboutSectionSheet title="Section 3: Leadership Performance Dashboard" className={className}>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">Principle 1: Lead Yourself</p>
+      <h4 className="font-display text-lg font-semibold text-foreground">Section Objective</h4>
+      <p>Leadership growth isn't measured by good intentions.</p>
+      <p>It is measured by consistent improvement.</p>
+      <p>This dashboard is designed to help you evaluate your leadership honestly, identify where you're improving, recognize where you're drifting, and intentionally strengthen the areas that will produce better results.</p>
+      <p>The purpose of this section is not to judge yourself.</p>
+      <p>The purpose is to become more intentional about your growth before beginning the next phase of your Leadership Optimization Cycle.</p>
+      <p>Every dashboard follows the same process:</p>
+      <p className="font-semibold">Evaluate → Identify → Understand → Build a Plan → Execute → Measure</p>
+    </AboutSectionSheet>
+  );
+}
