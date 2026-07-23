@@ -109,7 +109,7 @@ function toNumberMap(raw: Record<string, number> | null | undefined): Record<num
 
 const AISchema = z.object({
   executive_summary: z.string().min(1),
-  capacity_have: z.array(z.string().min(1)).min(1),
+  capacity_have: z.array(z.string().min(1)).optional().default([]),
   capacity_lack: z.array(z.string().min(1)).optional().default([]),
   capacity_closing: z.string().optional().default(""),
   leadership_what_this_means: z.string().min(1),
@@ -122,17 +122,18 @@ const AISchema = z.object({
         summary: z.string().min(1),
       }),
     )
-    .min(1),
+    .optional()
+    .default([]),
   real_problem: z.string().min(1),
   recommendation_reframe: z.string().min(1),
-  you_already_have: z.array(z.string().min(1)).min(1),
-  now_you_need: z.array(z.string().min(1)).min(1),
+  you_already_have: z.array(z.string().min(1)).optional().default([]),
+  now_you_need: z.array(z.string().min(1)).optional().default([]),
   diy_pitch: z.string().min(1),
-  diy_bullets: z.array(z.string().min(1)).min(1),
+  diy_bullets: z.array(z.string().min(1)).optional().default([]),
   leaders_edge_pitch: z.string().min(1),
-  leaders_edge_bullets: z.array(z.string().min(1)).min(1),
+  leaders_edge_bullets: z.array(z.string().min(1)).optional().default([]),
   coaching_pitch: z.string().min(1),
-  coaching_bullets: z.array(z.string().min(1)).min(1),
+  coaching_bullets: z.array(z.string().min(1)).optional().default([]),
   final_thought: z.string().min(1),
 });
 type AIPayload = z.infer<typeof AISchema>;
