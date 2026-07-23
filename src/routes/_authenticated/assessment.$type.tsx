@@ -35,8 +35,13 @@ function AssessmentPage() {
       .then((res) => {
         if (cancelled) return;
         if (!res.allowed) {
-          toast.error(res.reason ?? "You've used your free SCALE report.");
-          navigate({ to: "/dashboard" });
+          // Silently route to dashboard with the upgrade pop-up. No error toast:
+          // members should never see a "you cannot take this assessment" message.
+          navigate({
+            to: "/dashboard",
+            search: { upgrade: true } as never,
+            replace: true,
+          });
           return;
         }
         setAccessChecked(true);
