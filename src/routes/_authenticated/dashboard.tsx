@@ -366,41 +366,7 @@ function DashboardPage() {
           </div>
         </div>
 
-        {/* 2) Their gap report — payoff they already earned */}
-        {reportSessionId ? (
-          <div className="mb-6 overflow-hidden rounded-3xl border border-[var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)] sm:p-8">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0 flex items-start gap-4">
-                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[var(--fr-lilac)] text-[var(--rl-purple)]">
-                  <FileText className="h-6 w-6" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--rl-purple)]">Your SCALE Gap Report</p>
-                  <h3 className="mt-1 text-xl font-bold tracking-tight text-[var(--fr-ink)] sm:text-2xl">
-                    Your personalized report is ready
-                  </h3>
-                  <p className="mt-1 text-sm text-[var(--fr-muted-ink)]">
-                    View it any time, or download a PDF copy.
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2 sm:shrink-0">
-                <Button asChild size="lg">
-                  <Link to="/report/$sessionId" params={{ sessionId: reportSessionId }}>
-                    <FileText className="mr-2 h-4 w-4" /> View report
-                  </Link>
-                </Button>
-                <Button asChild size="lg" variant="outline">
-                  <Link to="/report/$sessionId" params={{ sessionId: reportSessionId }} hash="download">
-                    <Download className="mr-2 h-4 w-4" /> Download PDF
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </div>
-        ) : null}
-
-        {/* 3) Locked preview of what upgrading unlocks */}
+        {/* 2) Locked preview of what upgrading unlocks */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <LockedFeatureCard
             icon={<BookOpen className="h-5 w-5" />}
@@ -433,6 +399,40 @@ function DashboardPage() {
             onUpgrade={handleSubscribeClick}
           />
         </div>
+
+        {/* 3) Their gap report — payoff they already earned */}
+        {reportSessionId ? (
+          <div className="mt-6 overflow-hidden rounded-3xl border border-[var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)] sm:p-8">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0 flex items-start gap-4">
+                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[var(--fr-lilac)] text-[var(--rl-purple)]">
+                  <FileText className="h-6 w-6" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--rl-purple)]">Your SCALE Gap Report</p>
+                  <h3 className="mt-1 text-xl font-bold tracking-tight text-[var(--fr-ink)] sm:text-2xl">
+                    Your personalized report is ready
+                  </h3>
+                  <p className="mt-1 text-sm text-[var(--fr-muted-ink)]">
+                    View it any time, or download a PDF copy.
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2 sm:shrink-0">
+                <Button asChild size="lg">
+                  <Link to="/report/$sessionId" params={{ sessionId: reportSessionId }}>
+                    <FileText className="mr-2 h-4 w-4" /> View report
+                  </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline">
+                  <Link to="/report/$sessionId" params={{ sessionId: reportSessionId }} hash="download">
+                    <Download className="mr-2 h-4 w-4" /> Download PDF
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         {/* 4) Performance glimpse */}
         <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-[var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)] sm:flex-row sm:items-center sm:justify-between">
