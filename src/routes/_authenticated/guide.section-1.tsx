@@ -15,6 +15,7 @@ import { SectionVideo } from "@/components/scale/SectionVideo";
 import { GapReportPanel } from "@/components/scale/GapReportPanel";
 import { PrintSectionButton } from "@/components/scale/PrintSectionButton";
 import { hasPrintableContent } from "@/lib/section-print";
+import { AboutSectionSheet } from "@/components/scale/AboutSectionSheet";
 
 export const Route = createFileRoute("/_authenticated/guide/section-1")({
   head: () => ({
@@ -261,6 +262,7 @@ function SectionOnePage() {
         <h1 className="mt-4 font-display text-3xl font-semibold text-foreground sm:text-4xl">
           Begin Your Leadership Optimization Cycle
         </h1>
+        <AboutSectionOne className="mt-3" />
       </div>
 
       {part === 1 ? (
