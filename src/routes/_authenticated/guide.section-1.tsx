@@ -593,3 +593,231 @@ function PartTwo(props: {
     </div>
   );
 }
+
+function AboutSectionOne({ className }: { className?: string }) {
+  const dashboardRows: { principle: string; measures: string[] }[] = [
+    {
+      principle: "Lead Yourself",
+      measures: [
+        "Progress toward your Success Image",
+        "Consistency executing your Success Drivers",
+        "Alignment with your Role",
+        "Growth in FUEL (Character, Emotions, Vision, Daily Leadership)",
+        "Standards maintained or improved",
+      ],
+    },
+    {
+      principle: "Lead Others",
+      measures: [
+        "Leadership relationships intentionally developed",
+        "Leadership conversations completed",
+        "Progress on others' GAP Reports",
+        "Growth toward others' Success Images and Success Drivers",
+        "Leadership Transfer Plan progress (when applicable)",
+      ],
+    },
+    {
+      principle: "Lead for Results",
+      measures: [
+        "Progress on Success Markers",
+        "Achievement of priority outcomes",
+        "Standards producing measurable improvement",
+        "Results connected directly to Success Drivers",
+        "Leadership decisions that improved execution",
+      ],
+    },
+    {
+      principle: "Lead Leaders",
+      measures: [
+        "Leadership Transfer Plan progress",
+        "Growth of your emerging leader(s)",
+        "Responsibilities successfully transferred",
+        "GAPs closed through intentional development",
+        "Consistency in reproducing the Fully Resourced Leadership System",
+      ],
+    },
+  ];
+
+  return (
+    <AboutSectionSheet
+      title="Section 1: Begin Your Leadership Optimization Cycle"
+      className={className}
+    >
+      <section>
+        <h3 className="font-display text-base font-semibold text-foreground">Guide Overview</h3>
+        <p className="mt-2">
+          The Optimized Leader Guide is the execution guide for the Fully Resourced Leadership System.
+        </p>
+        <p className="mt-2">
+          Each section builds upon the previous one to help you develop greater clarity, stronger
+          leadership habits, improved communication, better execution, and measurable results.
+        </p>
+        <p className="mt-2">Everything in this guide is built around four leadership principles.</p>
+        <div className="mt-3 space-y-3">
+          <div>
+            <p className="font-semibold text-foreground">Principle 1: Lead Yourself</p>
+            <p>
+              Develop clarity around your Success Image, Success Drivers, role, values, habits,
+              standards, and personal growth so you consistently lead yourself before attempting to
+              lead others.
+            </p>
+          </div>
+          <div>
+            <p className="font-semibold text-foreground">Principle 2: Lead Others</p>
+            <p>
+              Strengthen relationships, communication, accountability, coaching, and leadership
+              rhythms with the people you influence.
+            </p>
+          </div>
+          <div>
+            <p className="font-semibold text-foreground">Principle 3: Lead for Results</p>
+            <p>
+              Improve planning, execution, decision-making, and problem-solving so your leadership
+              consistently produces measurable outcomes.
+            </p>
+          </div>
+          <div>
+            <p className="font-semibold text-foreground">Principle 4: Lead Leaders</p>
+            <p>
+              Develop future leaders and build leadership systems that multiply your influence
+              throughout your organization.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h3 className="font-display text-base font-semibold text-foreground">Expectations for Success</h3>
+        <p className="mt-2">
+          Leadership growth happens through consistent application, not simply completing pages in a
+          workbook.
+        </p>
+        <p className="mt-3 font-semibold text-foreground">Your Responsibilities</p>
+        <ul className="mt-1 list-disc space-y-1 pl-5">
+          <li>Complete each section thoughtfully.</li>
+          <li>Be honest about your strengths and growth opportunities.</li>
+          <li>Apply what you learn between sections.</li>
+          <li>Review your plans consistently.</li>
+          <li>Measure your progress.</li>
+          <li>Stay committed to becoming the leader your goals require.</li>
+        </ul>
+        <p className="mt-3 font-semibold text-foreground">How I Will Support You</p>
+        <p>The level of support you receive depends on the path you've chosen.</p>
+        <div className="mt-2 space-y-2">
+          <div>
+            <p className="font-semibold text-foreground">DIY</p>
+            <p>
+              Use this workbook together with the Leadership Resource Kit, Coach Rich AI, and
+              additional resources to guide your own leadership development.
+            </p>
+          </div>
+          <div>
+            <p className="font-semibold text-foreground">Leaders Edge</p>
+            <p>
+              Bring your completed workbook to each group mentoring session where you'll receive
+              teaching, discussion, accountability, and practical application.
+            </p>
+          </div>
+          <div>
+            <p className="font-semibold text-foreground">1:1 Coaching</p>
+            <p>
+              Use your workbook during our coaching sessions as we evaluate progress, solve
+              leadership challenges, and build customized strategies around your specific goals.
+            </p>
+          </div>
+        </div>
+        <p className="mt-3">
+          Regardless of your path, this workbook remains the central tool for turning leadership
+          principles into consistent action.
+        </p>
+      </section>
+
+      <section>
+        <h3 className="font-display text-base font-semibold text-foreground">
+          The Four Principles of Leadership
+        </h3>
+        <div className="mt-2 space-y-3">
+          <div>
+            <p className="font-semibold text-foreground">Lead Yourself</p>
+            <p>Success Image + Success Drivers + Success Markers + Role + FUEL + Standards</p>
+            <p className="mt-1">
+              Success Drivers are the activities you intentionally execute.
+            </p>
+            <p>
+              Success Markers are the measurable evidence those activities are producing the results
+              intended.
+            </p>
+            <p className="mt-1">Become the leader capable of producing the results you desire.</p>
+          </div>
+          <div>
+            <p className="font-semibold text-foreground">Lead Others</p>
+            <p>
+              Apply your leadership intentionally by building trust, communicating clearly, coaching
+              consistently, and helping others become more successful.
+            </p>
+          </div>
+          <div>
+            <p className="font-semibold text-foreground">Lead for Results</p>
+            <p>
+              Translate vision into execution by prioritizing what matters most, improving
+              standards, solving problems, and producing measurable outcomes.
+            </p>
+          </div>
+          <div>
+            <p className="font-semibold text-foreground">Lead Leaders</p>
+            <p>
+              Develop leaders who can lead themselves, lead others, and consistently produce results
+              without depending solely on you.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h3 className="font-display text-base font-semibold text-foreground">
+          Leadership Optimization Dashboard
+        </h3>
+        <p className="mt-2">
+          This dashboard provides the key indicators you will review throughout each Leadership
+          Optimization Cycle. These indicators help you evaluate the health of your leadership
+          system, identify areas of growth, and determine where additional attention is needed.
+        </p>
+        <div className="mt-3 overflow-hidden rounded-xl border border-border">
+          <table className="w-full border-collapse text-left text-sm">
+            <thead className="bg-[#433993]/[0.08] text-foreground">
+              <tr>
+                <th className="w-[38%] border-b border-border px-3 py-2 font-semibold">
+                  Principle
+                </th>
+                <th className="border-b border-border px-3 py-2 font-semibold">
+                  What You'll Measure
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {dashboardRows.map((row) => (
+                <tr key={row.principle} className="align-top">
+                  <td className="border-b border-border px-3 py-2 font-semibold text-foreground">
+                    {row.principle}
+                  </td>
+                  <td className="border-b border-border px-3 py-2">
+                    <ul className="list-disc space-y-1 pl-4">
+                      {row.measures.map((m) => (
+                        <li key={m}>{m}</li>
+                      ))}
+                    </ul>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-3">
+          Throughout this Guide, you will continually return to these indicators to evaluate
+          progress, identify leadership gaps, refine your approach, and strengthen your leadership
+          system.
+        </p>
+      </section>
+    </AboutSectionSheet>
+  );
+}
