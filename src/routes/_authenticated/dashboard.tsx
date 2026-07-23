@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { ASSESSMENT_LIST, maxScoreFor, type AssessmentType, type AssessmentDef } from "@/lib/assessments";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ArrowUpRight, ArrowDownRight, Lock, Sparkles, Minus, Target, FileText } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ArrowDownRight, Lock, Sparkles, Minus, Target, FileText, BookOpen, RefreshCw, MessageCircle, LineChart, Download } from "lucide-react";
 import { logFunnelEvent } from "@/lib/funnel.functions";
 import { getSubscriptionStatus } from "@/lib/payments.functions";
 import { getGapReportEligibility } from "@/lib/report.functions";
@@ -313,6 +313,115 @@ function DashboardPage() {
   const hasAnyReport = (eligibility?.reportsGenerated ?? 0) > 0;
   const nextAssessmentTo = `/assessment/${nextTarget.type}`;
   const nextSectionTo = `/guide/section-${nextSection}`;
+
+  // Paywalled view: free member who has already used their free pass.
+  // Show upgrade box → their gap report → locked preview of what upgrading unlocks.
+  if (!loading && paywalled) {
+    const reportSessionId = reportSessions[0]?.id ?? latestSession?.id ?? null;
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-8 sm:py-10">
+        <div className="mb-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--rl-purple)]">
+            Your leadership system
+          </p>
+          <h2 className="mt-2 text-3xl font-bold tracking-tight text-[var(--fr-ink)] sm:text-4xl">
+            {greeting()}{displayName ? `, ${displayName}.` : "."}
+          </h2>
+        </div>
+
+        {/* 1) Upgrade box */}
+        <div
+          className="mb-6 overflow-hidden rounded-3xl p-6 text-white shadow-[0_16px_40px_rgba(42,10,100,0.35)] sm:p-8"
+          style={{ background: "linear-gradient(135deg, #2a0a64 0%, #5B2D8E 100%)" }}
+        >
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">Free pass used</p>
+              <h3 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
+                You've used your free pass
+              </h3>
+              <p className="mt-2 text-sm text-white/85">Here's what upgrading unlocks:</p>
+            </div>
+            <Button
+              size="lg"
+              className="w-full shrink-0 bg-white text-[#2a0a64] hover:bg-white/90 sm:w-auto"
+              onClick={handleSubscribeClick}
+            >
+              <Sparkles className="mr-2 h-4 w-4" /> Upgrade Now
+            </Button>
+          </div>
+        </div>
+
+        {/* 2) Their gap report — the payoff they just earned */}
+        {reportSessionId ? (
+          <div className="mb-6 overflow-hidden rounded-3xl border border-[var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)] sm:p-8">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0 flex items-start gap-4">
+                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[var(--fr-lilac)] text-[var(--rl-purple)]">
+                  <FileText className="h-6 w-6" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--rl-purple)]">Your SCALE Gap Report</p>
+                  <h3 className="mt-1 text-xl font-bold tracking-tight text-[var(--fr-ink)] sm:text-2xl">
+                    Your personalized report is ready
+                  </h3>
+                  <p className="mt-1 text-sm text-[var(--fr-muted-ink)]">
+                    View it any time, or download a PDF copy.
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2 sm:shrink-0">
+                <Button asChild size="lg">
+                  <Link to="/report/$sessionId" params={{ sessionId: reportSessionId }}>
+                    <FileText className="mr-2 h-4 w-4" /> View report
+                  </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline">
+                  <Link to="/report/$sessionId" params={{ sessionId: reportSessionId }} search={{ download: 1 } as never}>
+                    <Download className="mr-2 h-4 w-4" /> Download PDF
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        {/* 3) Locked preview of what upgrading unlocks */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <LockedFeatureCard
+            icon={<BookOpen className="h-5 w-5" />}
+            title="The 12-section Optimization Cycle"
+            body="Work through the full Fully Resourced system, one focused section at a time."
+            onUpgrade={handleSubscribeClick}
+          />
+          <LockedFeatureCard
+            icon={<RefreshCw className="h-5 w-5" />}
+            title="Retake your assessments"
+            body="Re-measure Inner Capacity, Personal Leadership, and Business Audit as you grow."
+            onUpgrade={handleSubscribeClick}
+          />
+          <LockedFeatureCard
+            icon={<FileText className="h-5 w-5" />}
+            title="New SCALE Gap Reports"
+            body="Generate a fresh Gap Report after every cycle to see how far you've moved."
+            onUpgrade={handleSubscribeClick}
+          />
+          <LockedFeatureCard
+            icon={<MessageCircle className="h-5 w-5" />}
+            title="Fully Resourced AI Coach"
+            body="On-demand coaching trained on Rich's system, available whenever you need it."
+            onUpgrade={handleSubscribeClick}
+          />
+          <LockedFeatureCard
+            icon={<LineChart className="h-5 w-5" />}
+            title="Growth dashboard over time"
+            body="Track your scores, deltas, and every report side-by-side as you progress."
+            onUpgrade={handleSubscribeClick}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-8 sm:py-10">
