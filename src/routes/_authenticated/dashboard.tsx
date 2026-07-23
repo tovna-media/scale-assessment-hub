@@ -318,6 +318,20 @@ function DashboardPage() {
   // Show upgrade box → their gap report → locked preview of what upgrading unlocks.
   if (!loading && paywalled) {
     const reportSessionId = reportSessions[0]?.id ?? latestSession?.id ?? null;
+    const perfPoints = (() => {
+      const rounds: number[] = [];
+      const maxLen = Math.max(...ASSESSMENT_LIST.map((a) => perType[a.type].length), 0);
+      for (let i = 0; i < maxLen; i++) {
+        const scores = ASSESSMENT_LIST.map((a) => {
+          const list = perType[a.type];
+          const s = list[i];
+          return s ? pctOf(s.overall_score, maxScoreFor(a.type)) : null;
+        }).filter((v): v is number => v !== null);
+        if (scores.length > 0) rounds.push(scores.reduce((a, b) => a + b, 0) / scores.length);
+      }
+      return rounds;
+    })();
+    const perfLatest = perfPoints.length > 0 ? Math.round(perfPoints[perfPoints.length - 1]) : null;
     return (
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-8 sm:py-10">
         <div className="mb-6">
@@ -352,7 +366,41 @@ function DashboardPage() {
           </div>
         </div>
 
-        {/* 2) Locked preview of what upgrading unlocks */}
+        {/* 2) Their gap report — payoff they already earned */}
+        {reportSessionId ? (
+          <div className="mb-6 overflow-hidden rounded-3xl border border-[var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)] sm:p-8">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0 flex items-start gap-4">
+                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[var(--fr-lilac)] text-[var(--rl-purple)]">
+                  <FileText className="h-6 w-6" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--rl-purple)]">Your SCALE Gap Report</p>
+                  <h3 className="mt-1 text-xl font-bold tracking-tight text-[var(--fr-ink)] sm:text-2xl">
+                    Your personalized report is ready
+                  </h3>
+                  <p className="mt-1 text-sm text-[var(--fr-muted-ink)]">
+                    View it any time, or download a PDF copy.
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2 sm:shrink-0">
+                <Button asChild size="lg">
+                  <Link to="/report/$sessionId" params={{ sessionId: reportSessionId }}>
+                    <FileText className="mr-2 h-4 w-4" /> View report
+                  </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline">
+                  <Link to="/report/$sessionId" params={{ sessionId: reportSessionId }} hash="download">
+                    <Download className="mr-2 h-4 w-4" /> Download PDF
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        {/* 3) Locked preview of what upgrading unlocks */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <LockedFeatureCard
             icon={<BookOpen className="h-5 w-5" />}
@@ -386,39 +434,28 @@ function DashboardPage() {
           />
         </div>
 
-        {/* 3) Their gap report — the payoff they just earned, kept at bottom */}
-        {reportSessionId ? (
-          <div className="mt-6 overflow-hidden rounded-3xl border border-[var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)] sm:p-8">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0 flex items-start gap-4">
-                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[var(--fr-lilac)] text-[var(--rl-purple)]">
-                  <FileText className="h-6 w-6" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--rl-purple)]">Your SCALE Gap Report</p>
-                  <h3 className="mt-1 text-xl font-bold tracking-tight text-[var(--fr-ink)] sm:text-2xl">
-                    Your personalized report is ready
-                  </h3>
-                  <p className="mt-1 text-sm text-[var(--fr-muted-ink)]">
-                    View it any time, or download a PDF copy.
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2 sm:shrink-0">
-                <Button asChild size="lg">
-                  <Link to="/report/$sessionId" params={{ sessionId: reportSessionId }}>
-                    <FileText className="mr-2 h-4 w-4" /> View report
-                  </Link>
-                </Button>
-                <Button asChild size="lg" variant="outline">
-                  <Link to="/report/$sessionId" params={{ sessionId: reportSessionId }} hash="download">
-                    <Download className="mr-2 h-4 w-4" /> Download PDF
-                  </Link>
-                </Button>
-              </div>
+        {/* 4) Performance glimpse */}
+        <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-[var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)] sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0 flex items-start gap-4">
+            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[var(--fr-lilac)] text-[var(--rl-purple)]">
+              <LineChart className="h-5 w-5" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--rl-purple)]">Performance</p>
+              <h4 className="mt-1 text-base font-semibold text-[var(--fr-ink)]">
+                {perfLatest !== null ? `Your latest composite: ${perfLatest}/100` : "See your growth over time"}
+              </h4>
+              {perfPoints.length > 0 ? (
+                <div className="mt-2"><Sparkline points={perfPoints} /></div>
+              ) : (
+                <p className="mt-1 text-sm text-[var(--fr-muted-ink)]">Trend charts unlock once you have assessment history.</p>
+              )}
             </div>
           </div>
-        ) : null}
+          <Button asChild variant="outline" className="shrink-0">
+            <Link to="/performance">View my performance <ArrowRight className="ml-2 h-4 w-4" /></Link>
+          </Button>
+        </div>
       </div>
     );
   }
