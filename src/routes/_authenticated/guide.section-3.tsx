@@ -15,6 +15,7 @@ import { SectionVideo } from "@/components/scale/SectionVideo";
 import { PrintSectionButton } from "@/components/scale/PrintSectionButton";
 import { hasPrintableContent } from "@/lib/section-print";
 import { GapReportPanel } from "@/components/scale/GapReportPanel";
+import { AboutSectionSheet } from "@/components/scale/AboutSectionSheet";
 
 export const Route = createFileRoute("/_authenticated/guide/section-3")({
   head: () => ({ meta: [{ title: "Section 3 · Leadership Performance Dashboard" }] }),
@@ -354,6 +355,7 @@ function SectionThreePage() {
         <Progress value={(step / TOTAL_STEPS) * 100} className="mt-2 h-1.5" />
         <GapReportPanel className="mt-4" />
         <h1 className="mt-4 font-display text-3xl font-semibold text-foreground sm:text-4xl">{stepTitle(step)}</h1>
+        <AboutSectionButtonS3 className="mt-3" />
       </div>
 
       <div className="space-y-8">
@@ -872,5 +874,21 @@ function StepCommitment({ d, update }: { d: SectionData; update: <K extends keyo
         <Input type="date" value={d.commitment_date} onChange={(e) => update("commitment_date", e.target.value)} className="mt-1 max-w-[220px]" />
       </div>
     </div>
+  );
+}
+
+function AboutSectionButtonS3({ className }: { className?: string }) {
+  return (
+    <AboutSectionSheet title="Section 3: Leadership Performance Dashboard" className={className}>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">Principle 1: Lead Yourself</p>
+      <h4 className="font-display text-lg font-semibold text-foreground">Section Objective</h4>
+      <p>Leadership growth isn't measured by good intentions.</p>
+      <p>It is measured by consistent improvement.</p>
+      <p>This dashboard is designed to help you evaluate your leadership honestly, identify where you're improving, recognize where you're drifting, and intentionally strengthen the areas that will produce better results.</p>
+      <p>The purpose of this section is not to judge yourself.</p>
+      <p>The purpose is to become more intentional about your growth before beginning the next phase of your Leadership Optimization Cycle.</p>
+      <p>Every dashboard follows the same process:</p>
+      <p className="font-semibold">Evaluate → Identify → Understand → Build a Plan → Execute → Measure</p>
+    </AboutSectionSheet>
   );
 }

@@ -14,6 +14,7 @@ import { SectionVideo } from "@/components/scale/SectionVideo";
 import { PrintSectionButton } from "@/components/scale/PrintSectionButton";
 import { hasPrintableContent } from "@/lib/section-print";
 import { GapReportPanel } from "@/components/scale/GapReportPanel";
+import { AboutSectionSheet } from "@/components/scale/AboutSectionSheet";
 
 export const Route = createFileRoute("/_authenticated/guide/section-11")({
   head: () => ({ meta: [{ title: "Section 11 · Protecting the Leadership System" }] }),
@@ -237,6 +238,7 @@ function SectionElevenPage() {
         <Progress value={(step / TOTAL_STEPS) * 100} className="mt-2 h-1.5" />
         <GapReportPanel className="mt-4" />
         <h1 className="mt-4 font-display text-3xl font-semibold text-foreground sm:text-4xl">{stepTitle(step)}</h1>
+        <AboutSectionButtonS11 className="mt-3" />
       </div>
 
       <div className="space-y-8">
@@ -474,5 +476,20 @@ function Chips({ label, options, values, onChange }: { label: string; options: s
         })}
       </div>
     </div>
+  );
+}
+function AboutSectionButtonS11({ className }: { className?: string }) {
+  return (
+    <AboutSectionSheet title="Section 11: Protecting the Leadership System" className={className}>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">Principle 4: Lead Leaders</p>
+      <h4 className="font-display text-lg font-semibold text-foreground">Section Objective</h4>
+      <p>Leadership systems do not fail overnight.</p>
+      <p>They drift over time.</p>
+      <p>As you develop another leader, your responsibility is to protect the integrity of the leadership system that developed you.</p>
+      <p>This section will help you evaluate how consistently you are leading, how effectively you are developing another leader, and where your leadership system needs refinement before beginning another Leadership Optimization Cycle.</p>
+      <p className="font-semibold">Remember…</p>
+      <p>The goal is not simply to develop another leader.</p>
+      <p>The goal is to faithfully reproduce the same leadership principles that helped you become Fully Resourced.</p>
+    </AboutSectionSheet>
   );
 }

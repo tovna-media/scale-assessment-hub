@@ -14,6 +14,7 @@ import { SectionVideo } from "@/components/scale/SectionVideo";
 import { PrintSectionButton } from "@/components/scale/PrintSectionButton";
 import { hasPrintableContent } from "@/lib/section-print";
 import { GapReportPanel } from "@/components/scale/GapReportPanel";
+import { AboutSectionSheet } from "@/components/scale/AboutSectionSheet";
 
 export const Route = createFileRoute("/_authenticated/guide/section-7")({
   head: () => ({ meta: [{ title: "Section 7 · Lead for Results" }] }),
@@ -286,6 +287,7 @@ function SectionSevenPage() {
         <Progress value={(step / TOTAL_STEPS) * 100} className="mt-2 h-1.5" />
         <GapReportPanel className="mt-4" />
         <h1 className="mt-4 font-display text-3xl font-semibold text-foreground sm:text-4xl">{stepTitle(step)}</h1>
+        <AboutSectionButtonS7 className="mt-3" />
       </div>
 
       <div className="space-y-8">
@@ -686,5 +688,19 @@ function Chips({ label, options, values, onChange, other, onOtherChange }: { lab
         <Input value={other ?? ""} onChange={(e) => onOtherChange(e.target.value)} placeholder="Other…" className="mt-2" />
       )}
     </div>
+  );
+}
+function AboutSectionButtonS7({ className }: { className?: string }) {
+  return (
+    <AboutSectionSheet title="Section 7: Lead for Results" className={className}>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">Principle 3: Lead for Results</p>
+      <h4 className="font-display text-lg font-semibold text-foreground">Section Objective</h4>
+      <p>Your Success Image defined the future you want to create.</p>
+      <p>Your Success Drivers identified the activities most likely to move you toward that future.</p>
+      <p>Leading Yourself increased your capacity.</p>
+      <p>Leading Others strengthened the people around you.</p>
+      <p>Now it is time to determine whether those efforts are producing meaningful results.</p>
+      <p>Leading for Results is about closing the gap between your Success Image and your current reality through focused execution, measurable progress, and continuous improvement.</p>
+    </AboutSectionSheet>
   );
 }

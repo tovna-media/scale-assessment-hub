@@ -14,6 +14,7 @@ import { SectionVideo } from "@/components/scale/SectionVideo";
 import { PrintSectionButton } from "@/components/scale/PrintSectionButton";
 import { hasPrintableContent } from "@/lib/section-print";
 import { GapReportPanel } from "@/components/scale/GapReportPanel";
+import { AboutSectionSheet } from "@/components/scale/AboutSectionSheet";
 
 export const Route = createFileRoute("/_authenticated/guide/section-8")({
   head: () => ({ meta: [{ title: "Section 8 · Evaluation & Crucial Conversations" }] }),
@@ -270,6 +271,7 @@ function SectionEightPage() {
         <Progress value={(step / TOTAL_STEPS) * 100} className="mt-2 h-1.5" />
         <GapReportPanel className="mt-4" />
         <h1 className="mt-4 font-display text-3xl font-semibold text-foreground sm:text-4xl">{stepTitle(step)}</h1>
+        <AboutSectionButtonS8 className="mt-3" />
       </div>
 
       <div className="space-y-8">
@@ -543,5 +545,18 @@ function Chips({ label, options, values, onChange }: { label: string; options: s
         })}
       </div>
     </div>
+  );
+}
+function AboutSectionButtonS8({ className }: { className?: string }) {
+  return (
+    <AboutSectionSheet title="Section 8: Evaluation & Crucial Conversations" className={className}>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">Principle 3: Lead for Results</p>
+      <h4 className="font-display text-lg font-semibold text-foreground">Section Objective</h4>
+      <p>Healthy leaders do not avoid difficult conversations.</p>
+      <p>As you Lead Yourself, Lead Others, and Lead for Results, there will be times when leadership requires you to address an issue directly. The purpose of a Crucial Conversation is not to win an argument or prove a point. It is to strengthen the individual, protect the organization, reinforce standards, and move everyone toward the desired outcome.</p>
+      <p>This section will help you identify when a Crucial Conversation is necessary, prepare intentionally, complete the Crucial Conversation Worksheet, and evaluate the outcome.</p>
+      <p className="font-semibold">Remember…</p>
+      <p>Preparation is part of leadership. The discipline of writing out the Crucial Conversation Worksheet before the conversation helps you think clearly, communicate effectively, and lead with both love and tough love.</p>
+    </AboutSectionSheet>
   );
 }

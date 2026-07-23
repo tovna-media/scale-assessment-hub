@@ -15,6 +15,7 @@ import { SectionVideo } from "@/components/scale/SectionVideo";
 import { PrintSectionButton } from "@/components/scale/PrintSectionButton";
 import { hasPrintableContent } from "@/lib/section-print";
 import { GapReportPanel } from "@/components/scale/GapReportPanel";
+import { AboutSectionSheet } from "@/components/scale/AboutSectionSheet";
 import { useServerFn } from "@tanstack/react-start";
 import { getGapReportEligibility } from "@/lib/report.functions";
 
@@ -240,6 +241,7 @@ function SectionTwelvePage() {
         <Progress value={(step / TOTAL_STEPS) * 100} className="mt-2 h-1.5" />
         <GapReportPanel className="mt-4" />
         <h1 className="mt-4 font-display text-3xl font-semibold text-foreground sm:text-4xl">{stepTitle(step)}</h1>
+        <AboutSectionButtonS12 className="mt-3" />
       </div>
 
       <div className="space-y-8">
@@ -519,5 +521,19 @@ function Chips({ label, options, values, onChange }: { label: string; options: s
         })}
       </div>
     </div>
+  );
+}
+function AboutSectionButtonS12({ className }: { className?: string }) {
+  return (
+    <AboutSectionSheet title="Section 12: Leadership Optimization Review" className={className}>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">Leadership Optimization Cycle Review</p>
+      <h4 className="font-display text-lg font-semibold text-foreground">Section Objective</h4>
+      <p>Leadership is not an event.</p>
+      <p>It is a continual process of assessment, development, application, measurement, and refinement.</p>
+      <p>This section will help you review your Leadership Optimization Cycle, identify measurable growth, evaluate remaining leadership gaps, and intentionally begin your next cycle of development.</p>
+      <p className="font-semibold">Remember…</p>
+      <p>The goal is not to finish the Guide.</p>
+      <p>The goal is to become more Fully Resourced with every Leadership Optimization Cycle.</p>
+    </AboutSectionSheet>
   );
 }

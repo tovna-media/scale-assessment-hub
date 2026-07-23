@@ -15,6 +15,7 @@ import { SectionVideo } from "@/components/scale/SectionVideo";
 import { PrintSectionButton } from "@/components/scale/PrintSectionButton";
 import { hasPrintableContent } from "@/lib/section-print";
 import { GapReportPanel } from "@/components/scale/GapReportPanel";
+import { AboutSectionSheet } from "@/components/scale/AboutSectionSheet";
 
 export const Route = createFileRoute("/_authenticated/guide/section-9")({
   head: () => ({ meta: [{ title: "Section 9 · Integration & Real-World Leadership" }] }),
@@ -299,6 +300,7 @@ function SectionNinePage() {
         <Progress value={(step / TOTAL_STEPS) * 100} className="mt-2 h-1.5" />
         <GapReportPanel className="mt-4" />
         <h1 className="mt-4 font-display text-3xl font-semibold text-foreground sm:text-4xl">{stepTitle(step)}</h1>
+        <AboutSectionButtonS9 className="mt-3" />
       </div>
 
       <div className="space-y-8">
@@ -574,5 +576,20 @@ function Chips({ label, options, values, onChange }: { label: string; options: s
         })}
       </div>
     </div>
+  );
+}
+function AboutSectionButtonS9({ className }: { className?: string }) {
+  return (
+    <AboutSectionSheet title="Section 9: Integration & Real-World Leadership Application" className={className}>
+      <h4 className="font-display text-lg font-semibold text-foreground">Session Objective</h4>
+      <p>This session is a full leadership integration review.</p>
+      <p>You will:</p>
+      <ul className="ml-5 list-disc space-y-1">
+        <li>Evaluate the crucial conversation you executed</li>
+        <li>Identify leadership strengths and weaknesses under pressure</li>
+        <li>Diagnose real-world leadership breakdowns</li>
+        <li>Refine your approach to Lead Yourself, Lead Others, and Lead for Results</li>
+      </ul>
+    </AboutSectionSheet>
   );
 }

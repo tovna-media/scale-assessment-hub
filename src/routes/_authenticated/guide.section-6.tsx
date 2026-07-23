@@ -14,6 +14,7 @@ import { SectionVideo } from "@/components/scale/SectionVideo";
 import { PrintSectionButton } from "@/components/scale/PrintSectionButton";
 import { hasPrintableContent } from "@/lib/section-print";
 import { GapReportPanel } from "@/components/scale/GapReportPanel";
+import { AboutSectionSheet } from "@/components/scale/AboutSectionSheet";
 
 export const Route = createFileRoute("/_authenticated/guide/section-6")({
   head: () => ({ meta: [{ title: "Section 6 · Leadership Review & Recalibration" }] }),
@@ -284,6 +285,7 @@ function SectionSixPage() {
         <Progress value={(step / TOTAL_STEPS) * 100} className="mt-2 h-1.5" />
         <GapReportPanel className="mt-4" />
         <h1 className="mt-4 font-display text-3xl font-semibold text-foreground sm:text-4xl">{stepTitle(step)}</h1>
+        <AboutSectionButtonS6 className="mt-3" />
       </div>
 
       <div className="space-y-8">
@@ -609,5 +611,18 @@ function RatingGrid<T extends string>({ items, values, options, onChange }: { it
         </div>
       ))}
     </div>
+  );
+}
+function AboutSectionButtonS6({ className }: { className?: string }) {
+  return (
+    <AboutSectionSheet title="Section 6: Leadership Review & Recalibration" className={className}>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">Principles 1 & 2: Lead Yourself + Lead Others</p>
+      <h4 className="font-display text-lg font-semibold text-foreground">Section Objective</h4>
+      <p>Leadership improves through intentional review.</p>
+      <p>This section is designed to help you evaluate your growth in leading yourself and developing others, identify where you are making progress, recognize where leadership is drifting, and recalibrate your approach before moving into Principle 3: Lead for Results.</p>
+      <p className="font-semibold">Remember…</p>
+      <p>Every principle builds upon the previous one.</p>
+      <p>Carry forward everything you've learned about leading yourself as you continue developing others.</p>
+    </AboutSectionSheet>
   );
 }
