@@ -320,6 +320,49 @@ function DashboardPage() {
         </p>
       </div>
 
+      {/* Gap Report banner — pinned above the cycle until all 3 assessments are complete */}
+      {showGapBanner && (
+        <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-[var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)] sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3 min-w-0">
+            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[var(--fr-lilac)] text-[var(--rl-purple)]">
+              <Target className="h-5 w-5" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--rl-purple)]">
+                SCALE Gap Report
+              </p>
+              <h4 className="mt-1 text-lg font-semibold text-[var(--fr-ink)]">
+                {canGenerate
+                  ? isFirstRound
+                    ? "You're ready to generate your full SCALE Gap Report"
+                    : "You're ready to generate your next SCALE Gap Report"
+                  : isFirstRound
+                    ? `Complete all 3 assessments to unlock your Gap Report (${completedTypes.size}/3 done)`
+                    : `Retake all 3 assessments for your next Gap Report (${readyCount} of 3 retaken)`}
+              </h4>
+              <p className="mt-1 text-sm text-[var(--fr-muted-ink)]">
+                {canGenerate
+                  ? "Combine your results into one unified report with cross-connection analysis."
+                  : "Your personalized report ties together Inner Capacity, Personal Leadership, and Business Audit."}
+              </p>
+            </div>
+          </div>
+          {canGenerate && latestSession ? (
+            <Button asChild size="lg">
+              <Link to="/report/$sessionId" params={{ sessionId: latestSession.id }}>
+                <Sparkles className="mr-2 h-4 w-4" /> Generate Gap Report
+              </Link>
+            </Button>
+          ) : (
+            <Button asChild size="lg">
+              <Link to="/assessment/$type" params={{ type: nextTarget.type }}>
+                <ArrowRight className="mr-2 h-4 w-4" /> {nextLabel}
+              </Link>
+            </Button>
+          )}
+        </div>
+      )}
+
       {/* Hero focus card */}
       <HeroFocusCard
         inCycle={inCycle}
@@ -398,48 +441,6 @@ function DashboardPage() {
 
       {/* Assessment performance */}
       {/* Gap Report banner */}
-      {showGapBanner && (
-        <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-[var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)] sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-start gap-3 min-w-0">
-            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[var(--fr-lilac)] text-[var(--rl-purple)]">
-              <Target className="h-5 w-5" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--rl-purple)]">
-                SCALE Gap Report
-              </p>
-              <h4 className="mt-1 text-lg font-semibold text-[var(--fr-ink)]">
-                {canGenerate
-                  ? isFirstRound
-                    ? "You're ready to generate your full SCALE Gap Report"
-                    : "You're ready to generate your next SCALE Gap Report"
-                  : isFirstRound
-                    ? `Complete all 3 assessments to unlock your Gap Report (${completedTypes.size}/3 done)`
-                    : `Retake all 3 assessments for your next Gap Report (${readyCount} of 3 retaken)`}
-              </h4>
-              <p className="mt-1 text-sm text-[var(--fr-muted-ink)]">
-                {canGenerate
-                  ? "Combine your results into one unified report with cross-connection analysis."
-                  : "Your personalized report ties together Inner Capacity, Personal Leadership, and Business Audit."}
-              </p>
-            </div>
-          </div>
-          {canGenerate && latestSession ? (
-            <Button asChild size="lg">
-              <Link to="/report/$sessionId" params={{ sessionId: latestSession.id }}>
-                <Sparkles className="mr-2 h-4 w-4" /> Generate Gap Report
-              </Link>
-            </Button>
-          ) : (
-            <Button asChild size="lg">
-              <Link to="/assessment/$type" params={{ type: nextTarget.type }}>
-                <ArrowRight className="mr-2 h-4 w-4" /> {nextLabel}
-              </Link>
-            </Button>
-          )}
-        </div>
-      )}
-
       {/* Paywall */}
       {paywalled && (
         <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-amber-200 bg-amber-50/70 p-6 sm:flex-row sm:items-center sm:justify-between">
