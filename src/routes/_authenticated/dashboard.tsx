@@ -11,6 +11,7 @@ import { getGapReportEligibility } from "@/lib/report.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { usePlansDialog } from "@/components/PlansDialog";
+import { sectionUnlockStatus, formatUnlockDate } from "@/lib/section-unlock";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Home — Fully Resourced" }] }),
@@ -156,6 +157,7 @@ function DashboardPage() {
   const [priorityGap, setPriorityGap] = useState<{ name: string; score: number | null } | null>(null);
   const [section1Complete, setSection1Complete] = useState(false);
   const [maxSectionCompleted, setMaxSectionCompleted] = useState<number>(0);
+  const [cycleStart, setCycleStart] = useState<Date | null>(null);
   const [eligibility, setEligibility] = useState<{
     reportsGenerated: number;
     readyCount: number;
@@ -231,6 +233,16 @@ function DashboardPage() {
         const completedMax = rows.filter((r) => r.completed).reduce((m, r) => Math.max(m, r.section_number), 0);
         setMaxSectionCompleted(completedMax);
       });
+    supabase
+      .from("gap_reports")
+      .select("generated_at")
+      .eq("user_id", user.id)
+      .order("generated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.generated_at) setCycleStart(new Date(data.generated_at));
+      });
   }, [user, checkSub, checkEligibility]);
 
   const paywalled = freePassUsed && !subscribed;
@@ -293,6 +305,10 @@ function DashboardPage() {
   const cycleProgressPct = Math.round((cycleWeek / CYCLE_LENGTH) * 100);
   const nextSection = Math.min(CYCLE_LENGTH, cycleWeek + 1);
   const inCycle = subscribed && section1Complete;
+  // Drip-schedule status for the next section — must match the /cycle page.
+  const nextSectionStatus = sectionUnlockStatus(cycleStart, nextSection, true);
+  const nextSectionUnlocked = nextSectionStatus.unlocked;
+  const nextUnlockAt = nextSectionStatus.unlockAt;
 
   const latestSession = sessions[0];
   const readyCount = eligibility?.readyCount ?? 0;
@@ -525,6 +541,8 @@ function DashboardPage() {
             hasAnyReport={hasAnyReport}
             nextAssessmentTo={nextAssessmentTo}
             nextSectionTo={nextSectionTo}
+            nextSectionUnlocked={nextSectionUnlocked}
+            nextUnlockAt={nextUnlockAt}
           />
         ) : null;
         return cycleFirst ? (
@@ -595,7 +613,15 @@ function DashboardPage() {
         <StatCard
           label="Next unlock"
           value={inCycle && cycleWeek < CYCLE_LENGTH ? `Section ${nextSection}` : cycleWeek >= CYCLE_LENGTH ? "Complete" : "—"}
-          subValue={inCycle ? "Available now" : undefined}
+          subValue={
+            inCycle && cycleWeek < CYCLE_LENGTH
+              ? nextSectionUnlocked
+                ? "Available now"
+                : nextUnlockAt
+                  ? `Available ${formatUnlockDate(nextUnlockAt)}`
+                  : undefined
+              : undefined
+          }
           icon={<Lock className="h-4 w-4" />}
           empty={!inCycle ? "Locked until Section 1 is done" : undefined}
         />
@@ -765,6 +791,8 @@ function CycleCard({
   hasAnyReport,
   nextAssessmentTo,
   nextSectionTo,
+  nextSectionUnlocked,
+  nextUnlockAt,
 }: {
   inCycle: boolean;
   cycleWeek: number;
@@ -776,6 +804,8 @@ function CycleCard({
   hasAnyReport: boolean;
   nextAssessmentTo: string;
   nextSectionTo: string;
+  nextSectionUnlocked: boolean;
+  nextUnlockAt: Date | null;
 }) {
   let eyebrow = "Cycle · Locked";
   let heading = "Your Leadership Optimization Cycle is almost ready";
@@ -786,15 +816,26 @@ function CycleCard({
 
   if (inCycle && cycleWeek < cycleLength) {
     eyebrow = `WEEK ${cycleWeek || 1} OF ${cycleLength}`;
-    heading = priorityGap
-      ? `Focus your work on ${priorityGap.name}`
-      : "Continue your cycle";
-    body = priorityGap
-      ? `Your Priority Gap is ${priorityGap.name}. Complete Section ${nextSection} to keep your cycle moving.`
-      : `Complete Section ${nextSection} to keep your cycle moving.`;
-    ctaLabel = `Continue Section ${nextSection}`;
-    ctaTo = nextSectionTo;
-    ctaDisabled = false;
+    if (nextSectionUnlocked) {
+      heading = priorityGap
+        ? `Focus your work on ${priorityGap.name}`
+        : "Continue your cycle";
+      body = priorityGap
+        ? `Your Priority Gap is ${priorityGap.name}. Complete Section ${nextSection} to keep your cycle moving.`
+        : `Complete Section ${nextSection} to keep your cycle moving.`;
+      ctaLabel = `Continue Section ${nextSection}`;
+      ctaTo = nextSectionTo;
+      ctaDisabled = false;
+    } else {
+      // Latest section is complete, next one hasn't unlocked by date yet.
+      const latest = cycleWeek; // sections completed so far
+      const dateStr = nextUnlockAt ? formatUnlockDate(nextUnlockAt) : "soon";
+      heading = `Nice work finishing Section ${latest}`;
+      body = `Section ${nextSection} unlocks ${dateStr}. Review Section ${latest} anytime while you wait.`;
+      ctaLabel = `Review Section ${latest}`;
+      ctaTo = `/guide/section-${latest}`;
+      ctaDisabled = false;
+    }
   } else if (inCycle && cycleWeek >= cycleLength) {
     eyebrow = "Cycle complete";
     heading = "You've completed your 12-week cycle";
