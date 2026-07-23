@@ -290,12 +290,13 @@ function buildExecutive(ai: AIPayload): string {
     "",
     ai.executive_summary,
     "",
-    "## Capacity Summary",
-    "",
-    "**You have:**",
-    fmtList(ai.capacity_have),
-    "",
   ];
+  if (ai.capacity_have.length > 0 || (ai.capacity_lack && ai.capacity_lack.length > 0) || ai.capacity_closing) {
+    parts.push("## Capacity Summary", "");
+  }
+  if (ai.capacity_have.length > 0) {
+    parts.push("**You have:**", fmtList(ai.capacity_have), "");
+  }
   if (ai.capacity_lack && ai.capacity_lack.length > 0) {
     parts.push("**But you lack:**", fmtList(ai.capacity_lack), "");
   } else if (ai.capacity_closing) {
