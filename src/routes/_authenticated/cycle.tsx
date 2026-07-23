@@ -90,8 +90,8 @@ function CyclePage() {
 
       {!subscribed && (
         <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50/70 p-5 text-sm text-[var(--fr-ink)]">
-          Get Fully Resourced ($97/mo) to work through the full 12-section cycle.
-          <Button size="sm" className="ml-4" onClick={() => plansDialog.open()}>Subscribe</Button>
+          Get the Fully Resourced System to work through the full 12-section cycle and track your growth overtime.
+          <Button size="sm" className="ml-4" onClick={() => plansDialog.open()}>Upgrade now</Button>
         </div>
       )}
 
