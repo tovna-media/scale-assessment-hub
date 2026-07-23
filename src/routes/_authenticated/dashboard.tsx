@@ -469,7 +469,7 @@ function AssessmentNudgeCard({
   isFirstRound: boolean;
   readyCount: number;
   latestSession: SessionRow | undefined;
-  nextTarget: AssessmentType | undefined;
+  nextTarget: AssessmentDef | undefined;
   nextLabel: string;
 }) {
   const ringValue = takenCount;
@@ -497,12 +497,12 @@ function AssessmentNudgeCard({
       body = "You’re on your way. Finish the remaining assessments so we can build your full SCALE Gap Report.";
       ctaLabel = "Continue your assessments";
     }
-    ctaTo = nextTarget ? `/assessment/${nextTarget}` : "#";
+    ctaTo = nextTarget ? `/assessment/${nextTarget.type}` : "#";
   } else {
     heading = `Retake all 3 assessments for your next Gap Report (${readyCount} of 3 retaken)`;
     body = "Refresh your scores before generating your next report.";
     ctaLabel = nextLabel;
-    ctaTo = nextTarget ? `/assessment/${nextTarget}` : "#";
+    ctaTo = nextTarget ? `/assessment/${nextTarget.type}` : "#";
   }
 
   return (
