@@ -376,6 +376,7 @@ function DashboardPage() {
         takenCount={takenCount}
         nextAssessmentTo={nextAssessmentTo}
         nextSectionTo={nextSectionTo}
+        hasAnyReport={hasAnyReport}
       />
 
       {!subscribed && (
@@ -495,6 +496,7 @@ function HeroFocusCard({
   takenCount,
   nextAssessmentTo,
   nextSectionTo,
+  hasAnyReport,
 }: {
   inCycle: boolean;
   cycleWeek: number;
@@ -507,6 +509,7 @@ function HeroFocusCard({
   takenCount: number;
   nextAssessmentTo: string;
   nextSectionTo: string;
+  hasAnyReport: boolean;
 }) {
   // Determine hero state
   let eyebrow = "Get started";
@@ -514,16 +517,26 @@ function HeroFocusCard({
   let body = "Complete your three SCALE assessments to unlock your personalized Gap Report and 12-week cycle.";
   let ctaLabel = takenCount === 0 ? "Start your first assessment" : "Continue your assessments";
   let ctaTo: string = nextAssessmentTo;
+  let ctaDisabled = false;
   let ringValue = takenCount;
   let ringMax = 3;
   let ringLabel = "TAKEN";
 
   if (subscribed && !section1Complete) {
-    eyebrow = "Cycle · Section 1";
-    heading = "Begin your Leadership Optimization Cycle";
-    body = "Confirm your assessments, lock in your Priority Gap, and answer five reflection questions.";
-    ctaLabel = "Start Section 1";
-    ctaTo = "/guide/section-1";
+    if (hasAnyReport) {
+      eyebrow = "Cycle · Section 1";
+      heading = "Begin your Leadership Optimization Cycle";
+      body = "Confirm your assessments, lock in your Priority Gap, and answer five reflection questions.";
+      ctaLabel = "Start Section 1";
+      ctaTo = "/guide/section-1";
+    } else {
+      eyebrow = "Cycle · Locked";
+      heading = "Your Leadership Optimization Cycle is almost ready";
+      body = "Once you complete all three assessments and generate your SCALE Gap Report, you'll be able to start Section 1 and begin your Leadership Optimization Cycle.";
+      ctaLabel = takenCount >= 3 ? "Generate your Gap Report" : "Continue your assessments";
+      ctaTo = nextAssessmentTo;
+      ctaDisabled = true;
+    }
   } else if (inCycle && cycleWeek < cycleLength) {
     eyebrow = `WEEK ${cycleWeek || 1} OF ${cycleLength}`;
     heading = priorityGap
@@ -588,9 +601,15 @@ function HeroFocusCard({
           )}
 
           <div className="mt-6">
-            <Button asChild size="lg">
-              <Link to={ctaTo}>{ctaLabel} <ArrowRight className="ml-2 h-4 w-4" /></Link>
-            </Button>
+            {ctaDisabled ? (
+              <Button size="lg" disabled>
+                {ctaLabel} <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            ) : (
+              <Button asChild size="lg">
+                <Link to={ctaTo}>{ctaLabel} <ArrowRight className="ml-2 h-4 w-4" /></Link>
+              </Button>
+            )}
           </div>
         </div>
 
