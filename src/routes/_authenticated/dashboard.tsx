@@ -376,6 +376,7 @@ function DashboardPage() {
         takenCount={takenCount}
         nextAssessmentTo={nextAssessmentTo}
         nextSectionTo={nextSectionTo}
+        hasAnyReport={hasAnyReport}
       />
 
       {!subscribed && (
