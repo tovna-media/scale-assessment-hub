@@ -109,13 +109,10 @@ async function handleSubscriptionUpsert(
       // Send activation email only on the first transition into active (from a
       // non-active prior state). invoice.payment_succeeded handles ongoing renewals.
       if (!prevStatus || (prevStatus !== 'active' && prevStatus !== 'trialing')) {
-        await sendSubscriptionEmail(userId, 'subscription-activated', {
-          plan: priceIdOf(sub) ?? undefined,
-        });
+        await sendSubscriptionEmail(userId, 'subscription-activated', {});
       } else {
         // Same-account plan change while active — treat as update
         await sendSubscriptionEmail(userId, 'subscription-updated', {
-          plan: priceIdOf(sub) ?? undefined,
           changeType: 'change',
         });
       }
