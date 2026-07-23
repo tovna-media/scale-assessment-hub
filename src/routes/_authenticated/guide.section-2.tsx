@@ -413,48 +413,27 @@ function ChipToggle({ label, active, onClick }: { label: string; active: boolean
   );
 }
 
-function AboutSectionButton() {
+function AboutSectionButton({ className }: { className?: string }) {
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <button
-          type="button"
-          className="mt-4 flex w-full items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left shadow-sm ring-1 ring-transparent transition hover:border-[#433993]/40 hover:ring-[#433993]/20 sm:w-auto"
-        >
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-[#433993]/10 text-[#433993]">
-            <FileText className="h-5 w-5" />
-          </span>
-          <span className="flex flex-col">
-            <span className="text-sm font-semibold text-foreground">About this section</span>
-            <span className="text-xs text-muted-foreground">What Lead Yourself is about</span>
-          </span>
-        </button>
-      </DialogTrigger>
-      <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Section 2: Lead Yourself</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4 text-sm leading-relaxed text-foreground">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
-            Principle 1: Lead Yourself
-          </p>
-          <h4 className="font-display text-lg font-semibold text-foreground">Section Objective</h4>
-          <p>The first principle of leadership is simple:</p>
-          <p className="font-semibold">You cannot give what you do not have.</p>
-          <p>Everything you accomplish as a leader begins with how well you lead yourself.</p>
-          <p>
-            Your GAP Report has already identified where you are today. This section will help you
-            understand those results and build a practical plan for becoming the leader your goals
-            require.
-          </p>
-          <p>The objective is not to improve everything at once.</p>
-          <p>
-            The objective is to identify the leadership gaps that matter most, strengthen your
-            foundation, and leave this section with a clear Lead Yourself Plan.
-          </p>
-        </div>
-      </DialogContent>
-    </Dialog>
+    <AboutSectionSheet title="Section 2: Lead Yourself" className={className}>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+        Principle 1: Lead Yourself
+      </p>
+      <h4 className="font-display text-lg font-semibold text-foreground">Section Objective</h4>
+      <p>The first principle of leadership is simple:</p>
+      <p className="font-semibold">You cannot give what you do not have.</p>
+      <p>Everything you accomplish as a leader begins with how well you lead yourself.</p>
+      <p>
+        Your GAP Report has already identified where you are today. This section will help you
+        understand those results and build a practical plan for becoming the leader your goals
+        require.
+      </p>
+      <p>The objective is not to improve everything at once.</p>
+      <p>
+        The objective is to identify the leadership gaps that matter most, strengthen your
+        foundation, and leave this section with a clear Lead Yourself Plan.
+      </p>
+    </AboutSectionSheet>
   );
 }
 
