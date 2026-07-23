@@ -6,11 +6,13 @@ import {
   Head,
   Heading,
   Html,
+  Img,
   Preview,
   Section,
   Text,
 } from '@react-email/components'
 import type { TemplateEntry } from './registry'
+import { LOGO_URL } from './_shared'
 
 interface Props {
   name?: string
@@ -33,7 +35,7 @@ const Email = ({
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
-          <Text style={brand}>FULLY RESOURCED</Text>
+          <Img src={LOGO_URL} alt="Fully Resourced" style={logo} />
         </Section>
         <Heading style={h1}>{title}</Heading>
         {name ? <Text style={body}>Hi {name},</Text> : null}
@@ -67,6 +69,7 @@ const main = { backgroundColor: '#ffffff', fontFamily: 'Inter, Arial, sans-serif
 const container = { maxWidth: '560px', margin: '0 auto', padding: '32px 24px' }
 const header = { borderBottom: '2px solid #2a0a64', paddingBottom: '12px', marginBottom: '24px' }
 const brand = { color: '#2a0a64', fontSize: '13px', fontWeight: 700, letterSpacing: '2px', margin: 0 }
+const logo = { display: 'block', height: '40px', width: 'auto' }
 const h1 = { fontSize: '26px', color: '#2a0a64', margin: '8px 0 16px' }
 const body = { fontSize: '16px', lineHeight: '24px', color: '#2a0a64' }
 const button = {

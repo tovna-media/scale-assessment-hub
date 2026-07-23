@@ -6,9 +6,11 @@ import {
   Head,
   Heading,
   Html,
+  Img,
   Preview,
   Text,
 } from '@react-email/components'
+import { LOGO_URL } from './_shared'
 
 interface ReauthenticationEmailProps {
   token: string
@@ -20,6 +22,7 @@ export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => 
     <Preview>Your verification code</Preview>
     <Body style={main}>
       <Container style={container}>
+        <Img src={LOGO_URL} alt="Fully Resourced" style={logo} />
         <Heading style={h1}>Confirm reauthentication</Heading>
         <Text style={text}>Use the code below to confirm your identity:</Text>
         <Text style={codeStyle}>{token}</Text>
@@ -36,6 +39,7 @@ export default ReauthenticationEmail
 
 const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
 const container = { padding: '20px 25px' }
+const logo = { display: 'block', height: '40px', width: 'auto', margin: '0 0 20px' }
 const h1 = {
   fontSize: '22px',
   fontWeight: 'bold' as const,

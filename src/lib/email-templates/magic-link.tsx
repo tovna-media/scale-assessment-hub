@@ -7,9 +7,11 @@ import {
   Head,
   Heading,
   Html,
+  Img,
   Preview,
   Text,
 } from '@react-email/components'
+import { LOGO_URL } from './_shared'
 
 interface MagicLinkEmailProps {
   siteName: string
@@ -25,6 +27,7 @@ export const MagicLinkEmail = ({
     <Preview>Your login link for {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
+        <Img src={LOGO_URL} alt="Fully Resourced" style={logo} />
         <Heading style={h1}>Your login link</Heading>
         <Text style={text}>
           Click the button below to log in to {siteName}. This link will expire
@@ -45,6 +48,7 @@ export default MagicLinkEmail
 
 const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
 const container = { padding: '20px 25px' }
+const logo = { display: 'block', height: '40px', width: 'auto', margin: '0 0 20px' }
 const h1 = {
   fontSize: '22px',
   fontWeight: 'bold' as const,
