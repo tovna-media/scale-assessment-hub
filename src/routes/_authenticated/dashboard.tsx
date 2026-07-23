@@ -377,7 +377,7 @@ function DashboardPage() {
                   </Link>
                 </Button>
                 <Button asChild size="lg" variant="outline">
-                  <Link to="/report/$sessionId" params={{ sessionId: reportSessionId }} search={{ download: 1 } as never}>
+                  <Link to="/report/$sessionId" params={{ sessionId: reportSessionId }} hash="download">
                     <Download className="mr-2 h-4 w-4" /> Download PDF
                   </Link>
                 </Button>
@@ -794,6 +794,26 @@ function CycleCard({
 }
 
 function StatCard({
+  label,
+  value,
+  suffix,
+  subValue,
+  trailing,
+  progress,
+  sparklinePoints,
+  icon,
+  empty,
+}: {
+  label: string;
+  value: string;
+  suffix?: string;
+  subValue?: string;
+  trailing?: React.ReactNode;
+  progress?: number;
+  sparklinePoints?: number[];
+  icon?: React.ReactNode;
+  empty?: string;
+}) {
   label,
   value,
   suffix,
