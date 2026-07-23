@@ -578,3 +578,18 @@ function Chips({ label, options, values, onChange }: { label: string; options: s
     </div>
   );
 }
+function AboutSectionButtonS9({ className }: { className?: string }) {
+  return (
+    <AboutSectionSheet title="Section 9: Integration & Real-World Leadership Application" className={className}>
+      <h4 className="font-display text-lg font-semibold text-foreground">Session Objective</h4>
+      <p>This session is a full leadership integration review.</p>
+      <p>You will:</p>
+      <ul className="ml-5 list-disc space-y-1">
+        <li>Evaluate the crucial conversation you executed</li>
+        <li>Identify leadership strengths and weaknesses under pressure</li>
+        <li>Diagnose real-world leadership breakdowns</li>
+        <li>Refine your approach to Lead Yourself, Lead Others, and Lead for Results</li>
+      </ul>
+    </AboutSectionSheet>
+  );
+}

@@ -745,3 +745,18 @@ function RhythmGrid({ values, onChange }: { values: Rating[]; onChange: (v: Rati
     </div>
   );
 }
+function AboutSectionButtonS5({ className }: { className?: string }) {
+  return (
+    <AboutSectionSheet title="Section 5: Growing People Intentionally" className={className}>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">Principle 2: Lead Others</p>
+      <h4 className="font-display text-lg font-semibold text-foreground">Section Objective</h4>
+      <p>Leading one person well is an important leadership skill.</p>
+      <p>Leading several people consistently requires intentional systems.</p>
+      <p>This section will help you build repeatable people-development rhythms that strengthen individuals, create alignment, and help every person continue becoming more Fully Resourced.</p>
+      <p>The goal is not better business results.</p>
+      <p>The goal is better developed people.</p>
+      <p>When people grow, they become better equipped to contribute to the organization, support one another, and prepare for greater responsibility.</p>
+      <p>As you develop others, continue carrying forward everything you learned while leading yourself.</p>
+    </AboutSectionSheet>
+  );
+}

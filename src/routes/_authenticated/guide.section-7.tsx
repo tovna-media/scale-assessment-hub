@@ -690,3 +690,17 @@ function Chips({ label, options, values, onChange, other, onOtherChange }: { lab
     </div>
   );
 }
+function AboutSectionButtonS7({ className }: { className?: string }) {
+  return (
+    <AboutSectionSheet title="Section 7: Lead for Results" className={className}>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">Principle 3: Lead for Results</p>
+      <h4 className="font-display text-lg font-semibold text-foreground">Section Objective</h4>
+      <p>Your Success Image defined the future you want to create.</p>
+      <p>Your Success Drivers identified the activities most likely to move you toward that future.</p>
+      <p>Leading Yourself increased your capacity.</p>
+      <p>Leading Others strengthened the people around you.</p>
+      <p>Now it is time to determine whether those efforts are producing meaningful results.</p>
+      <p>Leading for Results is about closing the gap between your Success Image and your current reality through focused execution, measurable progress, and continuous improvement.</p>
+    </AboutSectionSheet>
+  );
+}

@@ -613,3 +613,16 @@ function RatingGrid<T extends string>({ items, values, options, onChange }: { it
     </div>
   );
 }
+function AboutSectionButtonS6({ className }: { className?: string }) {
+  return (
+    <AboutSectionSheet title="Section 6: Leadership Review & Recalibration" className={className}>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">Principles 1 & 2: Lead Yourself + Lead Others</p>
+      <h4 className="font-display text-lg font-semibold text-foreground">Section Objective</h4>
+      <p>Leadership improves through intentional review.</p>
+      <p>This section is designed to help you evaluate your growth in leading yourself and developing others, identify where you are making progress, recognize where leadership is drifting, and recalibrate your approach before moving into Principle 3: Lead for Results.</p>
+      <p className="font-semibold">Remember…</p>
+      <p>Every principle builds upon the previous one.</p>
+      <p>Carry forward everything you've learned about leading yourself as you continue developing others.</p>
+    </AboutSectionSheet>
+  );
+}

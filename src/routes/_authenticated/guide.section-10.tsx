@@ -468,3 +468,17 @@ function Chips({ label, options, values, onChange }: { label: string; options: s
     </div>
   );
 }
+function AboutSectionButtonS10({ className }: { className?: string }) {
+  return (
+    <AboutSectionSheet title="Section 10: Lead Leaders" className={className}>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">Principle 4: Lead Leaders</p>
+      <h4 className="font-display text-lg font-semibold text-foreground">Section Objective</h4>
+      <p>Leadership reaches its highest level when it is intentionally transferred to others.</p>
+      <p>Throughout this Leadership Optimization Cycle, you have learned to Lead Yourself, Lead Others, and Lead for Results. Now your responsibility changes.</p>
+      <p>Your responsibility is no longer simply to lead well yourself. It is to intentionally develop another person so they can confidently lead themselves, lead others, produce meaningful results, and eventually develop other leaders.</p>
+      <p>This section will help you identify one emerging leader, understand their development needs, and build a Leadership Transfer Plan that guides their growth.</p>
+      <p className="font-semibold">Remember…</p>
+      <p>Leadership is not complete until it is intentionally invested in someone else.</p>
+    </AboutSectionSheet>
+  );
+}

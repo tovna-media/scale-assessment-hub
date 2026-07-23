@@ -523,3 +523,17 @@ function Chips({ label, options, values, onChange }: { label: string; options: s
     </div>
   );
 }
+function AboutSectionButtonS12({ className }: { className?: string }) {
+  return (
+    <AboutSectionSheet title="Section 12: Leadership Optimization Review" className={className}>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">Leadership Optimization Cycle Review</p>
+      <h4 className="font-display text-lg font-semibold text-foreground">Section Objective</h4>
+      <p>Leadership is not an event.</p>
+      <p>It is a continual process of assessment, development, application, measurement, and refinement.</p>
+      <p>This section will help you review your Leadership Optimization Cycle, identify measurable growth, evaluate remaining leadership gaps, and intentionally begin your next cycle of development.</p>
+      <p className="font-semibold">Remember…</p>
+      <p>The goal is not to finish the Guide.</p>
+      <p>The goal is to become more Fully Resourced with every Leadership Optimization Cycle.</p>
+    </AboutSectionSheet>
+  );
+}
