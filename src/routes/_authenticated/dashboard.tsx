@@ -352,13 +352,13 @@ function DashboardPage() {
             <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">Free pass used</p>
               <h3 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
-                You've used your free pass
+                Seeing your gaps is the easy part.
               </h3>
-              <p className="mt-2 text-sm text-white/85">Here's what upgrading unlocks:</p>
+              <p className="mt-2 text-sm text-white/85">The full Fully Resourced system is how you close them, one week at a time.</p>
             </div>
             <Button
               size="lg"
-              className="w-full shrink-0 bg-white text-[#2a0a64] hover:bg-white/90 sm:w-auto"
+              className="w-full shrink-0 bg-white text-[#2a0a64] hover:bg-white/90 sm:w-auto text-base"
               onClick={handleSubscribeClick}
             >
               <Sparkles className="mr-2 h-4 w-4" /> Upgrade Now
