@@ -7,9 +7,11 @@ import {
   Head,
   Heading,
   Html,
+  Img,
   Preview,
   Text,
 } from '@react-email/components'
+import { LOGO_URL } from './_shared'
 
 interface RecoveryEmailProps {
   siteName: string
@@ -25,6 +27,7 @@ export const RecoveryEmail = ({
     <Preview>Reset your password for {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
+        <Img src={LOGO_URL} alt="Fully Resourced" style={logo} />
         <Heading style={h1}>Reset your password</Heading>
         <Text style={text}>
           We received a request to reset your password for {siteName}. Click
@@ -46,6 +49,7 @@ export default RecoveryEmail
 
 const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
 const container = { padding: '20px 25px' }
+const logo = { display: 'block', height: '40px', width: 'auto', margin: '0 0 20px' }
 const h1 = {
   fontSize: '22px',
   fontWeight: 'bold' as const,
