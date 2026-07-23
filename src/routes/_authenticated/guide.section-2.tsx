@@ -8,12 +8,19 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { SectionVideo } from "@/components/scale/SectionVideo";
 import { PrintSectionButton } from "@/components/scale/PrintSectionButton";
 import { hasPrintableContent } from "@/lib/section-print";
 import { GapReportPanel } from "@/components/scale/GapReportPanel";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_authenticated/guide/section-2")({
   head: () => ({ meta: [{ title: "Section 2 · Lead Yourself" }] }),
@@ -297,6 +304,7 @@ function SectionTwoPage() {
           {stepTitle(step)}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">{stepBlurb(step)}</p>
+        <AboutSectionButton />
       </div>
 
       <div className="space-y-8">
@@ -411,6 +419,59 @@ function ChipToggle({ label, active, onClick }: { label: string; active: boolean
   );
 }
 
+function AboutSectionButton() {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <button
+          type="button"
+          className="mt-4 flex w-full items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left shadow-sm ring-1 ring-transparent transition hover:border-[#433993]/40 hover:ring-[#433993]/20 sm:w-auto"
+        >
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-[#433993]/10 text-[#433993]">
+            <FileText className="h-5 w-5" />
+          </span>
+          <span className="flex flex-col">
+            <span className="text-sm font-semibold text-foreground">About this section</span>
+            <span className="text-xs text-muted-foreground">What Lead Yourself is about</span>
+          </span>
+        </button>
+      </DialogTrigger>
+      <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Section 2: Lead Yourself</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 text-sm leading-relaxed text-foreground">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+            Principle 1: Lead Yourself
+          </p>
+          <h4 className="font-display text-lg font-semibold text-foreground">Section Objective</h4>
+          <p>The first principle of leadership is simple:</p>
+          <p className="font-semibold">You cannot give what you do not have.</p>
+          <p>Everything you accomplish as a leader begins with how well you lead yourself.</p>
+          <p>
+            Your GAP Report has already identified where you are today. This section will help you
+            understand those results and build a practical plan for becoming the leader your goals
+            require.
+          </p>
+          <p>The objective is not to improve everything at once.</p>
+          <p>
+            The objective is to identify the leadership gaps that matter most, strengthen your
+            foundation, and leave this section with a clear Lead Yourself Plan.
+          </p>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function GuideNote({ children }: { children: React.ReactNode }) {
+  return (
+    <section className="rounded-2xl border border-[#433993]/20 bg-[#433993]/[0.04] p-5 text-sm leading-relaxed text-foreground">
+      {children}
+    </section>
+  );
+}
+
 function NumberedInputs({
   values,
   onChange,
@@ -452,6 +513,13 @@ function StepReviewGap({
 }) {
   return (
     <>
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 1: Review Your GAP Report
+        </p>
+        <p className="mt-2">Before moving forward, review your GAP Report.</p>
+        <p className="mt-2">Identify the most important insights from your assessments.</p>
+      </GuideNote>
       {!md && (
         <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-4 text-sm text-amber-900">
           You don't have a GAP Report yet. You can still complete Section 2 from memory — but generating your first
@@ -474,7 +542,7 @@ function StepReviewGap({
       </section>
       <section>
         <Label htmlFor="patterns" className="text-base font-semibold text-foreground">
-          Looking across your entire GAP Report, what patterns do you notice?
+          Looking across my entire GAP Report, what patterns do I notice?
         </Label>
         <Textarea
           id="patterns"
@@ -499,12 +567,34 @@ function StepUnderstandGaps({
 }) {
   return (
     <>
-      <section className="rounded-2xl border border-border bg-muted/30 p-5 text-sm leading-relaxed text-muted-foreground">
-        <p><span className="font-semibold text-foreground">Knowledge & Skill Gap.</span> "I don't know how." You need additional knowledge, tools, practice, or coaching.</p>
-        <p className="mt-2"><span className="font-semibold text-foreground">Capacity & Standards Gap.</span> "I know what to do." You're simply not doing it consistently — capacity, standards, or discipline need to improve.</p>
-      </section>
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 2: Understanding Your Leadership Gaps
+        </p>
+        <p className="mt-2">
+          Throughout this workbook you'll discover that leadership gaps generally come from one of
+          two places.
+        </p>
+        <div className="mt-3">
+          <p className="font-semibold text-foreground">Knowledge & Skill Gap</p>
+          <p className="mt-1">I don't know how.</p>
+          <p className="mt-1">I need additional knowledge, tools, practice, or coaching.</p>
+        </div>
+        <div className="mt-3">
+          <p className="font-semibold text-foreground">Capacity & Standards Gap</p>
+          <p className="mt-1">I know what to do.</p>
+          <p className="mt-1">
+            I'm simply not doing it consistently because my capacity, standards, or discipline need
+            to improve.
+          </p>
+        </div>
+        <p className="mt-3">Review your Leadership Assessment.</p>
+      </GuideNote>
       <section>
-        <h3 className="text-base font-semibold text-foreground">Which leadership skills require the greatest development?</h3>
+        <h3 className="text-base font-semibold text-foreground">
+          Which leadership skills require the greatest development during this Leadership
+          Optimization Cycle?
+        </h3>
         <p className="text-sm text-muted-foreground">Tap all that apply.</p>
         <div className="mt-3 flex flex-wrap gap-2">
           {SKILL_OPTIONS.map((s) => (
@@ -545,35 +635,52 @@ function StepFirmCharacter({
 }) {
   return (
     <>
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 3: FUEL Your Leadership
+        </p>
+        <p className="mt-2">Leadership begins by fueling yourself first.</p>
+        <p className="mt-2">Every Lead Yourself Plan is built around four commitments.</p>
+        <p className="mt-3 font-semibold text-foreground">F — Firm Up Your Character</p>
+        <p className="mt-1">Review the Two Types of Character worksheet.</p>
+      </GuideNote>
       <section>
         <h3 className="text-base font-semibold text-foreground">Performance Character</h3>
-        <p className="text-sm text-muted-foreground">Three greatest strengths.</p>
+        <p className="text-sm text-muted-foreground">
+          Which three Performance Character qualities are your greatest strengths?
+        </p>
         <div className="mt-3">
           <NumberedInputs values={d.character_perf_strengths} onChange={(i, v) => updateAt("character_perf_strengths", i, v)} placeholder="e.g. Discipline, Drive, Focus" />
         </div>
-        <p className="mt-4 text-sm text-muted-foreground">Two that require intentional growth.</p>
+        <p className="mt-4 text-sm text-muted-foreground">
+          Which two Performance Character qualities require intentional growth?
+        </p>
         <div className="mt-2">
           <NumberedInputs values={d.character_perf_growth} onChange={(i, v) => updateAt("character_perf_growth", i, v)} placeholder="e.g. Patience, Resilience" />
         </div>
       </section>
       <section>
         <h3 className="text-base font-semibold text-foreground">Moral Character</h3>
-        <p className="text-sm text-muted-foreground">Three qualities that best describe you today.</p>
+        <p className="text-sm text-muted-foreground">
+          Which three Moral Character qualities best describe you today?
+        </p>
         <div className="mt-3">
           <NumberedInputs values={d.character_moral} onChange={(i, v) => updateAt("character_moral", i, v)} placeholder="e.g. Honesty, Integrity, Humility" />
         </div>
         <div className="mt-4">
           <Label htmlFor="moral_focus" className="text-sm font-semibold text-foreground">
-            The moral character quality requiring the greatest attention this cycle
+            Which Moral Character quality requires the greatest attention during this Leadership
+            Optimization Cycle?
           </Label>
           <Input id="moral_focus" className="mt-2" value={d.character_moral_focus} onChange={(e) => update("character_moral_focus", e.target.value)} />
         </div>
       </section>
       <section>
+        <p className="text-sm font-semibold text-foreground">Character → Process → Result</p>
         <Label htmlFor="improve" className="text-sm font-semibold text-foreground">
-          What character qualities must improve to produce better leadership results?
+          What character qualities must improve in order to produce better leadership results?
         </Label>
-        <Textarea id="improve" value={d.character_to_improve} onChange={(e) => update("character_to_improve", e.target.value)} className="mt-2 min-h-[110px]" placeholder="Character → Process → Result" />
+        <Textarea id="improve" value={d.character_to_improve} onChange={(e) => update("character_to_improve", e.target.value)} className="mt-2 min-h-[110px]" />
       </section>
     </>
   );
@@ -588,9 +695,16 @@ function StepUnderstandEmotions({
 }) {
   return (
     <>
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          U — Understand Your Emotions
+        </p>
+        <p className="mt-2">Review your Emotional Energy Awareness Scale.</p>
+      </GuideNote>
       <section>
-        <h3 className="text-base font-semibold text-foreground">Emotional Energy Zone</h3>
-        <p className="text-sm text-muted-foreground">Which zone best describes you most days?</p>
+        <h3 className="text-base font-semibold text-foreground">
+          Which Emotional Energy Zone best describes you most days?
+        </h3>
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
           {EMOTIONAL_ZONES.map((z) => {
             const active = d.emotion_zone === z.value;
@@ -646,9 +760,14 @@ function StepSuccessImage({
   ];
   return (
     <section className="space-y-4">
-      <p className="rounded-2xl border border-border bg-muted/30 p-4 text-sm leading-relaxed text-muted-foreground">
-        If this Leadership Optimization Cycle is successful — what will success look like?
-      </p>
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          E — Envision Your Success
+        </p>
+        <p className="mt-2 font-semibold text-foreground">Your Success Image</p>
+        <p className="mt-2">If this Leadership Optimization Cycle is successful…</p>
+        <p className="mt-2">What will success look like?</p>
+      </GuideNote>
       {fields.map((f) => (
         <div key={f.key}>
           <Label className="text-sm font-semibold text-foreground">{f.label}</Label>
@@ -674,9 +793,16 @@ function StepSuccessDrivers({
 }) {
   return (
     <>
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Success Drivers & Top Priority Goal
+        </p>
+      </GuideNote>
       <section>
         <h3 className="text-base font-semibold text-foreground">Success Drivers</h3>
-        <p className="text-sm text-muted-foreground">The five most important actions that move you toward your Success Image.</p>
+        <p className="text-sm text-muted-foreground">
+          What are the five most important actions that will move you toward your Success Image?
+        </p>
         <div className="mt-3">
           <NumberedInputs values={d.success_drivers} onChange={(i, v) => updateAt("success_drivers", i, v)} placeholder="An action you'll execute consistently" />
         </div>
@@ -701,6 +827,11 @@ function StepRoleAndDisc({
 }) {
   return (
     <>
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Clarify Your Role
+        </p>
+      </GuideNote>
       <section>
         <h3 className="text-base font-semibold text-foreground">Clarify Your Role</h3>
         <div className="mt-3 space-y-4">
@@ -709,13 +840,17 @@ function StepRoleAndDisc({
             <Input className="mt-2" value={d.primary_role} onChange={(e) => update("primary_role", e.target.value)} />
           </div>
           <div>
-            <Label className="text-sm font-semibold text-foreground">Five most important responsibilities</Label>
+            <Label className="text-sm font-semibold text-foreground">
+              What are the five most important responsibilities of that role?
+            </Label>
             <div className="mt-2">
               <NumberedInputs values={d.responsibilities} onChange={(i, v) => updateAt("responsibilities", i, v)} />
             </div>
           </div>
           <div>
-            <Label className="text-sm font-semibold text-foreground">Results you are ultimately responsible for producing</Label>
+            <Label className="text-sm font-semibold text-foreground">
+              What results am I ultimately responsible for producing?
+            </Label>
             <Textarea className="mt-2 min-h-[90px]" value={d.role_results} onChange={(e) => update("role_results", e.target.value)} />
           </div>
         </div>
@@ -728,19 +863,21 @@ function StepRoleAndDisc({
             <Input className="mt-2" value={d.disc_style} onChange={(e) => update("disc_style", e.target.value)} placeholder="e.g. D, I, S, C, or a blend" />
           </div>
           <div>
-            <Label className="text-sm font-semibold text-foreground">Greatest strengths</Label>
+            <Label className="text-sm font-semibold text-foreground">My greatest strengths</Label>
             <div className="mt-2">
               <NumberedInputs values={d.disc_strengths} onChange={(i, v) => updateAt("disc_strengths", i, v)} />
             </div>
           </div>
           <div>
-            <Label className="text-sm font-semibold text-foreground">Biggest blind spots</Label>
+            <Label className="text-sm font-semibold text-foreground">My biggest blind spots</Label>
             <div className="mt-2">
               <NumberedInputs values={d.disc_blind_spots} onChange={(i, v) => updateAt("disc_blind_spots", i, v)} />
             </div>
           </div>
           <div>
-            <Label className="text-sm font-semibold text-foreground">How could these blind spots interfere with your Success Image?</Label>
+            <Label className="text-sm font-semibold text-foreground">
+              How could these blind spots interfere with my Success Image?
+            </Label>
             <Textarea className="mt-2 min-h-[90px]" value={d.disc_impact} onChange={(e) => update("disc_impact", e.target.value)} />
           </div>
         </div>
@@ -762,9 +899,18 @@ function StepLeadDaily({
 }) {
   return (
     <>
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          L — Lead Yourself Daily
+        </p>
+        <p className="mt-2">Leadership is built through consistent daily execution.</p>
+      </GuideNote>
       <section>
         <h3 className="text-base font-semibold text-foreground">Leadership Priorities</h3>
-        <p className="text-sm text-muted-foreground">Your three most important areas of growth this cycle.</p>
+        <p className="text-sm text-muted-foreground">
+          What are the three most important areas of growth during this Leadership Optimization
+          Cycle?
+        </p>
         <div className="mt-3">
           <NumberedInputs values={d.daily_priorities} onChange={(i, v) => updateAt("daily_priorities", i, v)} />
         </div>
@@ -782,22 +928,26 @@ function StepLeadDaily({
         </div>
       </section>
       <section>
-        <h3 className="text-base font-semibold text-foreground">Reinforcing behaviors</h3>
-        <p className="text-sm text-muted-foreground">Which daily or weekly behaviors will reinforce those standards?</p>
+        <h3 className="text-base font-semibold text-foreground">
+          Which daily or weekly behaviors will reinforce those standards?
+        </h3>
         <div className="mt-3">
           <NumberedInputs values={d.daily_behaviors} onChange={(i, v) => updateAt("daily_behaviors", i, v)} />
         </div>
       </section>
       <section>
         <h3 className="text-base font-semibold text-foreground">My First Three Actions</h3>
-        <p className="text-sm text-muted-foreground">What will you do during the next seven days?</p>
+        <p className="text-sm text-muted-foreground">What will I do during the next seven days?</p>
         <div className="mt-3">
           <NumberedInputs values={d.first_actions} onChange={(i, v) => updateAt("first_actions", i, v)} />
         </div>
       </section>
       <section>
         <Label className="text-base font-semibold text-foreground">My Support Team</Label>
-        <p className="text-sm text-muted-foreground">Who will encourage, challenge, or hold you accountable?</p>
+        <p className="text-sm text-muted-foreground">
+          Who will encourage, challenge, or hold me accountable during this Leadership Optimization
+          Cycle?
+        </p>
         <Textarea className="mt-2 min-h-[100px]" value={d.support_team} onChange={(e) => update("support_team", e.target.value)} />
       </section>
     </>
@@ -866,6 +1016,7 @@ function StepCommitment({
   return (
     <section className="rounded-2xl border border-[#433993]/30 bg-[#433993]/[0.04] p-6 shadow-sm">
       <h3 className="font-display text-lg font-semibold text-foreground">Leadership Commitment</h3>
+      <p className="mt-2 text-xs text-muted-foreground">Complete the following statement.</p>
       <p className="mt-3 text-sm leading-relaxed text-foreground">
         During this Leadership Optimization Cycle, I commit to becoming the leader my goals require by intentionally
         strengthening my character, managing my emotional energy, keeping my Success Image in front of me, and leading
