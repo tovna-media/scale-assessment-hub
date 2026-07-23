@@ -7,6 +7,7 @@ import { getSubscriptionStatus } from "@/lib/payments.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowRight, Check, Lock, PlayCircle, Printer } from "lucide-react";
 import { usePlansDialog } from "@/components/PlansDialog";
+import { sectionUnlockStatus, formatUnlockDate } from "@/lib/section-unlock";
 
 export const Route = createFileRoute("/_authenticated/cycle")({
   head: () => ({ meta: [{ title: "My Cycle — Fully Resourced" }] }),
@@ -37,6 +38,7 @@ function CyclePage() {
   const [progress, setProgress] = useState<Progress[]>([]);
   const [subscribed, setSubscribed] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [cycleStart, setCycleStart] = useState<Date | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -48,6 +50,16 @@ function CyclePage() {
       .then(({ data }) => {
         setProgress((data ?? []) as Progress[]);
         setLoading(false);
+      });
+    supabase
+      .from("gap_reports")
+      .select("generated_at")
+      .eq("user_id", user.id)
+      .order("generated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.generated_at) setCycleStart(new Date(data.generated_at));
       });
   }, [user, checkSub]);
 
@@ -99,8 +111,11 @@ function CyclePage() {
         {SECTIONS.map((s) => {
           const done = completedSet.has(s.number);
           const prevDone = s.number === 1 || completedSet.has(s.number - 1);
-          const available = subscribed && prevDone && !done;
+          const status = sectionUnlockStatus(cycleStart, s.number, prevDone);
+          const available = subscribed && status.unlocked && !done;
           const locked = !done && !available;
+          const waitingOnDate =
+            subscribed && !done && prevDone && !status.weekReached && status.unlockAt;
           const built = Boolean(s.path);
 
           return (
@@ -127,6 +142,16 @@ function CyclePage() {
                   <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--rl-purple)]">Section {s.number}</p>
                   <h4 className="mt-1 text-base font-semibold text-[var(--fr-ink)]">{s.title}</h4>
                   <p className="mt-1 text-sm text-[var(--fr-muted-ink)]">{s.blurb}</p>
+                  {waitingOnDate && status.unlockAt && (
+                    <p className="mt-2 text-xs font-medium text-[var(--rl-purple)]">
+                      Opens {formatUnlockDate(status.unlockAt)}
+                    </p>
+                  )}
+                  {subscribed && !done && status.weekReached && !prevDone && s.number > 1 && (
+                    <p className="mt-2 text-xs text-[var(--fr-muted-ink)]">
+                      Finish Section {s.number - 1} to unlock.
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="shrink-0">
@@ -143,6 +168,11 @@ function CyclePage() {
                 )}
                 {subscribed && available && built && s.path && (
                   <Button size="sm" asChild><Link to={s.path as "/guide/section-1"}>Start <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Link></Button>
+                )}
+                {subscribed && locked && built && (
+                  <span className="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[var(--fr-muted-ink)]">
+                    <Lock className="mr-1.5 h-3.5 w-3.5" /> Locked
+                  </span>
                 )}
                 {!built && (
                   <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[var(--fr-muted-ink)]">
