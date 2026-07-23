@@ -11,6 +11,7 @@ import { getGapReportEligibility } from "@/lib/report.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { usePlansDialog } from "@/components/PlansDialog";
+import { sectionUnlockStatus, formatUnlockDate } from "@/lib/section-unlock";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Home — Fully Resourced" }] }),
@@ -156,6 +157,7 @@ function DashboardPage() {
   const [priorityGap, setPriorityGap] = useState<{ name: string; score: number | null } | null>(null);
   const [section1Complete, setSection1Complete] = useState(false);
   const [maxSectionCompleted, setMaxSectionCompleted] = useState<number>(0);
+  const [cycleStart, setCycleStart] = useState<Date | null>(null);
   const [eligibility, setEligibility] = useState<{
     reportsGenerated: number;
     readyCount: number;
@@ -231,6 +233,16 @@ function DashboardPage() {
         const completedMax = rows.filter((r) => r.completed).reduce((m, r) => Math.max(m, r.section_number), 0);
         setMaxSectionCompleted(completedMax);
       });
+    supabase
+      .from("gap_reports")
+      .select("generated_at")
+      .eq("user_id", user.id)
+      .order("generated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.generated_at) setCycleStart(new Date(data.generated_at));
+      });
   }, [user, checkSub, checkEligibility]);
 
   const paywalled = freePassUsed && !subscribed;
@@ -293,6 +305,10 @@ function DashboardPage() {
   const cycleProgressPct = Math.round((cycleWeek / CYCLE_LENGTH) * 100);
   const nextSection = Math.min(CYCLE_LENGTH, cycleWeek + 1);
   const inCycle = subscribed && section1Complete;
+  // Drip-schedule status for the next section — must match the /cycle page.
+  const nextSectionStatus = sectionUnlockStatus(cycleStart, nextSection, true);
+  const nextSectionUnlocked = nextSectionStatus.unlocked;
+  const nextUnlockAt = nextSectionStatus.unlockAt;
 
   const latestSession = sessions[0];
   const readyCount = eligibility?.readyCount ?? 0;
@@ -525,6 +541,8 @@ function DashboardPage() {
             hasAnyReport={hasAnyReport}
             nextAssessmentTo={nextAssessmentTo}
             nextSectionTo={nextSectionTo}
+            nextSectionUnlocked={nextSectionUnlocked}
+            nextUnlockAt={nextUnlockAt}
           />
         ) : null;
         return cycleFirst ? (
