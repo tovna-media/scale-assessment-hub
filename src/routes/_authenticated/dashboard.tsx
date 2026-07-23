@@ -16,6 +16,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Home — Fully Resourced" }] }),
   validateSearch: (search: Record<string, unknown>) => ({
     checkout: search.checkout === "success" ? ("success" as const) : undefined,
+    upgrade: search.upgrade === true || search.upgrade === "true" || search.upgrade === "1" ? true : undefined,
   }),
   component: DashboardPage,
 });
@@ -133,9 +134,10 @@ function Delta({ value, unit = "pts" }: { value: number | null; unit?: string })
 
 function DashboardPage() {
   const { user } = useAuth();
-  const { checkout } = Route.useSearch();
+  const { checkout, upgrade } = Route.useSearch();
   const navigate = useNavigate();
   const shownCheckoutToast = useRef(false);
+  const shownUpgradePrompt = useRef(false);
 
   useEffect(() => {
     if (checkout !== "success" || shownCheckoutToast.current) return;
@@ -168,6 +170,13 @@ function DashboardPage() {
   const checkSub = useServerFn(getSubscriptionStatus);
   const checkEligibility = useServerFn(getGapReportEligibility);
   const plansDialog = usePlansDialog();
+
+  useEffect(() => {
+    if (!upgrade || shownUpgradePrompt.current) return;
+    shownUpgradePrompt.current = true;
+    plansDialog.open();
+    navigate({ to: "/dashboard", search: {}, replace: true });
+  }, [upgrade, navigate, plansDialog]);
 
   useEffect(() => {
     if (!user) return;
