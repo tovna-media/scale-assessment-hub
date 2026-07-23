@@ -1,5 +1,5 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
-import { MessageCircle, X } from "lucide-react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { Loader2, MessageCircle, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Ctx = { open: boolean; setOpen: (v: boolean) => void; toggle: () => void };
@@ -44,14 +44,39 @@ export function AICoachLauncher({ className }: { className?: string }) {
 
 export function AICoachPanel() {
   const { open, setOpen } = useAICoach();
-  if (!open) return null;
+  // Mount the iframe once per session. Start it in the background shortly
+  // after mount so it's warm before the member opens the bubble.
+  const [mounted, setMounted] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    if (mounted) return;
+    const start = () => setMounted(true);
+    const w = window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number };
+    if (typeof w.requestIdleCallback === "function") {
+      w.requestIdleCallback(start, { timeout: 2500 });
+    } else {
+      const t = window.setTimeout(start, 1200);
+      return () => window.clearTimeout(t);
+    }
+  }, [mounted]);
+
+  // When the panel is opened before the idle preload fires, mount immediately.
+  useEffect(() => {
+    if (open && !mounted) setMounted(true);
+  }, [open, mounted]);
+
   return (
     <div
-      className="fixed z-50 flex flex-col overflow-hidden rounded-2xl border border-[var(--fr-hairline)] bg-white shadow-[0_24px_60px_rgba(20,10,50,0.35)]
-        inset-2 sm:inset-auto sm:bottom-24 sm:right-5 sm:w-[400px] sm:max-w-[calc(100vw-2.5rem)]"
+      className={cn(
+        "fixed z-50 flex-col overflow-hidden rounded-2xl border border-[var(--fr-hairline)] bg-white shadow-[0_24px_60px_rgba(20,10,50,0.35)]",
+        "inset-2 sm:inset-auto sm:bottom-24 sm:right-5 sm:w-[400px] sm:max-w-[calc(100vw-2.5rem)]",
+        open ? "flex" : "hidden",
+      )}
       style={{ maxHeight: "min(700px, calc(100vh - 2rem))", height: "min(700px, calc(100vh - 2rem))" }}
       role="dialog"
       aria-label="Fully Resourced AI Coach"
+      aria-hidden={!open}
     >
       <div className="flex items-center justify-between px-4 py-3 text-white" style={{ backgroundColor: "#5B2D8E" }}>
         <div className="flex items-center gap-2 text-sm font-semibold">
@@ -67,13 +92,22 @@ export function AICoachPanel() {
           <X className="h-4 w-4" />
         </button>
       </div>
-      <div className="flex-1 overflow-hidden bg-white">
-        <iframe
-          src="https://app.coachvox.ai/avatar/mtybCyZrwODb9uv9MIJq/embed"
-          allow="microphone;"
-          title="Fully Resourced AI Coach"
-          style={{ height: "100%", width: "100%", border: 0, display: "block" }}
-        />
+      <div className="relative flex-1 overflow-hidden bg-white">
+        {!loaded && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-white text-sm text-[var(--fr-muted-ink)]">
+            <Loader2 className="h-6 w-6 animate-spin" style={{ color: "#5B2D8E" }} />
+            <p>Warming up your coach…</p>
+          </div>
+        )}
+        {mounted && (
+          <iframe
+            src="https://app.coachvox.ai/avatar/mtybCyZrwODb9uv9MIJq/embed"
+            allow="microphone;"
+            title="Fully Resourced AI Coach"
+            onLoad={() => setLoaded(true)}
+            style={{ height: "100%", width: "100%", border: 0, display: "block" }}
+          />
+        )}
       </div>
     </div>
   );
