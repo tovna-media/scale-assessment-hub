@@ -454,7 +454,6 @@ function DashboardPage() {
 
 function AssessmentNudgeCard({
   takenCount,
-  completedTypes,
   canGenerate,
   isFirstRound,
   readyCount,
@@ -463,7 +462,6 @@ function AssessmentNudgeCard({
   nextLabel,
 }: {
   takenCount: number;
-  completedTypes: Set<AssessmentType>;
   canGenerate: boolean;
   isFirstRound: boolean;
   readyCount: number;
