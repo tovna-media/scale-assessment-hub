@@ -285,7 +285,7 @@ function SectionTwoPage() {
         <PrintSectionButton section={2} hasContent={hasPrintableContent(d)} />
       </div>
 
-      <SectionVideo sectionNumber={2} sectionTitle="Lead Yourself" />
+      <SectionVideo sectionNumber={2} sectionTitle="Lead Yourself" videoUrl="https://www.youtube.com/embed/MNomJ1zXrSI" />
 
       <div className="mb-6">
         <div className="flex items-center justify-between text-xs font-medium uppercase tracking-widest text-muted-foreground">
