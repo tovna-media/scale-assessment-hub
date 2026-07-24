@@ -356,6 +356,9 @@ export function YourActionsCard({
         <div className="min-w-0">
           <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--rl-purple)]">Your actions</div>
           <div className="mt-1 text-base font-semibold text-[var(--fr-ink)]">{summary || "Nothing tracked yet"}</div>
+          <p className="mt-1 text-xs text-[var(--fr-muted-ink)]">
+            Straight from what you committed to in your sections.
+          </p>
         </div>
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[var(--fr-lilac)] text-[var(--rl-purple)]">
           {open ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
