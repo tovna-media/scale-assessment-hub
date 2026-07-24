@@ -461,6 +461,24 @@ export type Database = {
         }
         Relationships: []
       }
+      success_image_reads: {
+        Row: {
+          created_at: string
+          read_date: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          read_date: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          read_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       suppressed_emails: {
         Row: {
           created_at: string
