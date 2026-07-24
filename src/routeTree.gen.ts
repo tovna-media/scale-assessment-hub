@@ -50,6 +50,7 @@ import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/e
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
+import { Route as ApiPublicHooksActionRemindersRouteImport } from './routes/api/public/hooks/action-reminders'
 import { Route as CoachCoachAssesseeUserIdRouteImport } from './routes/_coach/coach.assessee.$userId'
 import { Route as AuthenticatedPrintSectionNumberRouteImport } from './routes/_authenticated/print.section.$number'
 
@@ -276,6 +277,12 @@ const ApiPublicPaymentsWebhookRoute =
     path: '/api/public/payments/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksActionRemindersRoute =
+  ApiPublicHooksActionRemindersRouteImport.update({
+    id: '/api/public/hooks/action-reminders',
+    path: '/api/public/hooks/action-reminders',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const CoachCoachAssesseeUserIdRoute =
   CoachCoachAssesseeUserIdRouteImport.update({
     id: '/assessee/$userId',
@@ -325,6 +332,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/print/section/$number': typeof AuthenticatedPrintSectionNumberRoute
   '/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
+  '/api/public/hooks/action-reminders': typeof ApiPublicHooksActionRemindersRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -368,6 +376,7 @@ export interface FileRoutesByTo {
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/print/section/$number': typeof AuthenticatedPrintSectionNumberRoute
   '/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
+  '/api/public/hooks/action-reminders': typeof ApiPublicHooksActionRemindersRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -414,6 +423,7 @@ export interface FileRoutesById {
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/_authenticated/print/section/$number': typeof AuthenticatedPrintSectionNumberRoute
   '/_coach/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
+  '/api/public/hooks/action-reminders': typeof ApiPublicHooksActionRemindersRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -459,6 +469,7 @@ export interface FileRouteTypes {
     | '/lovable/email/suppression'
     | '/print/section/$number'
     | '/coach/assessee/$userId'
+    | '/api/public/hooks/action-reminders'
     | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -502,6 +513,7 @@ export interface FileRouteTypes {
     | '/lovable/email/suppression'
     | '/print/section/$number'
     | '/coach/assessee/$userId'
+    | '/api/public/hooks/action-reminders'
     | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -547,6 +559,7 @@ export interface FileRouteTypes {
     | '/lovable/email/suppression'
     | '/_authenticated/print/section/$number'
     | '/_coach/coach/assessee/$userId'
+    | '/api/public/hooks/action-reminders'
     | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -568,6 +581,7 @@ export interface RootRouteChildren {
   CoachLoginRoute: typeof CoachLoginRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
+  ApiPublicHooksActionRemindersRoute: typeof ApiPublicHooksActionRemindersRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -865,6 +879,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/action-reminders': {
+      id: '/api/public/hooks/action-reminders'
+      path: '/api/public/hooks/action-reminders'
+      fullPath: '/api/public/hooks/action-reminders'
+      preLoaderRoute: typeof ApiPublicHooksActionRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_coach/coach/assessee/$userId': {
       id: '/_coach/coach/assessee/$userId'
       path: '/assessee/$userId'
@@ -982,6 +1003,7 @@ const rootRouteChildren: RootRouteChildren = {
   CoachLoginRoute: CoachLoginRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
+  ApiPublicHooksActionRemindersRoute: ApiPublicHooksActionRemindersRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
