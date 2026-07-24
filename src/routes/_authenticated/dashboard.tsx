@@ -953,30 +953,29 @@ function FreeMemberPreview({
       </div>
 
       <div className="relative mb-8">
-        {/* Dimmed non-interactive preview */}
+        {/* Dimmed non-interactive preview — all three sections in one card */}
         <div
           aria-hidden="true"
-          className="pointer-events-none select-none space-y-4"
+          className="pointer-events-none select-none overflow-hidden rounded-3xl border border-[var(--fr-hairline)] bg-white shadow-[var(--shadow-card)]"
           style={{ opacity: 0.55, filter: "saturate(0.9)" }}
         >
           {/* Success Image sample */}
-          <div
-            className="overflow-hidden rounded-3xl p-6 text-white sm:p-8"
-            style={{ background: `linear-gradient(135deg, ${BRAND_DEEP} 0%, ${BRAND} 55%, #7c3fbf 100%)` }}
-          >
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/80">
+          <div className="p-6 sm:p-8">
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: BRAND }}>
               <Sparkles className="h-4 w-4" /> Your Success Image · daily
             </div>
-            <p className="mt-4 text-2xl font-semibold leading-snug tracking-tight sm:text-3xl">
+            <p className="mt-3 text-2xl font-semibold leading-snug tracking-tight text-[var(--fr-ink)] sm:text-3xl">
               {"\u201CI coach instead of rescue. My people make the call.\u201D"}
             </p>
-            <p className="mt-2 text-xs font-medium text-white/75 sm:text-sm">
+            <p className="mt-2 text-xs font-medium text-[var(--fr-muted-ink)] sm:text-sm">
               Wake up to a piece of the leader you're becoming, a different part each morning.
             </p>
           </div>
 
+          <div className="h-px bg-[var(--fr-hairline)]" />
+
           {/* Your actions sample */}
-          <div className="rounded-3xl border border-[var(--fr-hairline)] bg-white p-5 shadow-[var(--shadow-card)] sm:p-6">
+          <div className="p-6 sm:p-8">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: BRAND }}>
@@ -995,8 +994,10 @@ function FreeMemberPreview({
             </div>
           </div>
 
+          <div className="h-px bg-[var(--fr-hairline)]" />
+
           {/* AI Coach sample */}
-          <div className="rounded-3xl border border-[var(--fr-hairline)] bg-white p-5 shadow-[var(--shadow-card)] sm:p-6">
+          <div className="p-6 sm:p-8">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: BRAND }}>
