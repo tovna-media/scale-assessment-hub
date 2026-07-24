@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "@tanstack/react-router";
 import { ChevronDown, ChevronUp, Check, Circle, AlertTriangle, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
@@ -323,12 +322,6 @@ export function YourActionsCard({
               Your daily habits and action steps will show up here as you work through your sections.
             </p>
           </div>
-          <Link
-            to="/guide/section-$number" as="/guide/section-$number"
-            // fallback for typed router — use a plain anchor
-            href={`/guide/section-${currentSection}`}
-            className="hidden"
-          />
           <a
             href={`/guide/section-${currentSection}`}
             className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[var(--fr-lilac)] px-3 py-1.5 text-xs font-semibold text-[var(--rl-purple)] hover:brightness-95"
