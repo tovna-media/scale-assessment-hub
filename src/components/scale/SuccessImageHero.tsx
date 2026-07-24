@@ -151,7 +151,8 @@ export function SuccessImageHero({
   if (!loaded) {
     return (
       <div className="mb-6 rounded-3xl p-6 text-white shadow-[var(--shadow-card)] sm:p-8" style={frameStyle}>
-        <div className="h-6 w-40 animate-pulse rounded bg-white/20" />
+        <div className="text-xs font-semibold uppercase tracking-[0.18em] text-white/80">Your Success Image</div>
+        <div className="mt-3 h-6 w-40 animate-pulse rounded bg-white/20" />
         <div className="mt-4 h-8 w-2/3 animate-pulse rounded bg-white/20" />
         <div className="mt-3 h-24 w-full animate-pulse rounded bg-white/10" />
       </div>
@@ -214,9 +215,12 @@ export function SuccessImageHero({
     <div className="mb-6 overflow-hidden rounded-3xl text-white shadow-[var(--shadow-card)]" style={frameStyle}>
       <div className="p-6 sm:p-8">
         <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/85">
-            <Sparkles className="h-4 w-4" />
-            <span>Today · {cat.label}</span>
+          <div className="min-w-0">
+            <div className="text-xs font-semibold uppercase tracking-[0.18em] text-white/80">Your Success Image</div>
+            <div className="mt-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-white/70">
+              <Sparkles className="h-4 w-4" />
+              <span>Today · {cat.label}</span>
+            </div>
           </div>
           <div
             className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold text-white ring-1 ring-inset ring-white/25"
