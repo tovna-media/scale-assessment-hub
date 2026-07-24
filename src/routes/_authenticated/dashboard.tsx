@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { usePlansDialog } from "@/components/PlansDialog";
 import { sectionUnlockStatus, formatUnlockDate } from "@/lib/section-unlock";
 import { SuccessImageHero } from "@/components/scale/SuccessImageHero";
+import { YourActionsCard } from "@/components/scale/YourActionsCard";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Home — Fully Resourced" }] }),
@@ -516,6 +517,12 @@ function DashboardPage() {
             (eligibility.reassessmentUnlocked). Mid-cycle, the retake box is hidden. */}
       {subscribed && (
         <SuccessImageHero cycleStart={cycleStart} section1Complete={section1Complete} />
+      )}
+      {subscribed && (
+        <YourActionsCard
+          unlockedSections={Array.from({ length: Math.max(1, cycleWeek + (nextSectionUnlocked ? 1 : 0)) }, (_, i) => i + 1).filter((n) => n <= CYCLE_LENGTH)}
+          currentSection={nextSectionUnlocked ? nextSection : Math.max(1, cycleWeek)}
+        />
       )}
       {(() => {
         const reassessmentUnlocked = Boolean(eligibility?.reassessmentUnlocked);
