@@ -89,6 +89,7 @@ export function YourActionsCard({
   const [habits, setHabits] = useState<string[]>([]);
   const [todayChecks, setTodayChecks] = useState<Set<string>>(new Set());
   const [savingHabit, setSavingHabit] = useState<string | null>(null);
+  const [s2Completed, setS2Completed] = useState(false);
 
   // live actions
   const [actions, setActions] = useState<LiveAction[]>([]);
@@ -104,7 +105,7 @@ export function YourActionsCard({
       const [{ data: progressRows }, { data: habitRows }, { data: stateRows }] = await Promise.all([
         supabase
           .from("optimizer_section_progress")
-          .select("section_number, data")
+          .select("section_number, data, completed")
           .eq("user_id", user.id)
           .in("section_number", Array.from(new Set([2, ...unlockedSections]))),
         supabase
@@ -121,7 +122,11 @@ export function YourActionsCard({
 
       // habits from section 2
       const rows = (progressRows ?? []) as { section_number: number; data: Record<string, unknown> | null }[];
-      const s2 = rows.find((r) => r.section_number === 2)?.data ?? {};
+      const s2Row = rows.find((r) => r.section_number === 2) as
+        | { section_number: number; data: Record<string, unknown> | null; completed?: boolean }
+        | undefined;
+      const s2 = s2Row?.data ?? {};
+      setS2Completed(Boolean(s2Row?.completed));
       const rawPlan = Array.isArray((s2 as Record<string, unknown>).plan_daily_behaviors)
         ? ((s2 as Record<string, unknown>).plan_daily_behaviors as unknown[])
         : [];
@@ -322,12 +327,14 @@ export function YourActionsCard({
               Your daily habits and action steps will show up here as you work through your sections.
             </p>
           </div>
-          <a
-            href={`/guide/section-${currentSection}`}
-            className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[var(--fr-lilac)] px-3 py-1.5 text-xs font-semibold text-[var(--rl-purple)] hover:brightness-95"
-          >
-            Open Section {currentSection} <ArrowRight className="h-3.5 w-3.5" />
-          </a>
+          {s2Completed && (
+            <a
+              href={`/guide/section-${currentSection}`}
+              className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[var(--fr-lilac)] px-3 py-1.5 text-xs font-semibold text-[var(--rl-purple)] hover:brightness-95"
+            >
+              Open Section {currentSection} <ArrowRight className="h-3.5 w-3.5" />
+            </a>
+          )}
         </div>
       </div>
     );
