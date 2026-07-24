@@ -12,6 +12,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { usePlansDialog } from "@/components/PlansDialog";
 import { sectionUnlockStatus, formatUnlockDate } from "@/lib/section-unlock";
+import { SuccessImageHero } from "@/components/scale/SuccessImageHero";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Home — Fully Resourced" }] }),
