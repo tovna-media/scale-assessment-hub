@@ -56,6 +56,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } else {
       setRole(null);
     }
+    // Best-effort: keep member's timezone in sync for reminder emails.
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (tz) {
+        const { data: prof } = await supabase
+          .from("profiles")
+          .select("timezone")
+          .eq("id", userId)
+          .maybeSingle();
+        if (!prof || prof.timezone !== tz) {
+          await supabase.from("profiles").update({ timezone: tz }).eq("id", userId);
+        }
+      }
+    } catch {
+      // ignore
+    }
   }
 
   async function signOut() {
