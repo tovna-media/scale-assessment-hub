@@ -878,3 +878,188 @@ function LockedFeatureCard({
   );
 }
 
+function FreeMemberPreview({
+  displayName,
+  reportSessionId,
+  topGapName,
+  onOpenPlans,
+}: {
+  displayName: string;
+  reportSessionId: string;
+  topGapName: string;
+  onOpenPlans: () => void;
+}) {
+  const BRAND = "#5B2D8E";
+  const BRAND_DEEP = "#2a0a64";
+  return (
+    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-8 sm:py-10">
+      {/* Eyebrow + headline */}
+      <div className="mb-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: BRAND }}>
+          Your Gap Report is ready
+        </p>
+        <h2 className="mt-2 text-3xl font-bold tracking-tight text-[var(--fr-ink)] sm:text-4xl">
+          {displayName ? `${displayName}, ` : ""}you've seen your gaps. Here's how you close them.
+        </h2>
+      </div>
+
+      {/* Top priority gap card */}
+      <div className="mb-8 overflow-hidden rounded-3xl border border-[var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)] sm:p-8">
+        <div className="flex items-start gap-4">
+          <div
+            className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-white"
+            style={{ background: `linear-gradient(135deg, ${BRAND_DEEP} 0%, ${BRAND} 100%)` }}
+          >
+            <Target className="h-6 w-6" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: BRAND }}>
+              Your top gap right now
+            </p>
+            <h3 className="mt-1 text-2xl font-bold tracking-tight text-[var(--fr-ink)] sm:text-3xl">
+              {topGapName}
+            </h3>
+            <p className="mt-2 text-sm text-[var(--fr-muted-ink)] sm:text-base">
+              This is the first domino. Most of your other gaps get easier once you close this one.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button asChild variant="outline" size="sm">
+                <Link to="/report/$sessionId" params={{ sessionId: reportSessionId }}>
+                  <FileText className="mr-2 h-4 w-4" /> View full report
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/report/$sessionId" params={{ sessionId: reportSessionId }} hash="download">
+                  <Download className="mr-2 h-4 w-4" /> Download PDF
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Your coaching space (preview) */}
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <h3 className="text-xl font-bold tracking-tight text-[var(--fr-ink)] sm:text-2xl">
+          Your coaching space
+        </h3>
+        <span
+          className="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white"
+          style={{ background: BRAND }}
+        >
+          Preview
+        </span>
+        <span className="text-xs text-[var(--fr-muted-ink)]">unlocks when you upgrade</span>
+      </div>
+
+      <div className="relative mb-8">
+        {/* Dimmed non-interactive preview */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none select-none space-y-4"
+          style={{ opacity: 0.55, filter: "saturate(0.9)" }}
+        >
+          {/* Success Image sample */}
+          <div
+            className="overflow-hidden rounded-3xl p-6 text-white sm:p-8"
+            style={{ background: `linear-gradient(135deg, ${BRAND_DEEP} 0%, ${BRAND} 55%, #7c3fbf 100%)` }}
+          >
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/80">
+              <Sparkles className="h-4 w-4" /> Your Success Image · daily
+            </div>
+            <p className="mt-4 text-2xl font-semibold leading-snug tracking-tight sm:text-3xl">
+              {"\u201CI coach instead of rescue. My people make the call.\u201D"}
+            </p>
+            <p className="mt-2 text-xs font-medium text-white/75 sm:text-sm">
+              Wake up to a piece of the leader you're becoming, a different part each morning.
+            </p>
+          </div>
+
+          {/* Your actions sample */}
+          <div className="rounded-3xl border border-[var(--fr-hairline)] bg-white p-5 shadow-[var(--shadow-card)] sm:p-6">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: BRAND }}>
+                  Your actions
+                </div>
+                <div className="mt-1 text-base font-semibold text-[var(--fr-ink)]">
+                  1 of 3 habits today · 2 this week
+                </div>
+                <p className="mt-1 text-xs text-[var(--fr-muted-ink)]">
+                  Daily habits and weekly steps that turn your gap report into real change.
+                </p>
+              </div>
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[var(--fr-lilac)] text-[var(--rl-purple)]">
+                <CheckSquare className="h-5 w-5" />
+              </span>
+            </div>
+          </div>
+
+          {/* AI Coach sample */}
+          <div className="rounded-3xl border border-[var(--fr-hairline)] bg-white p-5 shadow-[var(--shadow-card)] sm:p-6">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: BRAND }}>
+                  Fully Resourced AI Coach
+                </div>
+                <div className="mt-1 text-base font-semibold text-[var(--fr-ink)]">
+                  Ask anything. Anytime.
+                </div>
+                <p className="mt-1 text-xs text-[var(--fr-muted-ink)]">
+                  A coach trained on Rich's decades of experience, on call whenever you're stuck.
+                </p>
+              </div>
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[var(--fr-lilac)] text-[var(--rl-purple)]">
+                <MessageCircle className="h-5 w-5" />
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Click-catcher + centered lock badge */}
+        <button
+          type="button"
+          onClick={onOpenPlans}
+          className="absolute inset-0 flex items-center justify-center rounded-3xl"
+          aria-label="Unlock your coaching space"
+        >
+          <span
+            className="inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_40px_rgba(42,10,100,0.45)]"
+            style={{ background: BRAND }}
+          >
+            <Lock className="h-4 w-4" /> Unlock your coaching space
+          </span>
+        </button>
+      </div>
+
+      {/* Purple CTA card */}
+      <div
+        className="overflow-hidden rounded-3xl p-6 text-white shadow-[0_16px_40px_rgba(42,10,100,0.35)] sm:p-8"
+        style={{ background: `linear-gradient(135deg, ${BRAND_DEEP} 0%, ${BRAND} 100%)` }}
+      >
+        <h3 className="text-2xl font-bold tracking-tight sm:text-3xl">
+          Stop staring at the report. Start closing the gaps.
+        </h3>
+        <p className="mt-2 max-w-2xl text-sm text-white/85 sm:text-base">
+          Upgrade and the app walks you through it, day by day, with Rich's system in your pocket.
+        </p>
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <Button
+            size="lg"
+            onClick={onOpenPlans}
+            className="bg-white hover:bg-white/90"
+            style={{ color: BRAND_DEEP }}
+          >
+            <Sparkles className="mr-2 h-4 w-4" /> See plans
+          </Button>
+          <span className="text-sm font-medium text-white/85">from $82/mo</span>
+        </div>
+      </div>
+
+      <p className="mt-6 text-center text-xs text-[var(--fr-muted-ink)]">
+        Your free gap report is yours to keep. Upgrading is how you act on it.
+      </p>
+    </div>
+  );
+}
+
