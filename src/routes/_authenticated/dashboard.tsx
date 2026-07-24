@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { ASSESSMENT_LIST, maxScoreFor, COMBINED_MAX, type AssessmentType, type AssessmentDef } from "@/lib/assessments";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ArrowUpRight, ArrowDownRight, Lock, Sparkles, Minus, Target, FileText, BookOpen, RefreshCw, MessageCircle, LineChart, Download } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ArrowDownRight, Lock, Sparkles, Minus, Target, FileText, BookOpen, RefreshCw, MessageCircle, LineChart, Download, CheckSquare, Quote } from "lucide-react";
 import { logFunnelEvent } from "@/lib/funnel.functions";
 import { getSubscriptionStatus } from "@/lib/payments.functions";
 import { getGapReportEligibility } from "@/lib/report.functions";
@@ -333,167 +333,37 @@ function DashboardPage() {
   const nextSectionTo = `/guide/section-${nextSection}`;
 
   // Paywalled view: free member who has already used their free pass.
-  // Show upgrade box → their gap report → locked preview of what upgrading unlocks.
+  // Rich preview of the paid coaching dashboard, designed to drive upgrades.
   if (!loading && paywalled) {
     const reportSessionId = reportSessions[0]?.id ?? latestSession?.id ?? null;
-    const perfPoints = (() => {
-      const rounds: number[] = [];
-      const maxLen = Math.max(...ASSESSMENT_LIST.map((a) => perType[a.type].length), 0);
-      for (let i = 0; i < maxLen; i++) {
-        const scores = ASSESSMENT_LIST.map((a) => {
-          const list = perType[a.type];
-          const s = list[i];
-          return s ? pctOf(s.overall_score, maxScoreFor(a.type)) : null;
-        }).filter((v): v is number => v !== null);
-        if (scores.length > 0) rounds.push(scores.reduce((a, b) => a + b, 0) / scores.length);
-      }
-      return rounds;
-    })();
-    const perfLatest = perfPoints.length > 0 ? Math.round(perfPoints[perfPoints.length - 1]) : null;
-    const reportSession = reportSessions[0] ?? null;
-    const latestByType = ASSESSMENT_LIST.map((a) => {
-      const list = perType[a.type];
-      return list[list.length - 1] ?? null;
-    });
-    const combinedTotal = latestByType.every((s) => s !== null)
-      ? latestByType.reduce((sum, s) => sum + (s?.overall_score ?? 0), 0)
-      : null;
-    const reportDate = reportSession
-      ? new Date(reportSession.created_at).toLocaleDateString(undefined, {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        })
-      : null;
+
+    // Priority gap: prefer Section-1 declared gap; otherwise pick the
+    // lowest-scoring assessment as an honest "top gap right now".
+    const lowest = [...assessmentStats]
+      .filter((s) => s.latest)
+      .sort((a, b) => a.percent - b.percent)[0];
+    const topGapName =
+      priorityGap?.name ||
+      (lowest ? lowest.def.shortTitle : "Your first priority");
+
+    // If we don't have their real report yet, keep the current
+    // "finish your assessments to get your gap report" flow unchanged.
+    if (!hasGeneratedReport || !reportSessionId) {
+      // fall through to the standard (non-paywalled) render below
+    } else {
+    const openPlans = () => {
+      void logEvent({ data: { event_type: "clicked_subscribe" } }).catch(() => {});
+      plansDialog.open();
+    };
     return (
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-8 sm:py-10">
-        <div className="mb-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--rl-purple)]">
-            Your leadership system
-          </p>
-          <h2 className="mt-2 text-3xl font-bold tracking-tight text-[var(--fr-ink)] sm:text-4xl">
-            {greeting()}{displayName ? `, ${displayName}.` : "."}
-          </h2>
-        </div>
-
-        {/* 1) Upgrade box */}
-        <div
-          className="mb-6 overflow-hidden rounded-3xl p-6 text-white shadow-[0_16px_40px_rgba(42,10,100,0.35)] sm:p-8"
-          style={{ background: "linear-gradient(135deg, #2a0a64 0%, #5B2D8E 100%)" }}
-        >
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-            <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">Free pass used</p>
-              <h3 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
-                Seeing your gaps is the easy part.
-              </h3>
-              <p className="mt-2 text-sm text-white/85">The full Fully Resourced system is how you close them, one week at a time.</p>
-            </div>
-            <Button
-              size="lg"
-              className="w-full shrink-0 bg-white text-[#2a0a64] hover:bg-white/90 sm:w-auto text-base"
-              onClick={handleSubscribeClick}
-            >
-              <Sparkles className="mr-2 h-4 w-4" /> Upgrade Now
-            </Button>
-          </div>
-        </div>
-
-        {/* 2) Locked preview of what upgrading unlocks */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <LockedFeatureCard
-            icon={<BookOpen className="h-5 w-5" />}
-            title="The 12-section Optimization Cycle"
-            body="Work through the full Fully Resourced system, one focused section at a time."
-            onUpgrade={handleSubscribeClick}
-          />
-          <LockedFeatureCard
-            icon={<RefreshCw className="h-5 w-5" />}
-            title="Retake your assessments"
-            body="Re-measure Inner Capacity, Personal Leadership, and Business Audit as you grow."
-            onUpgrade={handleSubscribeClick}
-          />
-          <LockedFeatureCard
-            icon={<FileText className="h-5 w-5" />}
-            title="New SCALE Gap Reports"
-            body="Generate a fresh Gap Report after every cycle to see how far you've moved."
-            onUpgrade={handleSubscribeClick}
-          />
-          <LockedFeatureCard
-            icon={<MessageCircle className="h-5 w-5" />}
-            title="Fully Resourced AI Coach"
-            body="On-demand coaching trained on Rich's system, available whenever you need it."
-            onUpgrade={handleSubscribeClick}
-          />
-          <LockedFeatureCard
-            icon={<LineChart className="h-5 w-5" />}
-            title="Growth dashboard over time"
-            body="Track your scores, deltas, and every report side-by-side as you progress."
-            onUpgrade={handleSubscribeClick}
-          />
-        </div>
-
-        {/* 3) Their gap report — payoff they already earned */}
-        {reportSessionId ? (
-          <div className="mt-6 overflow-hidden rounded-3xl border border-[var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)] sm:p-8">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0 flex items-start gap-4">
-                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[var(--fr-lilac)] text-[var(--rl-purple)]">
-                  <FileText className="h-6 w-6" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--rl-purple)]">Your SCALE Gap Report</p>
-                  <h3 className="mt-1 text-xl font-bold tracking-tight text-[var(--fr-ink)] sm:text-2xl">
-                    Your personalized report is ready
-                  </h3>
-                  <p className="mt-1 text-sm text-[var(--fr-muted-ink)]">
-                    View it any time, or download a PDF copy.
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2 sm:shrink-0">
-                <Button asChild size="lg">
-                  <Link to="/report/$sessionId" params={{ sessionId: reportSessionId }}>
-                    <FileText className="mr-2 h-4 w-4" /> View report
-                  </Link>
-                </Button>
-                <Button asChild size="lg" variant="outline">
-                  <Link to="/report/$sessionId" params={{ sessionId: reportSessionId }} hash="download">
-                    <Download className="mr-2 h-4 w-4" /> Download PDF
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </div>
-        ) : null}
-
-        {/* 4) Performance glimpse */}
-        <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-[var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)] sm:flex-row sm:items-center sm:justify-between">
-          <div className="min-w-0 flex items-start gap-4">
-            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[var(--fr-lilac)] text-[var(--rl-purple)]">
-              <LineChart className="h-5 w-5" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--rl-purple)]">Performance</p>
-              <h4 className="mt-1 text-base font-semibold text-[var(--fr-ink)]">
-                {combinedTotal !== null
-                  ? `Your latest gap report: ${combinedTotal}/${COMBINED_MAX}`
-                  : "See your growth over time"}
-              </h4>
-              {reportDate && combinedTotal !== null ? (
-                <p className="mt-0.5 text-xs text-[var(--fr-muted-ink)]">Generated {reportDate}</p>
-              ) : null}
-              {perfPoints.length >= 2 ? (
-                <div className="mt-2"><Sparkline points={perfPoints} /></div>
-              ) : null}
-            </div>
-          </div>
-          <Button asChild variant="outline" className="shrink-0">
-            <Link to="/performance">View my performance <ArrowRight className="ml-2 h-4 w-4" /></Link>
-          </Button>
-        </div>
-      </div>
+      <FreeMemberPreview
+        displayName={displayName}
+        reportSessionId={reportSessionId}
+        topGapName={topGapName}
+        onOpenPlans={openPlans}
+      />
     );
+    }
   }
 
   return (
@@ -1004,6 +874,191 @@ function LockedFeatureCard({
           <Sparkles className="mr-2 h-3.5 w-3.5" /> Upgrade to unlock
         </Button>
       </div>
+    </div>
+  );
+}
+
+function FreeMemberPreview({
+  displayName,
+  reportSessionId,
+  topGapName,
+  onOpenPlans,
+}: {
+  displayName: string;
+  reportSessionId: string;
+  topGapName: string;
+  onOpenPlans: () => void;
+}) {
+  const BRAND = "#5B2D8E";
+  const BRAND_DEEP = "#2a0a64";
+  return (
+    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-8 sm:py-10">
+      {/* Eyebrow + headline */}
+      <div className="mb-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: BRAND }}>
+          Your Gap Report is ready
+        </p>
+        <h2 className="mt-2 text-3xl font-bold tracking-tight text-[var(--fr-ink)] sm:text-4xl">
+          {displayName ? `${displayName}, ` : ""}you've seen your gaps. Here's how you close them.
+        </h2>
+      </div>
+
+      {/* Top priority gap card */}
+      <div className="mb-8 overflow-hidden rounded-3xl border border-[var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)] sm:p-8">
+        <div className="flex items-start gap-4">
+          <div
+            className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-white"
+            style={{ background: `linear-gradient(135deg, ${BRAND_DEEP} 0%, ${BRAND} 100%)` }}
+          >
+            <Target className="h-6 w-6" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: BRAND }}>
+              Your top gap right now
+            </p>
+            <h3 className="mt-1 text-2xl font-bold tracking-tight text-[var(--fr-ink)] sm:text-3xl">
+              {topGapName}
+            </h3>
+            <p className="mt-2 text-sm text-[var(--fr-muted-ink)] sm:text-base">
+              This is the first domino. Most of your other gaps get easier once you close this one.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button asChild variant="outline" size="sm">
+                <Link to="/report/$sessionId" params={{ sessionId: reportSessionId }}>
+                  <FileText className="mr-2 h-4 w-4" /> View full report
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/report/$sessionId" params={{ sessionId: reportSessionId }} hash="download">
+                  <Download className="mr-2 h-4 w-4" /> Download PDF
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Your coaching space (preview) */}
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <h3 className="text-xl font-bold tracking-tight text-[var(--fr-ink)] sm:text-2xl">
+          Your coaching space
+        </h3>
+        <span
+          className="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white"
+          style={{ background: BRAND }}
+        >
+          Preview
+        </span>
+        <span className="text-xs text-[var(--fr-muted-ink)]">unlocks when you upgrade</span>
+      </div>
+
+      <div className="relative mb-8">
+        {/* Dimmed non-interactive preview */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none select-none space-y-4"
+          style={{ opacity: 0.55, filter: "saturate(0.9)" }}
+        >
+          {/* Success Image sample */}
+          <div
+            className="overflow-hidden rounded-3xl p-6 text-white sm:p-8"
+            style={{ background: `linear-gradient(135deg, ${BRAND_DEEP} 0%, ${BRAND} 55%, #7c3fbf 100%)` }}
+          >
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/80">
+              <Sparkles className="h-4 w-4" /> Your Success Image · daily
+            </div>
+            <p className="mt-4 text-2xl font-semibold leading-snug tracking-tight sm:text-3xl">
+              {"\u201CI coach instead of rescue. My people make the call.\u201D"}
+            </p>
+            <p className="mt-2 text-xs font-medium text-white/75 sm:text-sm">
+              Wake up to a piece of the leader you're becoming, a different part each morning.
+            </p>
+          </div>
+
+          {/* Your actions sample */}
+          <div className="rounded-3xl border border-[var(--fr-hairline)] bg-white p-5 shadow-[var(--shadow-card)] sm:p-6">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: BRAND }}>
+                  Your actions
+                </div>
+                <div className="mt-1 text-base font-semibold text-[var(--fr-ink)]">
+                  1 of 3 habits today · 2 this week
+                </div>
+                <p className="mt-1 text-xs text-[var(--fr-muted-ink)]">
+                  Daily habits and weekly steps that turn your gap report into real change.
+                </p>
+              </div>
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[var(--fr-lilac)] text-[var(--rl-purple)]">
+                <CheckSquare className="h-5 w-5" />
+              </span>
+            </div>
+          </div>
+
+          {/* AI Coach sample */}
+          <div className="rounded-3xl border border-[var(--fr-hairline)] bg-white p-5 shadow-[var(--shadow-card)] sm:p-6">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: BRAND }}>
+                  Fully Resourced AI Coach
+                </div>
+                <div className="mt-1 text-base font-semibold text-[var(--fr-ink)]">
+                  Ask anything. Anytime.
+                </div>
+                <p className="mt-1 text-xs text-[var(--fr-muted-ink)]">
+                  A coach trained on Rich's decades of experience, on call whenever you're stuck.
+                </p>
+              </div>
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[var(--fr-lilac)] text-[var(--rl-purple)]">
+                <MessageCircle className="h-5 w-5" />
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Click-catcher + centered lock badge */}
+        <button
+          type="button"
+          onClick={onOpenPlans}
+          className="absolute inset-0 flex items-center justify-center rounded-3xl"
+          aria-label="Unlock your coaching space"
+        >
+          <span
+            className="inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_40px_rgba(42,10,100,0.45)]"
+            style={{ background: BRAND }}
+          >
+            <Lock className="h-4 w-4" /> Unlock your coaching space
+          </span>
+        </button>
+      </div>
+
+      {/* Purple CTA card */}
+      <div
+        className="overflow-hidden rounded-3xl p-6 text-white shadow-[0_16px_40px_rgba(42,10,100,0.35)] sm:p-8"
+        style={{ background: `linear-gradient(135deg, ${BRAND_DEEP} 0%, ${BRAND} 100%)` }}
+      >
+        <h3 className="text-2xl font-bold tracking-tight sm:text-3xl">
+          Stop staring at the report. Start closing the gaps.
+        </h3>
+        <p className="mt-2 max-w-2xl text-sm text-white/85 sm:text-base">
+          Upgrade and the app walks you through it, day by day, with Rich's system in your pocket.
+        </p>
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <Button
+            size="lg"
+            onClick={onOpenPlans}
+            className="bg-white hover:bg-white/90"
+            style={{ color: BRAND_DEEP }}
+          >
+            <Sparkles className="mr-2 h-4 w-4" /> See plans
+          </Button>
+          <span className="text-sm font-medium text-white/85">from $82/mo</span>
+        </div>
+      </div>
+
+      <p className="mt-6 text-center text-xs text-[var(--fr-muted-ink)]">
+        Your free gap report is yours to keep. Upgrading is how you act on it.
+      </p>
     </div>
   );
 }

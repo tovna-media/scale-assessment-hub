@@ -232,7 +232,10 @@ export function SuccessImageHero({
         </div>
 
         <p className="mt-5 whitespace-pre-wrap text-2xl font-semibold leading-snug tracking-tight sm:text-3xl">
-          {answer}
+          {`\u201C${answer}\u201D`}
+        </p>
+        <p className="mt-2 text-xs font-medium text-white/70 sm:text-sm">
+          A different part of your Success Image each morning.
         </p>
 
         <div className="mt-6 flex flex-wrap items-center gap-3">
