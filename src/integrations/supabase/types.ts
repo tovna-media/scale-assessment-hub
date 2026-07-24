@@ -134,6 +134,27 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_habit_checks: {
+        Row: {
+          check_date: string
+          created_at: string
+          habit_key: string
+          user_id: string
+        }
+        Insert: {
+          check_date: string
+          created_at?: string
+          habit_key: string
+          user_id: string
+        }
+        Update: {
+          check_date?: string
+          created_at?: string
+          habit_key?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
@@ -520,6 +541,33 @@ export type Database = {
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      weekly_action_state: {
+        Row: {
+          action_key: string
+          carried_at: string | null
+          closed_at: string | null
+          done_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action_key: string
+          carried_at?: string | null
+          closed_at?: string | null
+          done_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action_key?: string
+          carried_at?: string | null
+          closed_at?: string | null
+          done_at?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
