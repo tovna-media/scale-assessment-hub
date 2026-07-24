@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
@@ -76,6 +76,7 @@ function ReportPage() {
     isFirstRound: boolean;
     perTypeReady: Record<AssessmentType, boolean>;
   } | null>(null);
+  const autoGenTriedRef = useRef(false);
 
   useEffect(() => {
     if (!user) return;
@@ -186,9 +187,6 @@ function ReportPage() {
       setProgress(100);
       setStatusMessage("Report ready!");
       setSession(result.session as SessionFull);
-      if (result.delivery && "error" in result.delivery) {
-        toast.error(`Report generated, but GHL delivery failed: ${result.delivery.error}`);
-      }
       // Fire-and-forget "your report is ready" email.
       if (user?.email) {
         void sendTransactionalEmail({
@@ -209,6 +207,19 @@ function ReportPage() {
       toast.error(e instanceof Error ? e.message : "Could not generate report.");
     }
   }
+
+  // Auto-generate the gap report as soon as the member lands here after
+  // completing the assessment that unlocks all three. They should go
+  // straight from "Generate Report" to their gap report, no intermediate
+  // per-assessment results screen.
+  useEffect(() => {
+    if (!session || session.gap_report) return;
+    if (!eligibility?.allowed) return;
+    if (generating || autoGenTriedRef.current) return;
+    autoGenTriedRef.current = true;
+    void handleGenerateGapReport();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.id, session?.gap_report, eligibility?.allowed]);
 
   async function handleDownloadPdf() {
     // Open a tab synchronously inside the click handler so mobile Safari /
