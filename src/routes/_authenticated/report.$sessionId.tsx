@@ -276,7 +276,13 @@ function ReportPage() {
     );
   }
 
-  if (generating) {
+  // Show the "generating" UI both while the request is in flight AND during
+  // the brief window between eligibility loading and auto-generation kicking
+  // in, so the member never sees the per-assessment results screen when
+  // they're actually about to see their gap report.
+  const autoGenPending =
+    !!session && !session.gap_report && !!eligibility?.allowed;
+  if (generating || autoGenPending) {
     return (
       <main className="mx-auto max-w-2xl px-4 py-24 text-center">
         <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary/5">
