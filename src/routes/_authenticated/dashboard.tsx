@@ -12,6 +12,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { usePlansDialog } from "@/components/PlansDialog";
 import { sectionUnlockStatus, formatUnlockDate } from "@/lib/section-unlock";
+import { SuccessImageHero } from "@/components/scale/SuccessImageHero";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Home — Fully Resourced" }] }),
@@ -513,6 +514,9 @@ function DashboardPage() {
           - Paid + has a Gap Report: cycle first. The retake nudge only appears
             once all 12 sections of the current cycle are complete
             (eligibility.reassessmentUnlocked). Mid-cycle, the retake box is hidden. */}
+      {subscribed && (
+        <SuccessImageHero cycleStart={cycleStart} section1Complete={section1Complete} />
+      )}
       {(() => {
         const reassessmentUnlocked = Boolean(eligibility?.reassessmentUnlocked);
         const showNudge = isFirstRound || reassessmentUnlocked;
