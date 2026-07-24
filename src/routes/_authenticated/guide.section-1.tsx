@@ -252,7 +252,7 @@ function SectionOnePage() {
         />
       </div>
 
-      <SectionVideo sectionNumber={1} sectionTitle="Begin Your Leadership Optimization Cycle" />
+      <SectionVideo sectionNumber={1} sectionTitle="Begin Your Leadership Optimization Cycle" videoUrl="https://www.youtube.com/embed/HA6aX1EJ06k" />
 
       <div className="mb-6">
         <div className="flex items-center justify-between text-xs font-medium uppercase tracking-widest text-muted-foreground">
