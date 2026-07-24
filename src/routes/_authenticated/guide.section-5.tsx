@@ -791,3 +791,11 @@ function AboutSectionButtonS5({ className }: { className?: string }) {
     </AboutSectionSheet>
   );
 }
+
+function GuideNote({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="rounded-xl border-l-4 border-[#433993] bg-[#f6f2ff]/60 px-4 py-3 text-sm leading-relaxed text-foreground [&_p+p]:mt-2">
+      {children}
+    </div>
+  );
+}
