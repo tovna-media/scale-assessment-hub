@@ -514,6 +514,9 @@ function DashboardPage() {
           - Paid + has a Gap Report: cycle first. The retake nudge only appears
             once all 12 sections of the current cycle are complete
             (eligibility.reassessmentUnlocked). Mid-cycle, the retake box is hidden. */}
+      {subscribed && (
+        <SuccessImageHero cycleStart={cycleStart} section1Complete={section1Complete} />
+      )}
       {(() => {
         const reassessmentUnlocked = Boolean(eligibility?.reassessmentUnlocked);
         const showNudge = isFirstRound || reassessmentUnlocked;
