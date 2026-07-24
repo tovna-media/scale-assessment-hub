@@ -151,7 +151,8 @@ export function SuccessImageHero({
   if (!loaded) {
     return (
       <div className="mb-6 rounded-3xl p-6 text-white shadow-[var(--shadow-card)] sm:p-8" style={frameStyle}>
-        <div className="h-6 w-40 animate-pulse rounded bg-white/20" />
+        <div className="text-xs font-semibold uppercase tracking-[0.18em] text-white/80">Your Success Image</div>
+        <div className="mt-3 h-6 w-40 animate-pulse rounded bg-white/20" />
         <div className="mt-4 h-8 w-2/3 animate-pulse rounded bg-white/20" />
         <div className="mt-3 h-24 w-full animate-pulse rounded bg-white/10" />
       </div>
@@ -163,7 +164,8 @@ export function SuccessImageHero({
     const section2Unlocked = section2Status.unlocked;
     return (
       <div className="mb-6 rounded-3xl p-6 text-white shadow-[var(--shadow-card)] sm:p-8" style={frameStyle}>
-        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/80">
+        <div className="text-xs font-semibold uppercase tracking-[0.18em] text-white/80">Your Success Image</div>
+        <div className="mt-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
           <Sparkles className="h-4 w-4" /> Your Success Image
         </div>
         {section2Unlocked ? (
@@ -213,13 +215,14 @@ export function SuccessImageHero({
   return (
     <div className="mb-6 overflow-hidden rounded-3xl text-white shadow-[var(--shadow-card)]" style={frameStyle}>
       <div className="p-6 sm:p-8">
+        <div className="text-xs font-semibold uppercase tracking-[0.18em] text-white/80">Your Success Image</div>
         <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/85">
+          <div className="mt-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/85">
             <Sparkles className="h-4 w-4" />
             <span>Today · {cat.label}</span>
           </div>
           <div
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold text-white ring-1 ring-inset ring-white/25"
+            className="mt-2 inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold text-white ring-1 ring-inset ring-white/25"
             title="Consecutive days you've read your Success Image"
           >
             <Flame className="h-3.5 w-3.5 text-amber-300" />
