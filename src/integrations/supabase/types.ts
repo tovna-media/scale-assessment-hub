@@ -385,9 +385,11 @@ export type Database = {
           free_pass_used: boolean
           full_name: string | null
           id: string
+          last_action_reminder_on: string | null
           last_name: string | null
           phone: string | null
           subscribed: boolean
+          timezone: string
         }
         Insert: {
           created_at?: string
@@ -396,9 +398,11 @@ export type Database = {
           free_pass_used?: boolean
           full_name?: string | null
           id: string
+          last_action_reminder_on?: string | null
           last_name?: string | null
           phone?: string | null
           subscribed?: boolean
+          timezone?: string
         }
         Update: {
           created_at?: string
@@ -407,9 +411,11 @@ export type Database = {
           free_pass_used?: boolean
           full_name?: string | null
           id?: string
+          last_action_reminder_on?: string | null
           last_name?: string | null
           phone?: string | null
           subscribed?: boolean
+          timezone?: string
         }
         Relationships: []
       }
