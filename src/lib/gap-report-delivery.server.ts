@@ -1,6 +1,5 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { assertSafeWebhookUrl } from "@/lib/webhook-url";
 import {
   combinedScaleLevel,
   scoreBusiness,
@@ -231,72 +230,7 @@ export async function generateGapReportPdfAndNotify(userId: string, sessionId: s
     { onConflict: "user_id" },
   );
 
-  let webhookSent = false;
-  const { data: settings } = await supabaseAdmin
-    .from("app_settings")
-    .select("ghl_enabled, ghl_webhook_url")
-    .eq("id", 1)
-    .maybeSingle();
-
-  const { data: profile } = await supabaseAdmin
-    .from("profiles")
-    .select("first_name, last_name, full_name, email, phone")
-    .eq("id", userId)
-    .maybeSingle();
-
-  if (settings?.ghl_enabled && settings.ghl_webhook_url && profile) {
-    const innerCapacityCategoryScores = Object.fromEntries(
-      innerCapacity.categories.map((category) => [
-        category.name,
-        { score: category.score, max: category.max, level: category.level },
-      ]),
-    );
-    const payload = {
-      event: "gap_report_generated",
-      first_name: profile.first_name,
-      last_name: profile.last_name,
-      full_name: profile.full_name,
-      email: profile.email,
-      phone: profile.phone,
-      combined_scale_score: combinedTotal,
-      combined_scale_level: combinedLevel,
-      inner_capacity_score: innerCapacity.total,
-      inner_capacity_level: innerCapacity.level,
-      primary_gap: innerCapacity.primary?.name ?? null,
-      primary_gap_score: innerCapacity.primary?.score ?? null,
-      primary_gap_level: innerCapacity.primary?.level ?? null,
-      inner_capacity_category_scores: innerCapacityCategoryScores,
-      energy_recovery_score: innerCapacityCategoryScores["Energy & Recovery"]?.score ?? null,
-      stability_structure_score: innerCapacityCategoryScores["Stability & Structure"]?.score ?? null,
-      support_connection_score: innerCapacityCategoryScores["Support & Connection"]?.score ?? null,
-      self_trust_follow_through_score: innerCapacityCategoryScores["Self-Trust & Follow-Through"]?.score ?? null,
-      purpose_direction_score: innerCapacityCategoryScores["Purpose & Direction"]?.score ?? null,
-      personal_leadership_score: leadership.total,
-      leadership_score: leadership.total,
-      leadership_gaps: leadership.themeGroups.map((group) => ({
-        theme: group.theme,
-        signals: group.descriptors,
-      })),
-      business_audit_score: business.total,
-      business_score: business.total,
-      business_critical_gaps: business.critical.map((category) => ({ name: category.name, score: category.score, level: category.level })),
-      business_moderate_gaps: business.moderate.map((category) => ({ name: category.name, score: category.score, level: category.level })),
-      report_url: reportUrl,
-      reportUrl,
-      pdf_url: reportUrl,
-      completed_at: completedAt,
-      generated_at: completedAt,
-    };
-    const safeUrl = assertSafeWebhookUrl(settings.ghl_webhook_url);
-    const response = await fetch(safeUrl.toString(), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    if (!response.ok) throw new Error(`GHL webhook returned ${response.status}`);
-    webhookSent = true;
-    await supabaseAdmin.from("gap_reports").update({ ghl_sent_at: completedAt }).eq("user_id", userId);
-  }
-
-  return { reportUrl, pdfUrl: reportUrl, pdfPath, webhookSent };
+  // The app sends the "your report is ready" email itself via the
+  // transactional email pipeline — no external GHL webhook needed.
+  return { reportUrl, pdfUrl: reportUrl, pdfPath, webhookSent: false };
 }
