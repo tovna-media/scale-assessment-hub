@@ -406,6 +406,9 @@ type UpdateFn = <K extends keyof SectionData>(k: K, v: SectionData[K]) => void;
 function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Since intentionally developing others…</p>
+      </GuideNote>
       <SectionBlock label="Evaluate — Reflect on your growth as a leader">
         <LabeledTextarea label="How has your own growth shaped how you now see the people around you?" value={d.p1_evaluate} onChange={(v) => update("p1_evaluate", v)} />
       </SectionBlock>
@@ -431,6 +434,11 @@ function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Review the GAP Reports of the people you lead.</p>
+        <p>Don't focus on individuals.</p>
+        <p>Look for recurring patterns.</p>
+      </GuideNote>
       <SectionBlock label="Evaluate — Patterns showing up across your people" hint="Select every pattern you see repeating across the people you lead.">
         <Chips
           label="Leadership Assessment categories"
@@ -475,6 +483,10 @@ function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Great leadership creates alignment.</p>
+        <p>Review one person at a time.</p>
+      </GuideNote>
       <SectionBlock label="Evaluate — Where alignment stands right now" hint="Answer Yes or No for each statement.">
         <YesNoList label="Personal alignment" items={PERSONAL_ALIGNMENT} values={d.p3_personal} onChange={(v) => update("p3_personal", v)} />
         <YesNoList label="Role alignment" items={ROLE_ALIGNMENT} values={d.p3_role} onChange={(v) => update("p3_role", v)} />
@@ -506,6 +518,10 @@ function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Developing people happens through consistency.</p>
+        <p>Not random conversations.</p>
+      </GuideNote>
       <SectionBlock label="Evaluate — Your current people-development rhythms" hint="Rate how often each rhythm shows up in how you lead.">
         <RhythmGrid values={d.p4_ratings} onChange={(v) => update("p4_ratings", v)} />
       </SectionBlock>
@@ -531,6 +547,9 @@ function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part5({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Everything you experienced while leading yourself becomes a resource for developing others.</p>
+      </GuideNote>
       <SectionBlock label="Evaluate — What of your Lead Yourself work you can model">
         <Chips
           label="Which of your own leadership practices most help you lead others?"
@@ -563,6 +582,9 @@ function Part5({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part6({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Choose your three highest people-development priorities.</p>
+      </GuideNote>
       <SectionBlock label="People Development Strategy" hint="One row per priority — this feeds your dashboard.">
         <div className="space-y-4">
           {d.strategy_rows.map((r, i) => (
@@ -596,6 +618,15 @@ function Part6({ d, update }: { d: SectionData; update: UpdateFn }) {
 function StepCommitment({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Leadership is about helping people become the best version of themselves.</p>
+        <p>
+          During the next phase of my Leadership Optimization Cycle, I commit to
+          carrying forward the lessons I have learned while leading myself and
+          intentionally investing those lessons into the growth and development
+          of the people entrusted to my leadership.
+        </p>
+      </GuideNote>
       <div className="rounded-2xl border border-[#433993]/30 bg-gradient-to-br from-[#f6f2ff] to-white p-6">
         <p className="text-sm leading-relaxed text-foreground">
           I commit to growing the people entrusted to me — noticing what they need,
@@ -758,5 +789,13 @@ function AboutSectionButtonS5({ className }: { className?: string }) {
       <p>When people grow, they become better equipped to contribute to the organization, support one another, and prepare for greater responsibility.</p>
       <p>As you develop others, continue carrying forward everything you learned while leading yourself.</p>
     </AboutSectionSheet>
+  );
+}
+
+function GuideNote({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="rounded-xl border-l-4 border-[#433993] bg-[#f6f2ff]/60 px-4 py-3 text-sm leading-relaxed text-foreground [&_p+p]:mt-2">
+      {children}
+    </div>
   );
 }
