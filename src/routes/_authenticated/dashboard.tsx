@@ -1042,7 +1042,7 @@ function FreeMemberPreview({
           Stop staring at the report. Start closing the gaps.
         </h3>
         <p className="mt-2 max-w-2xl text-sm text-white/85 sm:text-base">
-          Upgrade and the app walks you through it, day by day, with Rich's system in your pocket.
+          Upgrade and the app walks you through it, day by day, with the Fully Resourced System in your pocket.
         </p>
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <Button
