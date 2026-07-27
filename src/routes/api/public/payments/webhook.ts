@@ -57,7 +57,9 @@ async function handleSubscriptionUpsert(
 ) {
   const userId = await resolveUserId(admin, sub);
   if (!userId) {
-    console.error('[webhook] no userId for subscription', sub.id);
+    // No app account yet — checkout.session.completed creates it and re-runs
+    // this upsert. Skip quietly instead of failing the event.
+    console.warn('[webhook] no userId yet for subscription, deferring', sub.id);
     return;
   }
   const item = sub.items?.data?.[0];
@@ -401,10 +403,13 @@ export const Route = createFileRoute('/api/public/payments/webhook')({
               break;
             case 'checkout.session.completed': {
               const session = event.data.object as CheckoutSession;
-              if (session.metadata?.founding === '1') {
+              // Grant access here: this is the event that fires on payment
+              // success and carries the buyer email Stripe collected.
+              if (session.mode === 'subscription' && session.subscription) {
                 await handleFoundingCheckoutCompleted(supabaseAdmin, session, env);
+              } else {
+                console.log('[webhook] checkout session ignored', session.id, session.mode);
               }
-              // Otherwise the subscription.created event does the write.
               break;
             }
             case 'invoice.payment_failed':
