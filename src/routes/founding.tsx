@@ -76,7 +76,7 @@ function FoundingPage() {
       if ("error" in result && result.error) throw new Error(result.error);
       const url = "url" in result ? result.url : "";
       if (!url) throw new Error("No checkout URL returned");
-      (window.top ?? window).location.href = url;
+      redirectToCheckout(url);
     } catch (e) {
       console.error("[founding] checkout failed", e);
       toast.error(e instanceof Error ? e.message : "Could not start checkout.");
