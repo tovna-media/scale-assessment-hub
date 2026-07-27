@@ -214,6 +214,97 @@ async function sendSubscriptionEmail(
   }
 }
 
+type CheckoutSession = StripeObj & {
+  id: string;
+  mode?: string;
+  customer?: string | null;
+  subscription?: string | null;
+  metadata?: Record<string, string> | null;
+  customer_details?: { email?: string | null; name?: string | null } | null;
+};
+
+/**
+ * Founding checkout: Stripe collected the email, we create (or attach) the app
+ * account here so nobody ever fills out a signup form.
+ */
+async function handleFoundingCheckoutCompleted(
+  admin: Admin,
+  session: CheckoutSession,
+  env: StripeEnv,
+) {
+  const email = session.customer_details?.email?.trim().toLowerCase();
+  const subscriptionId = typeof session.subscription === 'string' ? session.subscription : null;
+  if (!email || !subscriptionId) {
+    console.error('[webhook] founding session missing email or subscription', session.id);
+    return;
+  }
+
+  // Find an existing account for this email, otherwise create one.
+  const { data: prof } = await admin
+    .from('profiles')
+    .select('id')
+    .ilike('email', email)
+    .maybeSingle();
+  let userId = (prof as { id?: string } | null)?.id ?? null;
+  let isNewAccount = false;
+
+  if (!userId) {
+    const fullName = session.customer_details?.name ?? '';
+    const [firstName, ...rest] = fullName.split(' ').filter(Boolean);
+    const { data: created, error } = await admin.auth.admin.createUser({
+      email,
+      email_confirm: true,
+      user_metadata: {
+        full_name: fullName,
+        first_name: firstName ?? '',
+        last_name: rest.join(' '),
+      },
+    });
+    if (error || !created?.user) {
+      console.error('[webhook] founding account creation failed', error);
+      return;
+    }
+    userId = created.user.id;
+    isNewAccount = true;
+  }
+
+  // Stamp the userId onto Stripe so every later subscription event resolves it.
+  const { createStripeClient } = await import('@/lib/stripe.server');
+  const stripe = createStripeClient(env);
+  await stripe.subscriptions.update(subscriptionId, {
+    metadata: { userId, founding: '1' },
+  });
+  if (typeof session.customer === 'string') {
+    await stripe.customers.update(session.customer, { metadata: { userId } });
+  }
+
+  // Grant access now (subscription.created may have arrived before we had a user).
+  const sub = (await stripe.subscriptions.retrieve(subscriptionId)) as unknown as StripeSubscription;
+  await handleSubscriptionUpsert(admin, { ...sub, metadata: { userId, founding: '1' } }, env);
+
+  // Send the sign-in link so they land in the app without a signup form.
+  try {
+    const appUrl = 'https://app.getfullyresourced.com';
+    const { data: link } = await admin.auth.admin.generateLink({
+      type: 'magiclink',
+      email,
+      options: { redirectTo: `${appUrl}/dashboard` },
+    });
+    const signInUrl = link?.properties?.action_link ?? appUrl;
+    const { sendTransactionalEmailServer } = await import('@/lib/email/send.server');
+    await sendTransactionalEmailServer({
+      templateName: 'founding-access',
+      recipientEmail: email,
+      idempotencyKey: `founding-access-${session.id}`,
+      templateData: { signInUrl },
+    });
+  } catch (e) {
+    console.error('[webhook] founding sign-in email failed', e);
+  }
+
+  console.log('[webhook] founding checkout processed', { userId, isNewAccount });
+}
+
 export const Route = createFileRoute('/api/public/payments/webhook')({
   server: {
     handlers: {
@@ -262,8 +353,11 @@ export const Route = createFileRoute('/api/public/payments/webhook')({
               );
               break;
             case 'checkout.session.completed': {
-              // Subscription checkout — the subscription.created event does the write.
-              // Nothing to do here beyond acknowledging.
+              const session = event.data.object as CheckoutSession;
+              if (session.metadata?.founding === '1') {
+                await handleFoundingCheckoutCompleted(supabaseAdmin, session, env);
+              }
+              // Otherwise the subscription.created event does the write.
               break;
             }
             case 'invoice.payment_failed':
