@@ -19,7 +19,7 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as CoachRouteImport } from './routes/_coach'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as FoundingSuccessRouteImport } from './routes/founding.success'
+import { Route as FoundingSuccessRouteImport } from './routes/founding_.success'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as CoachLoginRouteImport } from './routes/coach.login'
 import { Route as CoachSettingsRouteImport } from './routes/_coach/settings'
@@ -105,9 +105,9 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const FoundingSuccessRoute = FoundingSuccessRouteImport.update({
-  id: '/success',
-  path: '/success',
-  getParentRoute: () => FoundingRoute,
+  id: '/founding_/success',
+  path: '/founding/success',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   id: '/email/unsubscribe',
@@ -311,7 +311,7 @@ const AuthenticatedPrintSectionNumberRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
-  '/founding': typeof FoundingRouteWithChildren
+  '/founding': typeof FoundingRoute
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -357,7 +357,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
-  '/founding': typeof FoundingRouteWithChildren
+  '/founding': typeof FoundingRoute
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -406,7 +406,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_coach': typeof CoachRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
-  '/founding': typeof FoundingRouteWithChildren
+  '/founding': typeof FoundingRoute
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -421,7 +421,7 @@ export interface FileRoutesById {
   '/_coach/settings': typeof CoachSettingsRoute
   '/coach/login': typeof CoachLoginRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
-  '/founding/success': typeof FoundingSuccessRoute
+  '/founding_/success': typeof FoundingSuccessRoute
   '/_authenticated/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/_authenticated/checkout/activating': typeof AuthenticatedCheckoutActivatingRoute
   '/_authenticated/guide/section-1': typeof AuthenticatedGuideSection1Route
@@ -563,7 +563,7 @@ export interface FileRouteTypes {
     | '/_coach/settings'
     | '/coach/login'
     | '/email/unsubscribe'
-    | '/founding/success'
+    | '/founding_/success'
     | '/_authenticated/assessment/$type'
     | '/_authenticated/checkout/activating'
     | '/_authenticated/guide/section-1'
@@ -597,7 +597,7 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   CoachRoute: typeof CoachRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
-  FoundingRoute: typeof FoundingRouteWithChildren
+  FoundingRoute: typeof FoundingRoute
   PrivacyRoute: typeof PrivacyRoute
   SignupRoute: typeof SignupRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -605,6 +605,7 @@ export interface RootRouteChildren {
   UnsubscribeRoute: typeof UnsubscribeRoute
   CoachLoginRoute: typeof CoachLoginRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
+  FoundingSuccessRoute: typeof FoundingSuccessRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicHooksActionRemindersRoute: typeof ApiPublicHooksActionRemindersRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -687,12 +688,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/founding/success': {
-      id: '/founding/success'
-      path: '/success'
+    '/founding_/success': {
+      id: '/founding_/success'
+      path: '/founding/success'
       fullPath: '/founding/success'
       preLoaderRoute: typeof FoundingSuccessRouteImport
-      parentRoute: typeof FoundingRoute
+      parentRoute: typeof rootRouteImport
     }
     '/email/unsubscribe': {
       id: '/email/unsubscribe'
@@ -1029,24 +1030,12 @@ const CoachRouteChildren: CoachRouteChildren = {
 
 const CoachRouteWithChildren = CoachRoute._addFileChildren(CoachRouteChildren)
 
-interface FoundingRouteChildren {
-  FoundingSuccessRoute: typeof FoundingSuccessRoute
-}
-
-const FoundingRouteChildren: FoundingRouteChildren = {
-  FoundingSuccessRoute: FoundingSuccessRoute,
-}
-
-const FoundingRouteWithChildren = FoundingRoute._addFileChildren(
-  FoundingRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   CoachRoute: CoachRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
-  FoundingRoute: FoundingRouteWithChildren,
+  FoundingRoute: FoundingRoute,
   PrivacyRoute: PrivacyRoute,
   SignupRoute: SignupRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
@@ -1054,6 +1043,7 @@ const rootRouteChildren: RootRouteChildren = {
   UnsubscribeRoute: UnsubscribeRoute,
   CoachLoginRoute: CoachLoginRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
+  FoundingSuccessRoute: FoundingSuccessRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicHooksActionRemindersRoute: ApiPublicHooksActionRemindersRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
@@ -1066,3 +1056,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

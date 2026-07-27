@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/scale/Logo";
 import { useAuth } from "@/lib/auth-context";
 
-export const Route = createFileRoute("/founding/success")({
+export const Route = createFileRoute("/founding_/success")({
   head: () => ({
     meta: [
       { title: "You're in — Fully Resourced founding membership" },
