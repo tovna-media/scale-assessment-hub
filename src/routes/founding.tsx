@@ -137,11 +137,6 @@ function FoundingPage() {
             First month $77.60, then $97/month. Cancel anytime.
           </p>
 
-          <p className="mt-4 text-sm text-muted-foreground">
-            No coupon code needed. Your 20% founding discount is applied
-            automatically when you check out.
-          </p>
-
           <Button
             size="lg"
             className="mt-5 h-12 w-full text-base"
