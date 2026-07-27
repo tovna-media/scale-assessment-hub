@@ -356,6 +356,10 @@ type UpdateFn = <K extends keyof SectionData>(k: K, v: SectionData[K]) => void;
 function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Return to your Success Image.</p>
+        <p>Results begin with clarity about who you are becoming, not with activity.</p>
+      </GuideNote>
       <SectionBlock label="Evaluate — Your current Success Image">
         <LabeledTextarea label="What is the Success Image you're leading toward right now?" value={d.p1_current_image} onChange={(v) => update("p1_current_image", v)} />
       </SectionBlock>
@@ -386,6 +390,10 @@ function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
   ];
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Your Success Drivers are what fuel your progress.</p>
+        <p>Review them before you set targets.</p>
+      </GuideNote>
       <SectionBlock label="Evaluate — Rate each of your 5 Success Drivers" hint="Name each driver and rate its current status.">
         <div className="space-y-2">
           {d.p2_drivers.map((r, i) => (
@@ -436,6 +444,9 @@ function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>A Success Marker is a specific, measurable indicator that tells you the result is actually happening.</p>
+      </GuideNote>
       <SectionBlock label="Success Marker Builder" hint="For each Success Driver, define the marker that proves progress.">
         <div className="space-y-2">
           {d.p3_markers.map((r, i) => (
@@ -469,6 +480,10 @@ function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Name the gap between where you are now and the marker you just set.</p>
+        <p>Closing the gap is the work.</p>
+      </GuideNote>
       <SectionBlock label="Evaluate — What's causing the gap" hint="Select every cause creating the gap between where you are and where you're leading toward.">
         <Chips label="Gap causes" options={GAP_CAUSE_CHIPS} values={d.p4_causes} onChange={(v) => update("p4_causes", v)} other={d.p4_causes_other} onOtherChange={(v) => update("p4_causes_other", v)} />
       </SectionBlock>
@@ -494,6 +509,10 @@ function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part5({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Priorities are decisions, not preferences.</p>
+        <p>Choose the few that carry the most weight.</p>
+      </GuideNote>
       <SectionBlock label="My Highest Priorities" hint="Three priorities max. Each with why it matters and a first action.">
         <div className="space-y-3">
           {d.p5_priorities.map((r, i) => (
@@ -533,6 +552,10 @@ function Part5({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part6({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Results follow activity.</p>
+        <p>Define the activity you will control, at the frequency you will hold.</p>
+      </GuideNote>
       <SectionBlock label="Activity Plan" hint="Name the activities that actually move the needle, when you'll do them, and the outcome each is meant to produce.">
         <div className="space-y-2">
           {d.p6_activities.map((r, i) => (
@@ -566,6 +589,10 @@ function Part6({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part7({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Review the results honestly.</p>
+        <p>Measure what happened, not what you intended.</p>
+      </GuideNote>
       <SectionBlock label="Results Review">
         <LabeledTextarea label="What are the real wins from this stretch?" value={d.p7_wins} onChange={(v) => update("p7_wins", v)} />
         <LabeledTextarea label="Where did you fall short of what you set out to do?" value={d.p7_missed} onChange={(v) => update("p7_missed", v)} />
@@ -582,6 +609,9 @@ function Part7({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part8({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Carry forward the lessons and standards that produced results.</p>
+      </GuideNote>
       <SectionBlock label="Evaluate — The biggest lesson from leading for results this cycle">
         <LabeledTextarea label="What is the biggest lesson leading for results has taught you this cycle?" value={d.p8_lesson} onChange={(v) => update("p8_lesson", v)} />
       </SectionBlock>
@@ -702,5 +732,13 @@ function AboutSectionButtonS7({ className }: { className?: string }) {
       <p>Now it is time to determine whether those efforts are producing meaningful results.</p>
       <p>Leading for Results is about closing the gap between your Success Image and your current reality through focused execution, measurable progress, and continuous improvement.</p>
     </AboutSectionSheet>
+  );
+}
+
+function GuideNote({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="rounded-xl border-l-4 border-[#433993] bg-[#f6f2ff]/60 px-4 py-3 text-sm leading-relaxed text-foreground [&_p+p]:mt-2">
+      {children}
+    </div>
   );
 }

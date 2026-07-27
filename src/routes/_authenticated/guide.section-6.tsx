@@ -357,6 +357,10 @@ function Dashboard1({ d, update }: { d: SectionData; update: UpdateFn }) {
   ];
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Look back at how you have led yourself since your last review.</p>
+        <p>Rate honestly. Rating yourself higher than reality slows your growth.</p>
+      </GuideNote>
       <SectionBlock label="Evaluate — Rate each FUEL area since your last review">
         <RatingGrid items={FUEL_AREAS} values={d.d1_fuel} options={opts} onChange={(v) => update("d1_fuel", v as FuelRating[])} />
       </SectionBlock>
@@ -382,6 +386,10 @@ function Dashboard1({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Dashboard2({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>This is a review of the people you lead.</p>
+        <p>Do not rate them. Review how you have led them.</p>
+      </GuideNote>
       <SectionBlock label="Evaluate — Growth you've seen in the people you lead">
         <Chips label="Where have you seen growth in your people?" options={GROWTH_CHIPS} values={d.d2_growth_chips} onChange={(v) => update("d2_growth_chips", v)} />
         <Chips label="How your leadership approach has shifted" options={APPROACH_CHIPS} values={d.d2_approach_chips} onChange={(v) => update("d2_approach_chips", v)} other={d.d2_other} onOtherChange={(v) => update("d2_other", v)} />
@@ -412,6 +420,10 @@ function Dashboard3({ d, update }: { d: SectionData; update: UpdateFn }) {
   ];
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Alignment is where leadership either holds or drifts.</p>
+        <p>Review whether your time, energy, and role still match what matters most.</p>
+      </GuideNote>
       <SectionBlock label="Evaluate — Where alignment stands now" hint="Rate each area as Strong or Needs Attention.">
         <RatingGrid items={ALIGNMENT_AREAS} values={d.d3_align} options={opts} onChange={(v) => update("d3_align", v as AlignRating[])} />
       </SectionBlock>
@@ -437,6 +449,10 @@ function Dashboard3({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Dashboard4({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>A leadership leak is anything that quietly drains your capacity.</p>
+        <p>Name the leaks before they name your results.</p>
+      </GuideNote>
       <SectionBlock label="Evaluate — Where your leadership is leaking" hint="Select every leak that's showing up right now.">
         <Chips label="Leadership leaks" options={LEAK_CHIPS} values={d.d4_leaks} onChange={(v) => update("d4_leaks", v)} other={d.d4_leaks_other} onOtherChange={(v) => update("d4_leaks_other", v)} />
       </SectionBlock>
@@ -462,6 +478,10 @@ function Dashboard4({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Dashboard5({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Carry forward what worked.</p>
+        <p>Leadership improves when lessons become standards.</p>
+      </GuideNote>
       <SectionBlock label="Evaluate — The biggest lesson from this cycle">
         <LabeledTextarea label="What is the single biggest lesson this cycle taught you as a leader?" value={d.d5_lesson} onChange={(v) => update("d5_lesson", v)} />
       </SectionBlock>
@@ -487,6 +507,10 @@ function Dashboard5({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Dashboard6({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Recalibration is not starting over.</p>
+        <p>It is adjusting the plan so the next stretch of the cycle is stronger than the last.</p>
+      </GuideNote>
       <SectionBlock label="Leadership Recalibration" hint="One adjustment each. The Success Marker is what this cycle rests on.">
         <LabeledInput label="One personal adjustment you'll make" value={d.d6_personal_adjustment} onChange={(v) => update("d6_personal_adjustment", v)} />
         <LabeledInput label="One people adjustment you'll make" value={d.d6_people_adjustment} onChange={(v) => update("d6_people_adjustment", v)} />
@@ -624,5 +648,13 @@ function AboutSectionButtonS6({ className }: { className?: string }) {
       <p>Every principle builds upon the previous one.</p>
       <p>Carry forward everything you've learned about leading yourself as you continue developing others.</p>
     </AboutSectionSheet>
+  );
+}
+
+function GuideNote({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="rounded-xl border-l-4 border-[#433993] bg-[#f6f2ff]/60 px-4 py-3 text-sm leading-relaxed text-foreground [&_p+p]:mt-2">
+      {children}
+    </div>
   );
 }
