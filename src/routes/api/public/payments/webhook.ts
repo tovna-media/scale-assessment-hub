@@ -235,17 +235,23 @@ async function handleFoundingCheckoutCompleted(
   const email = session.customer_details?.email?.trim().toLowerCase();
   const subscriptionId = typeof session.subscription === 'string' ? session.subscription : null;
   if (!email || !subscriptionId) {
-    console.error('[webhook] founding session missing email or subscription', session.id);
+    throw new Error(`founding session missing email or subscription: ${session.id}`);
+  }
+  console.log('[webhook] founding checkout start', { sessionId: session.id, subscriptionId });
+
+  // Idempotency: if this subscription was already granted, stop here.
+  const { data: existingSub } = await admin
+    .from('subscriptions')
+    .select('user_id')
+    .eq('stripe_subscription_id', subscriptionId)
+    .maybeSingle();
+  if ((existingSub as { user_id?: string } | null)?.user_id) {
+    console.log('[webhook] founding checkout already processed', subscriptionId);
     return;
   }
 
   // Find an existing account for this email, otherwise create one.
-  const { data: prof } = await admin
-    .from('profiles')
-    .select('id')
-    .ilike('email', email)
-    .maybeSingle();
-  let userId = (prof as { id?: string } | null)?.id ?? null;
+  let userId = await findUserIdByEmail(admin, email);
   let isNewAccount = false;
 
   if (!userId) {
@@ -261,12 +267,18 @@ async function handleFoundingCheckoutCompleted(
       },
     });
     if (error || !created?.user) {
-      console.error('[webhook] founding account creation failed', error);
-      return;
+      // Race / already-registered: re-resolve instead of failing.
+      userId = await findUserIdByEmail(admin, email);
+      if (!userId) {
+        console.error('[webhook] founding account creation failed', error);
+        throw new Error(`account creation failed for ${email}: ${error?.message ?? 'unknown'}`);
+      }
+    } else {
+      userId = created.user.id;
+      isNewAccount = true;
     }
-    userId = created.user.id;
-    isNewAccount = true;
   }
+  console.log('[webhook] founding user resolved', { userId, isNewAccount });
 
   // Stamp the userId onto Stripe so every later subscription event resolves it.
   const { createStripeClient } = await import('@/lib/stripe.server');
@@ -280,29 +292,64 @@ async function handleFoundingCheckoutCompleted(
 
   // Grant access now (subscription.created may have arrived before we had a user).
   const sub = (await stripe.subscriptions.retrieve(subscriptionId)) as unknown as StripeSubscription;
-  await handleSubscriptionUpsert(admin, { ...sub, metadata: { userId, founding: '1' } }, env);
+  await handleSubscriptionUpsert(
+    admin,
+    {
+      ...sub,
+      customer: typeof session.customer === 'string' ? session.customer : sub.customer,
+      metadata: { userId, founding: '1' },
+    },
+    env,
+  );
+  console.log('[webhook] founding access granted', { userId, subscriptionId });
 
   // Send the sign-in link so they land in the app without a signup form.
   try {
     const appUrl = 'https://app.getfullyresourced.com';
-    const { data: link } = await admin.auth.admin.generateLink({
+    const { data: link, error: linkError } = await admin.auth.admin.generateLink({
       type: 'magiclink',
       email,
       options: { redirectTo: `${appUrl}/dashboard` },
     });
+    if (linkError) console.error('[webhook] generateLink failed', linkError);
     const signInUrl = link?.properties?.action_link ?? appUrl;
     const { sendTransactionalEmailServer } = await import('@/lib/email/send.server');
     await sendTransactionalEmailServer({
       templateName: 'founding-access',
       recipientEmail: email,
       idempotencyKey: `founding-access-${session.id}`,
-      templateData: { signInUrl },
+      templateData: { signInUrl, name: session.customer_details?.name ?? undefined },
     });
+    console.log('[webhook] founding sign-in email queued', { email });
   } catch (e) {
     console.error('[webhook] founding sign-in email failed', e);
   }
 
   console.log('[webhook] founding checkout processed', { userId, isNewAccount });
+}
+
+/** Resolve an auth user id for an email (profiles first, then the auth admin API). */
+async function findUserIdByEmail(admin: Admin, email: string): Promise<string | null> {
+  const { data: prof } = await admin
+    .from('profiles')
+    .select('id')
+    .ilike('email', email)
+    .maybeSingle();
+  const profileId = (prof as { id?: string } | null)?.id ?? null;
+  if (profileId) return profileId;
+
+  // Fall back to scanning auth users (profile row may be missing).
+  for (let page = 1; page <= 20; page++) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 200 });
+    if (error) {
+      console.error('[webhook] listUsers failed', error);
+      return null;
+    }
+    const match = data.users.find((u) => u.email?.toLowerCase() === email);
+    if (match) return match.id;
+    if (data.users.length < 200) break;
+  }
+  return null;
 }
 
 export const Route = createFileRoute('/api/public/payments/webhook')({
