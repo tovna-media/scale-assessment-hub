@@ -305,6 +305,10 @@ type UpdateFn = <K extends keyof SectionData>(k: K, v: SectionData[K]) => void;
 function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Zoom out.</p>
+        <p>Leadership legacy is the footprint you leave in the leaders you develop.</p>
+      </GuideNote>
       <SectionBlock label="Leadership Legacy Review" hint="Zoom out. This is about the leader footprint you want to leave.">
         <LabeledTextarea label="What legacy do you want your leadership to leave?" value={d.p1_legacy} onChange={(v) => update("p1_legacy", v)} />
         <LabeledTextarea label="Which leader (past or present) most shaped how you lead — and how?" value={d.p1_shaped_by} onChange={(v) => update("p1_shaped_by", v)} />
@@ -317,6 +321,10 @@ function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Choose one leader.</p>
+        <p>Depth beats breadth when you are transferring leadership.</p>
+      </GuideNote>
       <SectionBlock label="Choose the Leader" hint="One person. The leader you will invest in this cycle.">
         <LabeledInput label="Name" value={d.p2_name} onChange={(v) => update("p2_name", v)} />
         <LabeledInput label="Current role" value={d.p2_current_role} onChange={(v) => update("p2_current_role", v)} />
@@ -330,6 +338,10 @@ function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Understand the leader before you develop them.</p>
+        <p>Look at their strengths, their gaps, their Success Image, and their FUEL.</p>
+      </GuideNote>
       <SectionBlock label="Leader Development Profile">
         <LabeledTextarea label="What are their top strengths as a leader?" value={d.p3_strengths} onChange={(v) => update("p3_strengths", v)} />
         <LabeledInput label="Top GAP #1" value={d.p3_gap1} onChange={(v) => update("p3_gap1", v)} />
@@ -346,6 +358,10 @@ function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>This is the core output of this section.</p>
+        <p>A Leadership Transfer Plan makes development intentional instead of accidental.</p>
+      </GuideNote>
       <SectionBlock label="Leadership Transfer Plan" hint="The core output of this section. Fill all five fields to complete Section 10.">
         <LabeledTextarea label="Principles — the leadership principles you will transfer to them" value={d.p4_principles} onChange={(v) => update("p4_principles", v)} />
         <LabeledTextarea label="Experiences — what you will put them in to grow them" value={d.p4_experiences} onChange={(v) => update("p4_experiences", v)} />
@@ -360,6 +376,10 @@ function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part5({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Development without rhythm fades.</p>
+        <p>Set the cadence you will actually hold.</p>
+      </GuideNote>
       <SectionBlock label="Development Rhythm">
         <LabeledInput label="Meeting cadence with this leader (e.g., weekly 1:1, biweekly review)" value={d.p5_cadence} onChange={(v) => update("p5_cadence", v)} />
         <LabeledTextarea label="How will you review progress with them?" value={d.p5_review} onChange={(v) => update("p5_review", v)} />
@@ -373,6 +393,10 @@ function Part5({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part6({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Multiplication is the goal.</p>
+        <p>Carry your principles forward beyond this one leader.</p>
+      </GuideNote>
       <SectionBlock label="Carry the Principles Forward">
         <LabeledTextarea label="Which principles from your own leadership will you carry forward into this leader?" value={d.p6_carry_forward} onChange={(v) => update("p6_carry_forward", v)} />
         <LabeledTextarea label="How will you multiply — beyond this one leader — over the next 12 months?" value={d.p6_multiply} onChange={(v) => update("p6_multiply", v)} />
@@ -480,5 +504,13 @@ function AboutSectionButtonS10({ className }: { className?: string }) {
       <p className="font-semibold">Remember…</p>
       <p>Leadership is not complete until it is intentionally invested in someone else.</p>
     </AboutSectionSheet>
+  );
+}
+
+function GuideNote({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="rounded-xl border-l-4 border-[#433993] bg-[#f6f2ff]/60 px-4 py-3 text-sm leading-relaxed text-foreground [&_p+p]:mt-2">
+      {children}
+    </div>
   );
 }

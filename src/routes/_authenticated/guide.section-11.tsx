@@ -304,6 +304,10 @@ type UpdateFn = <K extends keyof SectionData>(k: K, v: SectionData[K]) => void;
 function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Protect the process.</p>
+        <p>Systems fail when leaders stop maintaining them.</p>
+      </GuideNote>
       <SectionBlock label="Protect the Process" hint="You've built a leadership system. Now protect it from erosion.">
         <LabeledTextarea label="What in your leadership process most needs protecting right now?" value={d.p1_what_protects} onChange={(v) => update("p1_what_protects", v)} />
         <LabeledTextarea label="What are the biggest threats to that process — internal or external?" value={d.p1_threats} onChange={(v) => update("p1_threats", v)} />
@@ -316,6 +320,10 @@ function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Review the development happening around you.</p>
+        <p>Is it real, or has it become a meeting?</p>
+      </GuideNote>
       <SectionBlock label="Development Review" hint="Review the leader you're developing — their GAP Report and Transfer Plan progress.">
         <LabeledInput label="Leader you're developing" value={d.p2_leader_name} onChange={(v) => update("p2_leader_name", v)} />
         <LabeledTextarea label="What does their GAP Report show now vs. when you started?" value={d.p2_gap_report_review} onChange={(v) => update("p2_gap_report_review", v)} />
@@ -329,6 +337,10 @@ function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Review the leadership transfer you committed to.</p>
+        <p>Is the leader you chose actually growing?</p>
+      </GuideNote>
       <SectionBlock label="Leadership Transfer Review">
         <LabeledTextarea label="What in the transfer is working?" value={d.p3_working} onChange={(v) => update("p3_working", v)} />
         <LabeledTextarea label="What is stalling or being resisted?" value={d.p3_stalling} onChange={(v) => update("p3_stalling", v)} />
@@ -343,6 +355,10 @@ function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
   const showOther = d.p4_drift.includes("Other");
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Drift shows up in systems before it shows up in results.</p>
+        <p>Find it early.</p>
+      </GuideNote>
       <SectionBlock label="System Drift Review" hint="Drift is silent. Name it before it becomes normal.">
         <Chips label="Where do you see drift showing up?" options={DRIFT_CHIPS} values={d.p4_drift} onChange={(v) => update("p4_drift", v)} />
         {showOther && (
@@ -358,6 +374,10 @@ function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part5({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Standards only hold when a leader protects them.</p>
+        <p>Name the standards you will not let slip.</p>
+      </GuideNote>
       <SectionBlock label="Standards Protection">
         <LabeledTextarea label="What are the non-negotiable standards in your leadership right now?" value={d.p5_non_negotiables} onChange={(v) => update("p5_non_negotiables", v)} />
         <LabeledTextarea label="Which of those standards are slipping — for you or your team?" value={d.p5_slipping} onChange={(v) => update("p5_slipping", v)} />
@@ -370,6 +390,10 @@ function Part5({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part6({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Sustainability is leadership that lasts.</p>
+        <p>Review your capacity, not just your calendar.</p>
+      </GuideNote>
       <SectionBlock label="Sustainability Review" hint="If it isn't sustainable, it isn't real leadership — it's a sprint.">
         <LabeledTextarea label="What's energizing you as a leader right now?" value={d.p6_energizing} onChange={(v) => update("p6_energizing", v)} />
         <LabeledTextarea label="What's draining you?" value={d.p6_draining} onChange={(v) => update("p6_draining", v)} />
@@ -382,6 +406,9 @@ function Part6({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part7({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Reflect on who you have become as a leader through this process.</p>
+      </GuideNote>
       <SectionBlock label="Leadership Reflection">
         <Chips label="Which principles are your greatest strength right now?" options={STRENGTH_PRINCIPLES} values={d.p7_strength_principles} onChange={(v) => update("p7_strength_principles", v)} />
         <LabeledTextarea label="What are you most proud of in your leadership this cycle?" value={d.p7_proud_of} onChange={(v) => update("p7_proud_of", v)} />
@@ -491,5 +518,13 @@ function AboutSectionButtonS11({ className }: { className?: string }) {
       <p>The goal is not simply to develop another leader.</p>
       <p>The goal is to faithfully reproduce the same leadership principles that helped you become Fully Resourced.</p>
     </AboutSectionSheet>
+  );
+}
+
+function GuideNote({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="rounded-xl border-l-4 border-[#433993] bg-[#f6f2ff]/60 px-4 py-3 text-sm leading-relaxed text-foreground [&_p+p]:mt-2">
+      {children}
+    </div>
   );
 }
