@@ -307,10 +307,6 @@ type UpdateFn = <K extends keyof SectionData>(k: K, v: SectionData[K]) => void;
 function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <GuideNote>
-        <p>Review the full Leadership Optimization Cycle.</p>
-        <p>Look at the whole, not just the last section.</p>
-      </GuideNote>
       <SectionBlock label="Leadership Optimization Review" hint="Compare where you are now against your original GAP Report, Success Image, and Success Drivers.">
         <LabeledTextarea label="How has your Priority Gap shifted since the start of this cycle?" value={d.p1_gap_shift} onChange={(v) => update("p1_gap_shift", v)} />
         <LabeledTextarea label="How much of your original Success Image did you actually build?" value={d.p1_success_image_progress} onChange={(v) => update("p1_success_image_progress", v)} />
@@ -324,9 +320,6 @@ function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <GuideNote>
-        <p>Review the Four Principles: Lead Yourself, Lead Others, Lead for Results, Lead Leaders.</p>
-      </GuideNote>
       <SectionBlock label="Four Principles Review" hint="One honest reflection per principle.">
         <LabeledTextarea label="Lead Yourself — how have you led yourself differently this cycle?" value={d.p2_lead_yourself} onChange={(v) => update("p2_lead_yourself", v)} />
         <LabeledTextarea label="Lead Others — how have the people you lead grown because of you?" value={d.p2_lead_others} onChange={(v) => update("p2_lead_others", v)} />
@@ -341,9 +334,6 @@ function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <GuideNote>
-        <p>Measure your growth honestly against where you started this cycle.</p>
-      </GuideNote>
       <SectionBlock label="Leadership Growth Review">
         <LabeledTextarea label="Where have you grown the most as a leader this cycle?" value={d.p3_grown_most} onChange={(v) => update("p3_grown_most", v)} />
         <LabeledTextarea label="What was the hardest lesson this cycle taught you?" value={d.p3_hardest_lesson} onChange={(v) => update("p3_hardest_lesson", v)} />
@@ -356,10 +346,6 @@ function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <GuideNote>
-        <p>Name the gaps that remain.</p>
-        <p>Remaining gaps are not failure. They are the next cycle's work.</p>
-      </GuideNote>
       <SectionBlock label="Remaining Leadership Gaps" hint="Every cycle closes some gaps and reveals new ones. Name them.">
         <LabeledTextarea label="What leadership gaps are still open?" value={d.p4_remaining_gaps} onChange={(v) => update("p4_remaining_gaps", v)} />
         <LabeledTextarea label="Why did those gaps persist this cycle?" value={d.p4_why_persist} onChange={(v) => update("p4_why_persist", v)} />
@@ -372,10 +358,6 @@ function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part5({ d, update, newReportReady }: { d: SectionData; update: UpdateFn; newReportReady: boolean }) {
   return (
     <div className="space-y-6">
-      <GuideNote>
-        <p>Complete a new GAP Report.</p>
-        <p>New data, not memory, sets the direction of the next cycle.</p>
-      </GuideNote>
       <SectionBlock label="Complete a New GAP Report" hint="Retake all three assessments. A new Gap Report only generates once all three are complete this cycle.">
         <div className={`rounded-2xl border p-5 ${newReportReady ? "border-emerald-300 bg-emerald-50/60" : "border-[#433993]/30 bg-gradient-to-br from-[#f6f2ff] to-white"}`}>
           {newReportReady ? (
@@ -407,10 +389,6 @@ function Part5({ d, update, newReportReady }: { d: SectionData; update: UpdateFn
 function Part6({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <GuideNote>
-        <p>Plan your next Leadership Optimization Cycle.</p>
-        <p>Leadership is never finished. It begins again.</p>
-      </GuideNote>
       <SectionBlock label="Next Leadership Optimization Cycle">
         <LabeledTextarea label="Next Success Image — who are you becoming as a leader by the end of the next cycle?" value={d.p6_next_success_image} onChange={(v) => update("p6_next_success_image", v)} />
         <LabeledTextarea label="Next Success Drivers — the 3–5 behaviors that will produce that image" value={d.p6_next_drivers} onChange={(v) => update("p6_next_drivers", v)} />
@@ -425,9 +403,6 @@ function Part7({ d, update }: { d: SectionData; update: UpdateFn }) {
   const level = d.p7_commitment_level;
   return (
     <div className="space-y-6">
-      <GuideNote>
-        <p>Your commitment starts the next cycle.</p>
-      </GuideNote>
       <SectionBlock label="Your Commitment">
         <LabeledTextarea label="The greatest lesson of this cycle is…" value={d.p7_greatest_lesson} onChange={(v) => update("p7_greatest_lesson", v)} />
         <div>
@@ -560,13 +535,5 @@ function AboutSectionButtonS12({ className }: { className?: string }) {
       <p>The goal is not to finish the Guide.</p>
       <p>The goal is to become more Fully Resourced with every Leadership Optimization Cycle.</p>
     </AboutSectionSheet>
-  );
-}
-
-function GuideNote({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="rounded-xl border-l-4 border-[#433993] bg-[#f6f2ff]/60 px-4 py-3 text-sm leading-relaxed text-foreground [&_p+p]:mt-2">
-      {children}
-    </div>
   );
 }

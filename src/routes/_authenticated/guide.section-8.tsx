@@ -341,10 +341,6 @@ function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
   };
   return (
     <div className="space-y-6">
-      <GuideNote>
-        <p>Evaluate before you confront.</p>
-        <p>Most conversations go badly because the leader was unclear, not because the person was unwilling.</p>
-      </GuideNote>
       <SectionBlock label="Evaluate — Seven Yes/No checks" hint="Answer each honestly. Any Yes is a signal a crucial conversation may be needed.">
         <div className="space-y-2">
           {EVAL_CHECKS.map((c) => (
@@ -383,10 +379,6 @@ function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <GuideNote>
-        <p>Decide what kind of conversation this actually is.</p>
-        <p>Naming it correctly changes how you prepare.</p>
-      </GuideNote>
       <SectionBlock label="Determine the Conversation">
         <LabeledInput label="Who is this conversation with?" value={d.p2_who} onChange={(v) => update("p2_who", v)} />
         <LabeledTextarea label="Why does this conversation need to happen now?" value={d.p2_why_now} onChange={(v) => update("p2_why_now", v)} />
@@ -407,10 +399,6 @@ function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <GuideNote>
-        <p>Prepare the conversation before you have it.</p>
-        <p>Clarity is kindness.</p>
-      </GuideNote>
       <SectionBlock label="Prepare the Conversation" hint="Use the Crucial Conversation Worksheet outside the app to plan the conversation, then confirm below.">
         <div className="rounded-xl border border-[#433993]/30 bg-gradient-to-br from-[#f6f2ff] to-white p-4 text-sm text-foreground">
           Download the Crucial Conversation Worksheet from your Optimized Leader Guide resources and complete it before your conversation.
@@ -430,10 +418,6 @@ function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <GuideNote>
-        <p>Love and tough love are not opposites.</p>
-        <p>Both are required to lead people well.</p>
-      </GuideNote>
       <SectionBlock label="Love — What you care about here">
         <LabeledTextarea label="What do you genuinely care about — about this person, this team, this outcome?" value={d.p4_love} onChange={(v) => update("p4_love", v)} />
       </SectionBlock>
@@ -450,10 +434,6 @@ function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part5({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <GuideNote>
-        <p>Plan the execution.</p>
-        <p>Decide when, where, and how you will open the conversation.</p>
-      </GuideNote>
       <SectionBlock label="Conversation Execution Plan" hint="Lock the details so it actually happens.">
         <LabeledInput label="Name of the person" value={d.p5_name} onChange={(v) => update("p5_name", v)} />
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -472,10 +452,6 @@ function Part5({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part6({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <GuideNote>
-        <p>Evaluate the conversation after it happens.</p>
-        <p>This is how you get better at the next one.</p>
-      </GuideNote>
       <SectionBlock label="Conversation Evaluation" hint="Come back after the conversation and fill this in.">
         <LabeledTextarea label="What actually happened in the conversation?" value={d.p6_what_happened} onChange={(v) => update("p6_what_happened", v)} />
         <LabeledTextarea label="What worked?" value={d.p6_what_worked} onChange={(v) => update("p6_what_worked", v)} />
@@ -582,13 +558,5 @@ function AboutSectionButtonS8({ className }: { className?: string }) {
       <p className="font-semibold">Remember…</p>
       <p>Preparation is part of leadership. The discipline of writing out the Crucial Conversation Worksheet before the conversation helps you think clearly, communicate effectively, and lead with both love and tough love.</p>
     </AboutSectionSheet>
-  );
-}
-
-function GuideNote({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="rounded-xl border-l-4 border-[#433993] bg-[#f6f2ff]/60 px-4 py-3 text-sm leading-relaxed text-foreground [&_p+p]:mt-2">
-      {children}
-    </div>
   );
 }

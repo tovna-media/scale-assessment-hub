@@ -363,10 +363,6 @@ type UpdateFn = <K extends keyof SectionData>(k: K, v: SectionData[K]) => void;
 function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <GuideNote>
-        <p>Debrief the crucial conversation you had.</p>
-        <p>Real leadership growth happens in the review.</p>
-      </GuideNote>
       <SectionBlock label="Debrief — Your last crucial conversation">
         <LabeledTextarea label="What went well in the conversation?" value={d.p1_went_well} onChange={(v) => update("p1_went_well", v)} />
         <LabeledTextarea label="What didn't go well?" value={d.p1_didnt} onChange={(v) => update("p1_didnt", v)} />
@@ -387,10 +383,6 @@ function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <GuideNote>
-        <p>Pressure reveals leadership.</p>
-        <p>Look honestly at how you led when it was hard.</p>
-      </GuideNote>
       <SectionBlock label="Leadership Under Pressure — Behaviors">
         <Chips label="Which of these describe how you led under pressure recently?" options={BEHAVIOR_CHIPS} values={d.p2_behaviors} onChange={(v) => update("p2_behaviors", v)} />
       </SectionBlock>
@@ -405,9 +397,6 @@ function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
   const setR = (k: RatingKey, n: number) => update("p3_ratings", { ...d.p3_ratings, [k]: n });
   return (
     <div className="space-y-6">
-      <GuideNote>
-        <p>Integration means everything you have learned shows up in real situations, not just on paper.</p>
-      </GuideNote>
       <SectionBlock label="Lead Yourself" hint="Rate yourself 1–10 on each. Be honest.">
         {LY_ITEMS.map((it) => (
           <RatingSlider key={it.key} label={it.label} value={d.p3_ratings[it.key]} onChange={(n) => setR(it.key, n)} />
@@ -434,10 +423,6 @@ function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <GuideNote>
-        <p>Bring a real leadership challenge you are facing right now.</p>
-        <p>Apply the system to it.</p>
-      </GuideNote>
       <SectionBlock label="Real Leadership Challenge">
         <LabeledTextarea label="Describe a real leadership challenge you're facing right now." value={d.p4_describe} onChange={(v) => update("p4_describe", v)} />
         <div>
@@ -469,10 +454,6 @@ function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part5({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <GuideNote>
-        <p>Drift is quiet. Discipline is deliberate.</p>
-        <p>Name where each one is showing up.</p>
-      </GuideNote>
       <SectionBlock label="Drift — Where you've been slipping">
         <Chips label="Which drift patterns have crept back in?" options={DRIFT_CHIPS} values={d.p5_drifts} onChange={(v) => update("p5_drifts", v)} />
       </SectionBlock>
@@ -486,10 +467,6 @@ function Part5({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part6({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <GuideNote>
-        <p>Choose one leadership focus for the next 14 days.</p>
-        <p>One focus, executed, beats five intentions.</p>
-      </GuideNote>
       <SectionBlock label="Next 14-Day Leadership Focus" hint="Five commitments. Specific. Doable. Measurable.">
         <LabeledInput label="Commitment 1" value={d.p6_c1} onChange={(v) => update("p6_c1", v)} />
         <LabeledInput label="Commitment 2" value={d.p6_c2} onChange={(v) => update("p6_c2", v)} />
@@ -504,9 +481,6 @@ function Part6({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part7({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <GuideNote>
-        <p>Reflect on the confidence you have gained, and on where you still need growth.</p>
-      </GuideNote>
       <SectionBlock label="Confidence & Growth Reflection">
         <LabeledTextarea label="Where are you stronger than you were at the start of this cycle?" value={d.p7_stronger} onChange={(v) => update("p7_stronger", v)} />
         <LabeledTextarea label="Where do you still struggle?" value={d.p7_struggle} onChange={(v) => update("p7_struggle", v)} />
@@ -617,13 +591,5 @@ function AboutSectionButtonS9({ className }: { className?: string }) {
         <li>Refine your approach to Lead Yourself, Lead Others, and Lead for Results</li>
       </ul>
     </AboutSectionSheet>
-  );
-}
-
-function GuideNote({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="rounded-xl border-l-4 border-[#433993] bg-[#f6f2ff]/60 px-4 py-3 text-sm leading-relaxed text-foreground [&_p+p]:mt-2">
-      {children}
-    </div>
   );
 }
