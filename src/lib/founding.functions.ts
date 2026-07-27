@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 
-export const FOUNDING_COUPON_ID = 'DblcpNsA';
+export const FOUNDING_COUPON_ID = 'zX6TNEhc';
 
 type CheckoutResult = { url: string } | { error: string };
 
