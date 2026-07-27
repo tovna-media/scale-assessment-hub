@@ -35,15 +35,15 @@ const PRIORITY_CHIPS = [
 ];
 
 const NEXT_JOURNEY_CHIPS = [
-  "Start a new Optimized Leader Guide cycle",
-  "Join The Leader's Edge",
-  "Book 1:1 coaching with Rich",
-  "Roll out the Fully Resourced System in my organization",
+  "Continue independently using a new Optimized Leader Guide.",
+  "Continue growing through Leaders Edge.",
+  "Continue with one-on-one coaching.",
+  "Continue developing leaders within your organization using the Fully Resourced Leadership System.",
 ];
 
 const JOURNEY_LINKS: Record<string, string> = {
-  "Join The Leader's Edge": "https://richlohman.com/the-leaders-edge",
-  "Book 1:1 coaching with Rich": "https://richlohman.com/strategy-call-with-rich",
+  "Continue growing through Leaders Edge.": "https://richlohman.com/the-leaders-edge",
+  "Continue with one-on-one coaching.": "https://richlohman.com/strategy-call-with-rich",
 };
 
 interface SectionData {
@@ -55,13 +55,18 @@ interface SectionData {
   p1_biggest_win: string;
   // Part 2 — Four Principles Review
   p2_lead_yourself: string;
+  p2_ly_discipline: string;
   p2_lead_others: string;
+  p2_lo_relationship: string;
   p2_lead_results: string;
   p2_success_markers: string;
   p2_lead_leaders: string;
+  p2_ll_progress: string;
+  p2_ll_strengthened: string;
   // Part 3 — Growth
   p3_grown_most: string;
   p3_hardest_lesson: string;
+  p3_behavior: string;
   p3_evidence: string;
   // Part 4 — Remaining Gaps
   p4_remaining_gaps: string;
@@ -70,6 +75,9 @@ interface SectionData {
   // Part 5 — New GAP Report
   p5_priority_next: string[];
   p5_new_report_ack: boolean;
+  p5_improvements: string;
+  p5_patterns: string;
+  p5_why: string;
   // Part 6 — Next Cycle
   p6_next_success_image: string;
   p6_next_drivers: string;
@@ -91,18 +99,26 @@ const EMPTY: SectionData = {
   p1_drivers_progress: "",
   p1_biggest_win: "",
   p2_lead_yourself: "",
+  p2_ly_discipline: "",
   p2_lead_others: "",
+  p2_lo_relationship: "",
   p2_lead_results: "",
   p2_success_markers: "",
   p2_lead_leaders: "",
+  p2_ll_progress: "",
+  p2_ll_strengthened: "",
   p3_grown_most: "",
   p3_hardest_lesson: "",
+  p3_behavior: "",
   p3_evidence: "",
   p4_remaining_gaps: "",
   p4_why_persist: "",
   p4_close_plan: "",
   p5_priority_next: [],
   p5_new_report_ack: false,
+  p5_improvements: "",
+  p5_patterns: "",
+  p5_why: "",
   p6_next_success_image: "",
   p6_next_drivers: "",
   p6_accountability: "",
@@ -307,11 +323,18 @@ type UpdateFn = <K extends keyof SectionData>(k: K, v: SectionData[K]) => void;
 function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Leadership Optimization Review" hint="Compare where you are now against your original GAP Report, Success Image, and Success Drivers.">
-        <LabeledTextarea label="How has your Priority Gap shifted since the start of this cycle?" value={d.p1_gap_shift} onChange={(v) => update("p1_gap_shift", v)} />
-        <LabeledTextarea label="How much of your original Success Image did you actually build?" value={d.p1_success_image_progress} onChange={(v) => update("p1_success_image_progress", v)} />
-        <LabeledTextarea label="Which of your Success Drivers actually drove the growth?" value={d.p1_drivers_progress} onChange={(v) => update("p1_drivers_progress", v)} />
-        <LabeledTextarea label="What is the single biggest win of this cycle?" value={d.p1_biggest_win} onChange={(v) => update("p1_biggest_win", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 1 – Leadership Optimization Review
+        </p>
+        <p className="mt-2">
+          Return to your original GAP Report, Success Image, and Success Drivers.
+        </p>
+      </GuideNote>
+      <SectionBlock label="Evaluate">
+        <LabeledTextarea label="How has your Success Image become more of a reality?" value={d.p1_gap_shift} onChange={(v) => update("p1_gap_shift", v)} />
+        <LabeledTextarea label="Which Success Drivers consistently moved you forward?" value={d.p1_success_image_progress} onChange={(v) => update("p1_success_image_progress", v)} />
+        <LabeledTextarea label="Which Success Drivers deserve greater attention during your next Leadership Optimization Cycle?" value={d.p1_drivers_progress} onChange={(v) => update("p1_drivers_progress", v)} />
       </SectionBlock>
     </div>
   );
@@ -320,12 +343,28 @@ function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Four Principles Review" hint="One honest reflection per principle.">
-        <LabeledTextarea label="Lead Yourself — how have you led yourself differently this cycle?" value={d.p2_lead_yourself} onChange={(v) => update("p2_lead_yourself", v)} />
-        <LabeledTextarea label="Lead Others — how have the people you lead grown because of you?" value={d.p2_lead_others} onChange={(v) => update("p2_lead_others", v)} />
-        <LabeledTextarea label="Lead for Results — what results did your leadership actually produce?" value={d.p2_lead_results} onChange={(v) => update("p2_lead_results", v)} />
-        <LabeledTextarea label="Success Markers under Lead for Results — the measurable evidence" value={d.p2_success_markers} onChange={(v) => update("p2_success_markers", v)} placeholder="e.g. Revenue +12%, retention 94%, 1:1s at 100% cadence, 3 new leaders promoted…" />
-        <LabeledTextarea label="Lead Leaders — what does the leader you developed now own that they didn't before?" value={d.p2_lead_leaders} onChange={(v) => update("p2_lead_leaders", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 2 – Four Principles Review
+        </p>
+        <p className="mt-2">Reflect on each leadership principle.</p>
+      </GuideNote>
+      <SectionBlock label="Lead Yourself">
+        <LabeledTextarea label="What evidence demonstrates your personal leadership has improved?" value={d.p2_lead_yourself} onChange={(v) => update("p2_lead_yourself", v)} />
+        <LabeledTextarea label="What leadership discipline has become a consistent strength?" value={d.p2_ly_discipline} onChange={(v) => update("p2_ly_discipline", v)} />
+      </SectionBlock>
+      <SectionBlock label="Lead Others">
+        <LabeledTextarea label="What evidence demonstrates you have become more effective at developing people?" value={d.p2_lead_others} onChange={(v) => update("p2_lead_others", v)} />
+        <LabeledTextarea label="What leadership relationship has improved the most?" value={d.p2_lo_relationship} onChange={(v) => update("p2_lo_relationship", v)} />
+      </SectionBlock>
+      <SectionBlock label="Lead for Results">
+        <LabeledTextarea label="What measurable Success Markers demonstrate meaningful progress?" value={d.p2_success_markers} onChange={(v) => update("p2_success_markers", v)} />
+        <LabeledTextarea label="What result are you most proud of?" value={d.p2_lead_results} onChange={(v) => update("p2_lead_results", v)} />
+      </SectionBlock>
+      <SectionBlock label="Lead Leaders" hint="If applicable…">
+        <LabeledTextarea label="Who have you intentionally begun developing?" value={d.p2_lead_leaders} onChange={(v) => update("p2_lead_leaders", v)} />
+        <LabeledTextarea label="What progress have they demonstrated?" value={d.p2_ll_progress} onChange={(v) => update("p2_ll_progress", v)} />
+        <LabeledTextarea label="How has developing another leader strengthened your own leadership?" value={d.p2_ll_strengthened} onChange={(v) => update("p2_ll_strengthened", v)} />
       </SectionBlock>
     </div>
   );
@@ -334,10 +373,17 @@ function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 3 – Leadership Growth Review
+        </p>
+        <p className="mt-2">Compare your current leadership with where you began.</p>
+      </GuideNote>
       <SectionBlock label="Leadership Growth Review">
-        <LabeledTextarea label="Where have you grown the most as a leader this cycle?" value={d.p3_grown_most} onChange={(v) => update("p3_grown_most", v)} />
-        <LabeledTextarea label="What was the hardest lesson this cycle taught you?" value={d.p3_hardest_lesson} onChange={(v) => update("p3_hardest_lesson", v)} />
-        <LabeledTextarea label="What's the visible evidence of that growth — what would your team say?" value={d.p3_evidence} onChange={(v) => update("p3_evidence", v)} />
+        <LabeledTextarea label="What leadership habit has improved the most?" value={d.p3_grown_most} onChange={(v) => update("p3_grown_most", v)} />
+        <LabeledTextarea label="What leadership standard has risen the most?" value={d.p3_hardest_lesson} onChange={(v) => update("p3_hardest_lesson", v)} />
+        <LabeledTextarea label="What leadership behavior has changed the most?" value={d.p3_behavior} onChange={(v) => update("p3_behavior", v)} />
+        <LabeledTextarea label="What evidence supports these changes?" value={d.p3_evidence} onChange={(v) => update("p3_evidence", v)} />
       </SectionBlock>
     </div>
   );
@@ -346,10 +392,17 @@ function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Remaining Leadership Gaps" hint="Every cycle closes some gaps and reveals new ones. Name them.">
-        <LabeledTextarea label="What leadership gaps are still open?" value={d.p4_remaining_gaps} onChange={(v) => update("p4_remaining_gaps", v)} />
-        <LabeledTextarea label="Why did those gaps persist this cycle?" value={d.p4_why_persist} onChange={(v) => update("p4_why_persist", v)} />
-        <LabeledTextarea label="What will you do differently next cycle to close them?" value={d.p4_close_plan} onChange={(v) => update("p4_close_plan", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 4 – Remaining Leadership Gaps
+        </p>
+        <p className="mt-2">Leadership optimization never ends.</p>
+        <p className="mt-2">Review your original GAP Report together with your current leadership.</p>
+      </GuideNote>
+      <SectionBlock label="Remaining Leadership Gaps">
+        <LabeledTextarea label="What leadership gaps have been significantly reduced?" value={d.p4_remaining_gaps} onChange={(v) => update("p4_remaining_gaps", v)} />
+        <LabeledTextarea label="What leadership gaps still deserve focused attention?" value={d.p4_why_persist} onChange={(v) => update("p4_why_persist", v)} />
+        <LabeledTextarea label="What new opportunities for growth have become apparent?" value={d.p4_close_plan} onChange={(v) => update("p4_close_plan", v)} />
       </SectionBlock>
     </div>
   );
@@ -358,7 +411,18 @@ function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part5({ d, update, newReportReady }: { d: SectionData; update: UpdateFn; newReportReady: boolean }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Complete a New GAP Report" hint="Retake all three assessments. A new Gap Report only generates once all three are complete this cycle.">
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 5 – Complete a New GAP Report
+        </p>
+        <p className="mt-2">Growth should be measured—not assumed.</p>
+        <p className="mt-2">Complete a new GAP Report using the current SCALE Assessments.</p>
+        <p className="mt-2">
+          Compare your new GAP Report with the one completed before beginning this Leadership
+          Optimization Cycle.
+        </p>
+      </GuideNote>
+      <SectionBlock label="Complete a New GAP Report">
         <div className={`rounded-2xl border p-5 ${newReportReady ? "border-emerald-300 bg-emerald-50/60" : "border-[#433993]/30 bg-gradient-to-br from-[#f6f2ff] to-white"}`}>
           {newReportReady ? (
             <div className="space-y-3">
@@ -380,7 +444,10 @@ function Part5({ d, update, newReportReady }: { d: SectionData; update: UpdateFn
             </div>
           )}
         </div>
-        <Chips label="Which principle is your highest priority next cycle?" options={PRIORITY_CHIPS} values={d.p5_priority_next} onChange={(v) => update("p5_priority_next", v)} />
+        <LabeledTextarea label="What improvements are most encouraging?" value={d.p5_improvements} onChange={(v) => update("p5_improvements", v)} />
+        <LabeledTextarea label="What patterns continue to appear?" value={d.p5_patterns} onChange={(v) => update("p5_patterns", v)} />
+        <Chips label="What principle should become your highest priority during your next Leadership Optimization Cycle?" options={PRIORITY_CHIPS} values={d.p5_priority_next} onChange={(v) => update("p5_priority_next", v)} />
+        <LabeledTextarea label="Why?" value={d.p5_why} onChange={(v) => update("p5_why", v)} />
       </SectionBlock>
     </div>
   );
@@ -389,11 +456,17 @@ function Part5({ d, update, newReportReady }: { d: SectionData; update: UpdateFn
 function Part6({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 6 – Next Leadership Optimization Cycle
+        </p>
+        <p className="mt-2">Based on your new GAP Report…</p>
+      </GuideNote>
       <SectionBlock label="Next Leadership Optimization Cycle">
-        <LabeledTextarea label="Next Success Image — who are you becoming as a leader by the end of the next cycle?" value={d.p6_next_success_image} onChange={(v) => update("p6_next_success_image", v)} />
-        <LabeledTextarea label="Next Success Drivers — the 3–5 behaviors that will produce that image" value={d.p6_next_drivers} onChange={(v) => update("p6_next_drivers", v)} />
-        <LabeledTextarea label="Accountability — who's holding you to it, and how?" value={d.p6_accountability} onChange={(v) => update("p6_accountability", v)} />
-        <LabeledTextarea label="Non-negotiables — the standards you refuse to drop next cycle" value={d.p6_non_negotiables} onChange={(v) => update("p6_non_negotiables", v)} />
+        <LabeledTextarea label="What Success Image will guide your next Leadership Optimization Cycle?" value={d.p6_next_success_image} onChange={(v) => update("p6_next_success_image", v)} />
+        <LabeledTextarea label="What Success Drivers will deserve the greatest attention?" value={d.p6_next_drivers} onChange={(v) => update("p6_next_drivers", v)} />
+        <LabeledTextarea label="Who will help you remain accountable?" value={d.p6_accountability} onChange={(v) => update("p6_accountability", v)} />
+        <LabeledTextarea label="Which leadership habits and standards will remain non-negotiable?" value={d.p6_non_negotiables} onChange={(v) => update("p6_non_negotiables", v)} />
       </SectionBlock>
     </div>
   );
@@ -403,23 +476,34 @@ function Part7({ d, update }: { d: SectionData; update: UpdateFn }) {
   const level = d.p7_commitment_level;
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 7 – Your Commitment
+        </p>
+        <p className="mt-2">Leadership is never finished.</p>
+        <p className="mt-2">
+          Every Leadership Optimization Cycle creates new opportunities to grow, strengthen your
+          leadership, and develop others.
+        </p>
+        <p className="mt-2">Complete this sentence.</p>
+      </GuideNote>
       <SectionBlock label="Your Commitment">
-        <LabeledTextarea label="The greatest lesson of this cycle is…" value={d.p7_greatest_lesson} onChange={(v) => update("p7_greatest_lesson", v)} />
+        <LabeledTextarea label="The greatest lesson I will carry into my next Leadership Optimization Cycle is:" value={d.p7_greatest_lesson} onChange={(v) => update("p7_greatest_lesson", v)} />
         <div>
-          <Label className="text-xs font-medium text-foreground">Next cycle start date</Label>
+          <Label className="text-xs font-medium text-foreground">My next Leadership Optimization Cycle begins on:</Label>
           <Input type="date" value={d.p7_next_start_date} onChange={(e) => update("p7_next_start_date", e.target.value)} className="mt-1 max-w-[220px]" />
         </div>
         <div>
           <div className="flex items-center justify-between">
-            <Label className="text-xs font-medium text-foreground">Commitment level for the next cycle</Label>
+            <Label className="text-xs font-medium text-foreground">My commitment level to beginning another Leadership Optimization Cycle is:</Label>
             <span className="text-sm font-semibold text-[#433993]">{level}/10</span>
           </div>
           <Slider value={[level]} min={1} max={10} step={1} onValueChange={(v) => update("p7_commitment_level", v[0] ?? 7)} className="mt-3" />
         </div>
       </SectionBlock>
 
-      <SectionBlock label="Continue Your Leadership Journey" hint="Choose how you'll keep the momentum. Pick as many as apply.">
-        <Chips label="Next step(s)" options={NEXT_JOURNEY_CHIPS} values={d.p7_next_journey} onChange={(v) => update("p7_next_journey", v)} />
+      <SectionBlock label="Continue Your Leadership Journey" hint="Choose the next step that best supports your continued development.">
+        <Chips label="Select all that apply" options={NEXT_JOURNEY_CHIPS} values={d.p7_next_journey} onChange={(v) => update("p7_next_journey", v)} />
         {d.p7_next_journey.some((c) => JOURNEY_LINKS[c]) && (
           <div className="space-y-2 pt-1">
             {d.p7_next_journey.filter((c) => JOURNEY_LINKS[c]).map((c) => (
