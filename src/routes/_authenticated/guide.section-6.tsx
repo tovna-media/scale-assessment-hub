@@ -28,50 +28,46 @@ type FuelRating = "" | "better" | "same" | "needs_attention";
 type AlignRating = "" | "strong" | "needs_attention";
 
 const FUEL_AREAS = [
-  "F — Firm Up Character",
-  "U — Understand Emotions",
-  "E — Envision Success",
-  "L — Lead Themselves Daily",
+  "Firm Up Your Character",
+  "Understand Your Emotions",
+  "Envision Your Success",
+  "Lead Yourself Daily",
 ];
 
 const GROWTH_CHIPS = [
-  "Confidence",
+  "Clarity",
   "Ownership",
-  "Follow-through",
+  "Confidence",
+  "Character",
+  "Emotional Health",
   "Communication",
-  "Emotional regulation",
-  "Decision-making",
-  "Initiative",
-  "Coachability",
+  "Leadership Capacity",
 ];
 
 const APPROACH_CHIPS = [
-  "Listen more before I lead",
-  "Communicate the way they can hear",
-  "Create clearer expectations",
-  "Hold higher standards",
-  "Coach instead of fix",
-  "Delegate real ownership",
-  "Give faster feedback",
-  "Show more belief in them",
+  "Listening",
+  "Coaching",
+  "Teaching",
+  "Encouragement",
+  "Accountability",
+  "Direction",
 ];
 
 const ALIGNMENT_AREAS = [
-  "Personal alignment",
-  "Role alignment",
-  "Organizational alignment",
-  "Leadership alignment",
+  "Personal Alignment",
+  "Role Alignment",
+  "Organizational Alignment",
+  "Leadership Alignment",
 ];
 
 const LEAK_CHIPS = [
-  "Overcommitting",
-  "Avoiding hard conversations",
-  "Doing work I should delegate",
-  "Reacting instead of leading",
-  "Skipping recovery",
-  "Breaking my own standards",
-  "Losing focus on priorities",
-  "Neglecting my people",
+  "Avoiding conversations",
+  "Lowering standards",
+  "Reacting emotionally",
+  "Losing structure",
+  "Failing to follow through",
+  "Over-controlling",
+  "Under-leading",
 ];
 
 interface SectionData {
@@ -79,7 +75,9 @@ interface SectionData {
   // Dashboard 1 — Lead Yourself Review
   d1_fuel: FuelRating[]; // one per FUEL_AREAS
   d1_identify: string;
+  d1_identify_attention: string;
   d1_understand: string;
+  d1_understand_slowed: string;
   d1_build: string;
   d1_execute: string;
   d1_measure: string;
@@ -88,8 +86,9 @@ interface SectionData {
   d2_approach_chips: string[];
   d2_other: string;
   d2_identify: string;
-  d2_understand: string;
+  d2_identify_investment: string;
   d2_build: string;
+  d2_build_change: string;
   d2_execute: string;
   d2_measure: string;
   // Dashboard 3 — Alignment Review
@@ -129,7 +128,9 @@ const EMPTY: SectionData = {
   step: 1,
   d1_fuel: FUEL_AREAS.map(() => "" as FuelRating),
   d1_identify: "",
+  d1_identify_attention: "",
   d1_understand: "",
+  d1_understand_slowed: "",
   d1_build: "",
   d1_execute: "",
   d1_measure: "",
@@ -137,8 +138,9 @@ const EMPTY: SectionData = {
   d2_approach_chips: [],
   d2_other: "",
   d2_identify: "",
-  d2_understand: "",
+  d2_identify_investment: "",
   d2_build: "",
+  d2_build_change: "",
   d2_execute: "",
   d2_measure: "",
   d3_align: ALIGNMENT_AREAS.map(() => "" as AlignRating),
@@ -357,23 +359,32 @@ function Dashboard1({ d, update }: { d: SectionData; update: UpdateFn }) {
   ];
   return (
     <div className="space-y-6">
-      <SectionBlock label="Evaluate — Rate each FUEL area since your last review">
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Dashboard 1 – Lead Yourself Review
+        </p>
+        <p className="mt-2">Review your Lead Yourself Plan from Section 2.</p>
+      </GuideNote>
+      <SectionBlock label="Evaluate" hint="Compared to the beginning of this Leadership Optimization Cycle…">
+        <p className="text-sm font-medium text-foreground">How has your FUEL improved?</p>
         <RatingGrid items={FUEL_AREAS} values={d.d1_fuel} options={opts} onChange={(v) => update("d1_fuel", v as FuelRating[])} />
       </SectionBlock>
-      <SectionBlock label="Identify — Where you've grown most">
-        <LabeledTextarea label="Where have you grown most as a leader in this cycle?" value={d.d1_identify} onChange={(v) => update("d1_identify", v)} />
+      <SectionBlock label="Identify">
+        <LabeledTextarea label="What area has improved the most?" value={d.d1_identify} onChange={(v) => update("d1_identify", v)} />
+        <LabeledTextarea label="What area still deserves intentional attention?" value={d.d1_identify_attention} onChange={(v) => update("d1_identify_attention", v)} />
       </SectionBlock>
-      <SectionBlock label="Understand — Why the growth happened">
-        <LabeledTextarea label="What made that growth possible? What did you do differently?" value={d.d1_understand} onChange={(v) => update("d1_understand", v)} />
+      <SectionBlock label="Understand">
+        <LabeledTextarea label="What contributed to your improvement?" value={d.d1_understand} onChange={(v) => update("d1_understand", v)} />
+        <LabeledTextarea label="What has slowed your progress?" value={d.d1_understand_slowed} onChange={(v) => update("d1_understand_slowed", v)} />
       </SectionBlock>
-      <SectionBlock label="Build a Plan — What still needs work">
-        <LabeledTextarea label="Which part of Leading Yourself still needs the most attention next cycle?" value={d.d1_build} onChange={(v) => update("d1_build", v)} />
+      <SectionBlock label="Build a Plan">
+        <LabeledTextarea label="What adjustment will strengthen your leadership moving forward?" value={d.d1_build} onChange={(v) => update("d1_build", v)} />
       </SectionBlock>
-      <SectionBlock label="Execute — The one leadership behavior you'll carry forward">
-        <LabeledInput label="One leadership behavior you'll carry into the next cycle" value={d.d1_execute} onChange={(v) => update("d1_execute", v)} />
+      <SectionBlock label="Execute">
+        <LabeledInput label="What action begins this week?" value={d.d1_execute} onChange={(v) => update("d1_execute", v)} />
       </SectionBlock>
-      <SectionBlock label="Measure — How you'll know it's holding">
-        <LabeledTextarea label="How will you know that behavior is holding under pressure?" value={d.d1_measure} onChange={(v) => update("d1_measure", v)} />
+      <SectionBlock label="Measure">
+        <LabeledTextarea label="How will you know this adjustment is working?" value={d.d1_measure} onChange={(v) => update("d1_measure", v)} />
       </SectionBlock>
     </div>
   );
@@ -382,24 +393,31 @@ function Dashboard1({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Dashboard2({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Evaluate — Growth you've seen in the people you lead">
-        <Chips label="Where have you seen growth in your people?" options={GROWTH_CHIPS} values={d.d2_growth_chips} onChange={(v) => update("d2_growth_chips", v)} />
-        <Chips label="How your leadership approach has shifted" options={APPROACH_CHIPS} values={d.d2_approach_chips} onChange={(v) => update("d2_approach_chips", v)} other={d.d2_other} onOtherChange={(v) => update("d2_other", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Dashboard 2 – Lead Others Review
+        </p>
+        <p className="mt-2">Review the people you have intentionally invested in.</p>
+      </GuideNote>
+      <SectionBlock label="Evaluate" hint="Think about the three people you selected.">
+        <Chips label="Have you observed growth in:" options={GROWTH_CHIPS} values={d.d2_growth_chips} onChange={(v) => update("d2_growth_chips", v)} />
       </SectionBlock>
-      <SectionBlock label="Identify — The person most affected by how you're leading now">
-        <LabeledTextarea label="Who has been most affected by the way you're leading now?" value={d.d2_identify} onChange={(v) => update("d2_identify", v)} />
+      <SectionBlock label="Identify">
+        <LabeledTextarea label="Who has experienced the greatest growth?" value={d.d2_identify} onChange={(v) => update("d2_identify", v)} />
+        <LabeledTextarea label="Who still needs the greatest investment?" value={d.d2_identify_investment} onChange={(v) => update("d2_identify_investment", v)} />
       </SectionBlock>
-      <SectionBlock label="Understand — Why they've responded to your leadership">
-        <LabeledTextarea label="Why do you think they responded to your leadership the way they did?" value={d.d2_understand} onChange={(v) => update("d2_understand", v)} />
+      <SectionBlock label="Understand">
+        <Chips label="What leadership approach seemed to help them most?" options={APPROACH_CHIPS} values={d.d2_approach_chips} onChange={(v) => update("d2_approach_chips", v)} other={d.d2_other} onOtherChange={(v) => update("d2_other", v)} />
       </SectionBlock>
-      <SectionBlock label="Build a Plan — Where they still need you">
-        <LabeledTextarea label="Where do they still need you to grow so you can grow them?" value={d.d2_build} onChange={(v) => update("d2_build", v)} />
+      <SectionBlock label="Build a Plan">
+        <LabeledTextarea label="What will you continue doing?" value={d.d2_build} onChange={(v) => update("d2_build", v)} />
+        <LabeledTextarea label="What will you change?" value={d.d2_build_change} onChange={(v) => update("d2_build_change", v)} />
       </SectionBlock>
-      <SectionBlock label="Execute — First leading-others action next cycle">
-        <LabeledInput label="The first Lead Others action you'll take next cycle" value={d.d2_execute} onChange={(v) => update("d2_execute", v)} />
+      <SectionBlock label="Execute">
+        <LabeledInput label="What conversation needs to happen next?" value={d.d2_execute} onChange={(v) => update("d2_execute", v)} />
       </SectionBlock>
-      <SectionBlock label="Measure — How you'll know they're growing">
-        <LabeledTextarea label="How will you know they're continuing to grow?" value={d.d2_measure} onChange={(v) => update("d2_measure", v)} />
+      <SectionBlock label="Measure">
+        <LabeledTextarea label="What evidence will tell you this person is continuing to grow?" value={d.d2_measure} onChange={(v) => update("d2_measure", v)} />
       </SectionBlock>
     </div>
   );
@@ -412,23 +430,29 @@ function Dashboard3({ d, update }: { d: SectionData; update: UpdateFn }) {
   ];
   return (
     <div className="space-y-6">
-      <SectionBlock label="Evaluate — Where alignment stands now" hint="Rate each area as Strong or Needs Attention.">
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Dashboard 3 – Alignment Review
+        </p>
+        <p className="mt-2">Evaluate alignment across the people you lead.</p>
+      </GuideNote>
+      <SectionBlock label="Evaluate">
         <RatingGrid items={ALIGNMENT_AREAS} values={d.d3_align} options={opts} onChange={(v) => update("d3_align", v as AlignRating[])} />
       </SectionBlock>
-      <SectionBlock label="Identify — The area most out of alignment">
-        <LabeledTextarea label="Which of the four is most out of alignment right now?" value={d.d3_identify} onChange={(v) => update("d3_identify", v)} />
+      <SectionBlock label="Identify">
+        <LabeledTextarea label="Where is the greatest misalignment?" value={d.d3_identify} onChange={(v) => update("d3_identify", v)} />
       </SectionBlock>
-      <SectionBlock label="Understand — What's driving the misalignment">
-        <LabeledTextarea label="What's driving that misalignment? What's your part in it?" value={d.d3_understand} onChange={(v) => update("d3_understand", v)} />
+      <SectionBlock label="Understand">
+        <LabeledTextarea label="What is causing the misalignment?" value={d.d3_understand} onChange={(v) => update("d3_understand", v)} />
       </SectionBlock>
-      <SectionBlock label="Build a Plan — What needs to be re-aligned">
-        <LabeledTextarea label="What needs to be re-aligned in the next cycle?" value={d.d3_build} onChange={(v) => update("d3_build", v)} />
+      <SectionBlock label="Build a Plan">
+        <LabeledTextarea label="What leadership action will improve alignment?" value={d.d3_build} onChange={(v) => update("d3_build", v)} />
       </SectionBlock>
-      <SectionBlock label="Execute — First alignment action">
-        <LabeledInput label="The first alignment action you'll take this week" value={d.d3_execute} onChange={(v) => update("d3_execute", v)} />
+      <SectionBlock label="Execute">
+        <LabeledInput label="Who will you meet with?" value={d.d3_execute} onChange={(v) => update("d3_execute", v)} />
       </SectionBlock>
-      <SectionBlock label="Measure — How you'll know alignment is restored">
-        <LabeledTextarea label="How will you know alignment is restored?" value={d.d3_measure} onChange={(v) => update("d3_measure", v)} />
+      <SectionBlock label="Measure">
+        <LabeledTextarea label="How will you know alignment has improved?" value={d.d3_measure} onChange={(v) => update("d3_measure", v)} />
       </SectionBlock>
     </div>
   );
@@ -437,23 +461,29 @@ function Dashboard3({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Dashboard4({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Evaluate — Where your leadership is leaking" hint="Select every leak that's showing up right now.">
-        <Chips label="Leadership leaks" options={LEAK_CHIPS} values={d.d4_leaks} onChange={(v) => update("d4_leaks", v)} other={d.d4_leaks_other} onOtherChange={(v) => update("d4_leaks_other", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Dashboard 4 – Leadership Leak Review
+        </p>
+        <p className="mt-2">Leadership leaks reduce your ability to develop people.</p>
+      </GuideNote>
+      <SectionBlock label="Evaluate">
+        <Chips label="Where are you leaking leadership energy?" options={LEAK_CHIPS} values={d.d4_leaks} onChange={(v) => update("d4_leaks", v)} other={d.d4_leaks_other} onOtherChange={(v) => update("d4_leaks_other", v)} />
       </SectionBlock>
-      <SectionBlock label="Identify — The costliest leak">
-        <LabeledTextarea label="Which leak is costing you and your people the most right now?" value={d.d4_identify} onChange={(v) => update("d4_identify", v)} />
+      <SectionBlock label="Identify">
+        <LabeledTextarea label="Which leak is creating the greatest impact?" value={d.d4_identify} onChange={(v) => update("d4_identify", v)} />
       </SectionBlock>
-      <SectionBlock label="Understand — What's underneath it">
-        <LabeledTextarea label="What's underneath that leak? Fear, habit, capacity, avoidance?" value={d.d4_understand} onChange={(v) => update("d4_understand", v)} />
+      <SectionBlock label="Understand">
+        <LabeledTextarea label="Why does this leak continue?" value={d.d4_understand} onChange={(v) => update("d4_understand", v)} />
       </SectionBlock>
-      <SectionBlock label="Build a Plan — How you'll seal it">
-        <LabeledTextarea label="What will you do next cycle to seal that leak?" value={d.d4_build} onChange={(v) => update("d4_build", v)} />
+      <SectionBlock label="Build a Plan">
+        <LabeledTextarea label="What new leadership discipline will close this leak?" value={d.d4_build} onChange={(v) => update("d4_build", v)} />
       </SectionBlock>
-      <SectionBlock label="Execute — First step to close the leak">
-        <LabeledInput label="The first step you'll take this week to close it" value={d.d4_execute} onChange={(v) => update("d4_execute", v)} />
+      <SectionBlock label="Execute">
+        <LabeledInput label="What begins immediately?" value={d.d4_execute} onChange={(v) => update("d4_execute", v)} />
       </SectionBlock>
-      <SectionBlock label="Measure — How you'll know it's closed">
-        <LabeledTextarea label="How will you know that leak is closed?" value={d.d4_measure} onChange={(v) => update("d4_measure", v)} />
+      <SectionBlock label="Measure">
+        <LabeledTextarea label="How will you know this leak is closing?" value={d.d4_measure} onChange={(v) => update("d4_measure", v)} />
       </SectionBlock>
     </div>
   );
@@ -462,23 +492,28 @@ function Dashboard4({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Dashboard5({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Evaluate — The biggest lesson from this cycle">
-        <LabeledTextarea label="What is the single biggest lesson this cycle taught you as a leader?" value={d.d5_lesson} onChange={(v) => update("d5_lesson", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Dashboard 5 – Carry It Forward
+        </p>
+        <p className="mt-2">Every principle builds upon the one before it.</p>
+        <p className="mt-2">Reflect on your experience.</p>
+      </GuideNote>
+      <SectionBlock label="Evaluate">
+        <LabeledTextarea label="What have you learned about leading yourself that has helped you lead others?" value={d.d5_lesson} onChange={(v) => update("d5_lesson", v)} />
+        <LabeledTextarea label="What have you learned about leading others that will help you Lead for Results?" value={d.d5_principle_3} onChange={(v) => update("d5_principle_3", v)} />
       </SectionBlock>
-      <SectionBlock label="Identify — Turn the lesson into Principle 3" hint="State it as a principle you'll lead by, going forward.">
-        <LabeledTextarea label="Principle 3 — the leadership principle you're taking forward" value={d.d5_principle_3} onChange={(v) => update("d5_principle_3", v)} placeholder="I lead by…" />
+      <SectionBlock label="Identify">
+        <LabeledTextarea label="What experience has most shaped your leadership?" value={d.d5_understand} onChange={(v) => update("d5_understand", v)} />
       </SectionBlock>
-      <SectionBlock label="Understand — Why this principle matters now">
-        <LabeledTextarea label="Why does this principle matter to how you lead from here?" value={d.d5_understand} onChange={(v) => update("d5_understand", v)} />
+      <SectionBlock label="Build a Plan">
+        <LabeledTextarea label="What lesson must you intentionally carry into Principle 3?" value={d.d5_build} onChange={(v) => update("d5_build", v)} />
       </SectionBlock>
-      <SectionBlock label="Build a Plan — How you'll live it">
-        <LabeledTextarea label="How will you live this principle in the next cycle?" value={d.d5_build} onChange={(v) => update("d5_build", v)} />
+      <SectionBlock label="Execute">
+        <LabeledInput label="How will you apply it during the next Leadership Optimization Cycle?" value={d.d5_execute} onChange={(v) => update("d5_execute", v)} />
       </SectionBlock>
-      <SectionBlock label="Execute — First time you'll apply it">
-        <LabeledInput label="Where you'll apply this principle first" value={d.d5_execute} onChange={(v) => update("d5_execute", v)} />
-      </SectionBlock>
-      <SectionBlock label="Measure — How you'll know it's shaping how you lead">
-        <LabeledTextarea label="How will you know this principle is actually shaping how you lead?" value={d.d5_measure} onChange={(v) => update("d5_measure", v)} />
+      <SectionBlock label="Measure">
+        <LabeledTextarea label="What evidence will demonstrate that you successfully carried this lesson forward?" value={d.d5_measure} onChange={(v) => update("d5_measure", v)} />
       </SectionBlock>
     </div>
   );
@@ -487,12 +522,19 @@ function Dashboard5({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Dashboard6({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Leadership Recalibration" hint="One adjustment each. The Success Marker is what this cycle rests on.">
-        <LabeledInput label="One personal adjustment you'll make" value={d.d6_personal_adjustment} onChange={(v) => update("d6_personal_adjustment", v)} />
-        <LabeledInput label="One people adjustment you'll make" value={d.d6_people_adjustment} onChange={(v) => update("d6_people_adjustment", v)} />
-        <LabeledInput label="One conversation you'll have" value={d.d6_conversation} onChange={(v) => update("d6_conversation", v)} />
-        <LabeledInput label="One discipline you'll hold" value={d.d6_discipline} onChange={(v) => update("d6_discipline", v)} />
-        <LabeledInput label="Success Marker — how you'll know this recalibration is working" value={d.d6_success_marker} onChange={(v) => update("d6_success_marker", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Dashboard 6 – Leadership Recalibration
+        </p>
+        <p className="mt-2">Review everything from this section.</p>
+        <p className="mt-2">Select your highest priorities before moving into Principle 3.</p>
+      </GuideNote>
+      <SectionBlock label="Leadership Recalibration">
+        <LabeledInput label="My One Personal Leadership Adjustment" value={d.d6_personal_adjustment} onChange={(v) => update("d6_personal_adjustment", v)} />
+        <LabeledInput label="My One People Development Adjustment" value={d.d6_people_adjustment} onChange={(v) => update("d6_people_adjustment", v)} />
+        <LabeledInput label="My One Leadership Conversation" value={d.d6_conversation} onChange={(v) => update("d6_conversation", v)} />
+        <LabeledInput label="My One Leadership Discipline" value={d.d6_discipline} onChange={(v) => update("d6_discipline", v)} />
+        <LabeledInput label="My Success Marker" value={d.d6_success_marker} onChange={(v) => update("d6_success_marker", v)} />
       </SectionBlock>
     </div>
   );
@@ -501,17 +543,20 @@ function Dashboard6({ d, update }: { d: SectionData; update: UpdateFn }) {
 function StepCommitment({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Leadership maturity is built one principle at a time.</p>
+      </GuideNote>
       <div className="rounded-2xl border border-[#433993]/30 bg-gradient-to-br from-[#f6f2ff] to-white p-6">
         <p className="text-sm leading-relaxed text-foreground">
-          I commit to leading from what this cycle taught me — carrying the growth forward,
-          closing the leaks I've named, honoring the recalibration I've chosen, and refusing
-          to lead the same way I did before.
+          I commit to carrying forward the lessons I have learned while leading myself and
+          developing others so I can become the leader my goals require and continue helping
+          others become Fully Resourced.
         </p>
       </div>
       <div className="flex items-start gap-3">
         <Checkbox id="commit-6" checked={d.committed} onCheckedChange={(v) => update("committed", Boolean(v))} />
         <Label htmlFor="commit-6" className="text-sm leading-relaxed text-foreground">
-          I commit to this recalibration.
+          Signature — I commit to this recalibration.
         </Label>
       </div>
       <div>
@@ -523,6 +568,14 @@ function StepCommitment({ d, update }: { d: SectionData; update: UpdateFn }) {
 }
 
 // ---------- Shared inputs ----------
+
+function GuideNote({ children }: { children: React.ReactNode }) {
+  return (
+    <section className="rounded-2xl border border-[#433993]/20 bg-[#433993]/[0.04] p-5 text-sm leading-relaxed text-foreground">
+      {children}
+    </section>
+  );
+}
 
 function SectionBlock({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (

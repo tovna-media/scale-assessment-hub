@@ -26,61 +26,50 @@ const TOTAL_SECTIONS = 12;
 const TOTAL_STEPS = 7;
 
 const PRESSURE_CHIPS = [
-  "Emotional reactivity",
+  "Emotional reaction",
   "Avoidance",
-  "Over-explaining",
-  "Hesitation",
-  "Rushing",
-  "Softening the truth",
-  "Going quiet",
-  "Controlling the outcome",
+  "Loss of clarity",
+  "Over-talking",
+  "Defensive response",
+  "Lack of control",
 ];
 
-const BEHAVIOR_CHIPS = [
-  "I led into it",
-  "I hesitated",
-  "I avoided it",
-  "I stayed calm",
-  "I got reactive",
-  "I asked for help",
-  "I acted alone",
-  "I held the standard",
-  "I let the standard slip",
+const PRESSURE_RESPONSE_CHIPS = [
+  "Stay calm and structured",
+  "Drift off process",
+  "Soften the standard",
+  "Overcompensate",
+  "Avoid direct clarity",
+  "Hold the line respectfully",
 ];
 
 const CHALLENGE_PRINCIPLES = [
   "Lead Yourself",
   "Lead Others",
-  "Growing People Intentionally",
   "Lead for Results",
-  "Crucial Conversations",
+  "All three",
 ];
 
 const GAP_TYPE_CHIPS = [
   "Skill gap",
   "Standards gap",
   "Clarity gap",
-  "Trust gap",
-  "Accountability gap",
-  "Discipline gap",
-  "Energy gap",
-  "Alignment gap",
+  "System issue",
+  "Personal leadership weakness",
+  "Emotional avoidance",
 ];
 
 const DRIFT_CHIPS = [
-  "Skipping the hard conversation",
-  "Letting the calendar drive me",
-  "Reacting instead of leading",
-  "Lowering the standard quietly",
-  "Losing my morning rhythm",
-  "Multitasking through 1:1s",
-  "Delaying decisions",
-  "Working around a person instead of leading them",
+  "Lowered personal standards",
+  "Delayed hard conversations",
+  "Lost focus on priorities",
+  "Became reactive",
+  "Avoided measurement",
 ];
 
 const LY_ITEMS = [
   { key: "ly_physical", label: "Physical Energy" },
-  { key: "ly_mental", label: "Mental Energy" },
+  { key: "ly_mental", label: "Mental Energy (focus on vision & goals)" },
   { key: "ly_emotional", label: "Emotional Energy" },
   { key: "ly_discipline", label: "Discipline" },
   { key: "ly_values", label: "Living your values" },
@@ -89,10 +78,10 @@ const LY_ITEMS = [
 ] as const;
 
 const LO_ITEMS = [
-  { key: "lo_oneonone", label: "1:1 consistency" },
+  { key: "lo_oneonone", label: "Consistency in 1:1 meetings" },
   { key: "lo_clarity", label: "Clarity of expectations" },
   { key: "lo_accountability", label: "Accountability enforcement" },
-  { key: "lo_adaptability", label: "Adaptability to styles" },
+  { key: "lo_adaptability", label: "Adaptability to personality styles" },
 ] as const;
 
 const LR_ITEMS = [
@@ -112,9 +101,14 @@ type Ratings = Record<RatingKey, number>;
 interface SectionData {
   step: number;
   // Part 1 — Crucial Conversation Debrief
+  p1_name: string;
+  p1_issue: string;
+  p1_date: string;
   p1_went_well: string;
   p1_didnt: string;
   p1_pressure: string[];
+  p1_pressure_other: string;
+  p1_honest: string;
   p1_commitment_rating: number; // 1-10
   p1_follow_up: string;
   // Part 2 — Leadership Under Pressure
@@ -132,6 +126,7 @@ interface SectionData {
   p4_this_week: string;
   // Part 5 — Drift vs. Discipline
   p5_drifts: string[];
+  p5_drift_other: string;
   p5_tighten: string;
   // Part 6 — Next 14-Day Leadership Focus
   p6_c1: string;
@@ -158,9 +153,14 @@ const EMPTY_RATINGS: Ratings = {
 
 const EMPTY: SectionData = {
   step: 1,
+  p1_name: "",
+  p1_issue: "",
+  p1_date: "",
   p1_went_well: "",
   p1_didnt: "",
   p1_pressure: [],
+  p1_pressure_other: "",
+  p1_honest: "",
   p1_commitment_rating: 5,
   p1_follow_up: "",
   p2_behaviors: [],
@@ -174,6 +174,7 @@ const EMPTY: SectionData = {
   p4_gap_types: [],
   p4_this_week: "",
   p5_drifts: [],
+  p5_drift_other: "",
   p5_tighten: "",
   p6_c1: "", p6_c2: "", p6_c3: "", p6_c4: "", p6_c5: "",
   p7_stronger: "",
@@ -363,18 +364,26 @@ type UpdateFn = <K extends keyof SectionData>(k: K, v: SectionData[K]) => void;
 function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Debrief — Your last crucial conversation">
-        <LabeledTextarea label="What went well in the conversation?" value={d.p1_went_well} onChange={(v) => update("p1_went_well", v)} />
-        <LabeledTextarea label="What didn't go well?" value={d.p1_didnt} onChange={(v) => update("p1_didnt", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 1: Crucial Conversation Debrief
+        </p>
+      </GuideNote>
+      <SectionBlock label="Crucial Conversation Debrief">
+        <LabeledInput label="Name of person:" value={d.p1_name} onChange={(v) => update("p1_name", v)} />
+        <LabeledInput label="Issue discussed:" value={d.p1_issue} onChange={(v) => update("p1_issue", v)} />
+        <LabeledInput label="Date of conversation:" type="date" value={d.p1_date} onChange={(v) => update("p1_date", v)} />
+        <LabeledTextarea label="What went well?" value={d.p1_went_well} onChange={(v) => update("p1_went_well", v)} />
+        <LabeledTextarea label="What did not go well?" value={d.p1_didnt} onChange={(v) => update("p1_didnt", v)} />
       </SectionBlock>
-      <SectionBlock label="Pressure — What showed up in you">
-        <Chips label="What pressure responses showed up?" options={PRESSURE_CHIPS} values={d.p1_pressure} onChange={(v) => update("p1_pressure", v)} />
+      <SectionBlock label="Where did you feel pressure?">
+        <Chips label="Select all that apply" options={PRESSURE_CHIPS} values={d.p1_pressure} onChange={(v) => update("p1_pressure", v)} />
+        <LabeledInput label="Other:" value={d.p1_pressure_other} onChange={(v) => update("p1_pressure_other", v)} />
       </SectionBlock>
-      <SectionBlock label="Commitment Rating" hint="How committed do you feel to what you said you'd do next? 1 = not committed, 10 = fully committed.">
-        <RatingSlider label="Commitment rating" value={d.p1_commitment_rating} onChange={(n) => update("p1_commitment_rating", n)} />
-      </SectionBlock>
-      <SectionBlock label="Follow-up">
-        <LabeledTextarea label="What is the one follow-up action you owe from this conversation?" value={d.p1_follow_up} onChange={(v) => update("p1_follow_up", v)} />
+      <SectionBlock label="Commitment">
+        <RatingSlider label="What was the commitment rating they gave?" value={d.p1_commitment_rating} onChange={(n) => update("p1_commitment_rating", n)} />
+        <LabeledTextarea label="Was it honest?" value={d.p1_honest} onChange={(v) => update("p1_honest", v)} />
+        <LabeledTextarea label="What follow-up was agreed upon?" value={d.p1_follow_up} onChange={(v) => update("p1_follow_up", v)} />
       </SectionBlock>
     </div>
   );
@@ -383,11 +392,16 @@ function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Leadership Under Pressure — Behaviors">
-        <Chips label="Which of these describe how you led under pressure recently?" options={BEHAVIOR_CHIPS} values={d.p2_behaviors} onChange={(v) => update("p2_behaviors", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 2: Leadership Under Pressure
+        </p>
+      </GuideNote>
+      <SectionBlock label="When the conversation became difficult, did you:">
+        <Chips label="Select all that apply" options={PRESSURE_RESPONSE_CHIPS} values={d.p2_behaviors} onChange={(v) => update("p2_behaviors", v)} />
       </SectionBlock>
-      <SectionBlock label="What it revealed">
-        <LabeledTextarea label="What did leading under pressure reveal about you as a leader?" value={d.p2_revealed} onChange={(v) => update("p2_revealed", v)} />
+      <SectionBlock label="Reflection">
+        <LabeledTextarea label="What did this reveal about your leadership maturity?" value={d.p2_revealed} onChange={(v) => update("p2_revealed", v)} />
       </SectionBlock>
     </div>
   );
@@ -397,24 +411,30 @@ function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
   const setR = (k: RatingKey, n: number) => update("p3_ratings", { ...d.p3_ratings, [k]: n });
   return (
     <div className="space-y-6">
-      <SectionBlock label="Lead Yourself" hint="Rate yourself 1–10 on each. Be honest.">
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 3: Integration Check
+        </p>
+        <p className="mt-2">Evaluate yourself honestly in each principle:</p>
+      </GuideNote>
+      <SectionBlock label="Lead Yourself" hint="Rate yourself 1–10">
         {LY_ITEMS.map((it) => (
           <RatingSlider key={it.key} label={it.label} value={d.p3_ratings[it.key]} onChange={(n) => setR(it.key, n)} />
         ))}
       </SectionBlock>
-      <SectionBlock label="Lead Others">
+      <SectionBlock label="Lead Others" hint="Rate yourself 1–10">
         {LO_ITEMS.map((it) => (
           <RatingSlider key={it.key} label={it.label} value={d.p3_ratings[it.key]} onChange={(n) => setR(it.key, n)} />
         ))}
       </SectionBlock>
-      <SectionBlock label="Lead for Results">
+      <SectionBlock label="Lead for Results" hint="Rate yourself 1–10">
         {LR_ITEMS.map((it) => (
           <RatingSlider key={it.key} label={it.label} value={d.p3_ratings[it.key]} onChange={(n) => setR(it.key, n)} />
         ))}
       </SectionBlock>
-      <SectionBlock label="Identify — Your lowest score">
-        <LabeledInput label="Which item scored the lowest?" value={d.p3_lowest} onChange={(v) => update("p3_lowest", v)} />
-        <LabeledTextarea label="Why is that one the lowest right now?" value={d.p3_lowest_why} onChange={(v) => update("p3_lowest_why", v)} />
+      <SectionBlock label="Lowest Score">
+        <LabeledInput label="Where is your lowest score?" value={d.p3_lowest} onChange={(v) => update("p3_lowest", v)} />
+        <LabeledTextarea label="Why?" value={d.p3_lowest_why} onChange={(v) => update("p3_lowest_why", v)} />
       </SectionBlock>
     </div>
   );
@@ -423,8 +443,14 @@ function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 4: Real Leadership Challenge
+        </p>
+        <p className="mt-2">Bring one real situation you are currently facing.</p>
+      </GuideNote>
       <SectionBlock label="Real Leadership Challenge">
-        <LabeledTextarea label="Describe a real leadership challenge you're facing right now." value={d.p4_describe} onChange={(v) => update("p4_describe", v)} />
+        <LabeledTextarea label="Describe it clearly:" value={d.p4_describe} onChange={(v) => update("p4_describe", v)} />
         <div>
           <Label className="text-xs font-medium text-foreground">Which principle is being tested?</Label>
           <div className="mt-2 flex flex-wrap gap-2">
@@ -443,9 +469,9 @@ function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
             })}
           </div>
         </div>
-        <LabeledTextarea label="What is the real issue underneath the challenge?" value={d.p4_real_issue} onChange={(v) => update("p4_real_issue", v)} />
-        <Chips label="What type of gap is this?" options={GAP_TYPE_CHIPS} values={d.p4_gap_types} onChange={(v) => update("p4_gap_types", v)} />
-        <LabeledTextarea label="What will you do differently this week to lead into it?" value={d.p4_this_week} onChange={(v) => update("p4_this_week", v)} />
+        <LabeledTextarea label="What is the real issue beneath the surface?" value={d.p4_real_issue} onChange={(v) => update("p4_real_issue", v)} />
+        <Chips label="Are you dealing with:" options={GAP_TYPE_CHIPS} values={d.p4_gap_types} onChange={(v) => update("p4_gap_types", v)} />
+        <LabeledTextarea label="What must you do differently this week?" value={d.p4_this_week} onChange={(v) => update("p4_this_week", v)} />
       </SectionBlock>
     </div>
   );
@@ -454,11 +480,17 @@ function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part5({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Drift — Where you've been slipping">
-        <Chips label="Which drift patterns have crept back in?" options={DRIFT_CHIPS} values={d.p5_drifts} onChange={(v) => update("p5_drifts", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 5: Drift vs. Discipline
+        </p>
+      </GuideNote>
+      <SectionBlock label="Where have you drifted since Session 6?">
+        <Chips label="Select all that apply" options={DRIFT_CHIPS} values={d.p5_drifts} onChange={(v) => update("p5_drifts", v)} />
+        <LabeledInput label="Other:" value={d.p5_drift_other} onChange={(v) => update("p5_drift_other", v)} />
       </SectionBlock>
-      <SectionBlock label="Discipline — What you'll tighten">
-        <LabeledTextarea label="Name one specific behavior you will tighten this week." value={d.p5_tighten} onChange={(v) => update("p5_tighten", v)} />
+      <SectionBlock label="Discipline">
+        <LabeledTextarea label="What is one behavior you must immediately tighten?" value={d.p5_tighten} onChange={(v) => update("p5_tighten", v)} />
       </SectionBlock>
     </div>
   );
@@ -467,12 +499,18 @@ function Part5({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part6({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Next 14-Day Leadership Focus" hint="Five commitments. Specific. Doable. Measurable.">
-        <LabeledInput label="Commitment 1" value={d.p6_c1} onChange={(v) => update("p6_c1", v)} />
-        <LabeledInput label="Commitment 2" value={d.p6_c2} onChange={(v) => update("p6_c2", v)} />
-        <LabeledInput label="Commitment 3" value={d.p6_c3} onChange={(v) => update("p6_c3", v)} />
-        <LabeledInput label="Commitment 4" value={d.p6_c4} onChange={(v) => update("p6_c4", v)} />
-        <LabeledInput label="Commitment 5" value={d.p6_c5} onChange={(v) => update("p6_c5", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 6: Next 14-Day Leadership Focus
+        </p>
+        <p className="mt-2">Over the next 14 days, I will:</p>
+      </GuideNote>
+      <SectionBlock label="Over the next 14 days, I will:">
+        <LabeledInput label="1. Have ___ structured 1:1 conversations." value={d.p6_c1} onChange={(v) => update("p6_c1", v)} />
+        <LabeledInput label="2. Address ___ performance issue directly." value={d.p6_c2} onChange={(v) => update("p6_c2", v)} />
+        <LabeledInput label="3. Protect this personal habit:" value={d.p6_c3} onChange={(v) => update("p6_c3", v)} />
+        <LabeledInput label="4. Create this measurable win:" value={d.p6_c4} onChange={(v) => update("p6_c4", v)} />
+        <LabeledInput label="5. Follow up on this commitment:" value={d.p6_c5} onChange={(v) => update("p6_c5", v)} />
       </SectionBlock>
     </div>
   );
@@ -481,22 +519,35 @@ function Part6({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part7({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Confidence & Growth Reflection">
-        <LabeledTextarea label="Where are you stronger than you were at the start of this cycle?" value={d.p7_stronger} onChange={(v) => update("p7_stronger", v)} />
-        <LabeledTextarea label="Where do you still struggle?" value={d.p7_struggle} onChange={(v) => update("p7_struggle", v)} />
-        <RatingSlider label="Confidence in your leadership right now (1–10)" value={d.p7_confidence} onChange={(n) => update("p7_confidence", n)} />
-        <LabeledTextarea label="What would move you up one point?" value={d.p7_move_up} onChange={(v) => update("p7_move_up", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 7: Confidence &amp; Growth Reflection
+        </p>
+        <p className="mt-2">Compared to Session 1:</p>
+      </GuideNote>
+      <SectionBlock label="Compared to Session 1:">
+        <LabeledTextarea label="I am stronger in:" value={d.p7_stronger} onChange={(v) => update("p7_stronger", v)} />
+        <LabeledTextarea label="I still struggle with:" value={d.p7_struggle} onChange={(v) => update("p7_struggle", v)} />
+        <RatingSlider label="My leadership confidence today (scale of 1–10)" value={d.p7_confidence} onChange={(n) => update("p7_confidence", n)} />
+        <LabeledTextarea label="What would move me up one point?" value={d.p7_move_up} onChange={(v) => update("p7_move_up", v)} />
       </SectionBlock>
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Commitment Statement
+        </p>
+        <p className="mt-2">Leadership is not proven in planning.</p>
+        <p>It is proven under pressure.</p>
+      </GuideNote>
       <div className="rounded-2xl border border-[#433993]/30 bg-gradient-to-br from-[#f6f2ff] to-white p-6">
         <p className="text-sm leading-relaxed text-foreground">
-          I commit to integrating what I've learned — under pressure, in the real world,
-          with the people I lead — and to closing the gap between who I am and who I'm becoming.
+          In the next 14 days, I commit to the focus, the discipline, and the follow-through I
+          have written in this section.
         </p>
       </div>
       <div className="flex items-start gap-3">
         <Checkbox id="commit-9" checked={d.committed} onCheckedChange={(v) => update("committed", Boolean(v))} />
         <Label htmlFor="commit-9" className="text-sm leading-relaxed text-foreground">
-          I commit to the 14-day focus and the discipline I've named here.
+          Signature — I commit to the next 14 days.
         </Label>
       </div>
       <div>
@@ -508,6 +559,14 @@ function Part7({ d, update }: { d: SectionData; update: UpdateFn }) {
 }
 
 // ---------- Shared inputs ----------
+
+function GuideNote({ children }: { children: React.ReactNode }) {
+  return (
+    <section className="rounded-2xl border border-[#433993]/20 bg-[#433993]/[0.04] p-5 text-sm leading-relaxed text-foreground">
+      {children}
+    </section>
+  );
+}
 
 function SectionBlock({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
