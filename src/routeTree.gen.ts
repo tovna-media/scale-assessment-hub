@@ -14,10 +14,12 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as FoundingRouteImport } from './routes/founding'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as CoachRouteImport } from './routes/_coach'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FoundingSuccessRouteImport } from './routes/founding_.success'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as CoachLoginRouteImport } from './routes/coach.login'
 import { Route as CoachSettingsRouteImport } from './routes/_coach/settings'
@@ -79,6 +81,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FoundingRoute = FoundingRouteImport.update({
+  id: '/founding',
+  path: '/founding',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
@@ -95,6 +102,11 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FoundingSuccessRoute = FoundingSuccessRouteImport.update({
+  id: '/founding_/success',
+  path: '/founding/success',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
@@ -299,6 +311,7 @@ const AuthenticatedPrintSectionNumberRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/founding': typeof FoundingRoute
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -313,6 +326,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof CoachSettingsRoute
   '/coach/login': typeof CoachLoginRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/founding/success': typeof FoundingSuccessRoute
   '/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/checkout/activating': typeof AuthenticatedCheckoutActivatingRoute
   '/guide/section-1': typeof AuthenticatedGuideSection1Route
@@ -343,6 +357,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/founding': typeof FoundingRoute
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -357,6 +372,7 @@ export interface FileRoutesByTo {
   '/settings': typeof CoachSettingsRoute
   '/coach/login': typeof CoachLoginRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/founding/success': typeof FoundingSuccessRoute
   '/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/checkout/activating': typeof AuthenticatedCheckoutActivatingRoute
   '/guide/section-1': typeof AuthenticatedGuideSection1Route
@@ -390,6 +406,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_coach': typeof CoachRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
+  '/founding': typeof FoundingRoute
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -404,6 +421,7 @@ export interface FileRoutesById {
   '/_coach/settings': typeof CoachSettingsRoute
   '/coach/login': typeof CoachLoginRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/founding_/success': typeof FoundingSuccessRoute
   '/_authenticated/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/_authenticated/checkout/activating': typeof AuthenticatedCheckoutActivatingRoute
   '/_authenticated/guide/section-1': typeof AuthenticatedGuideSection1Route
@@ -436,6 +454,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/forgot-password'
+    | '/founding'
     | '/privacy'
     | '/signup'
     | '/sitemap.xml'
@@ -450,6 +469,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/coach/login'
     | '/email/unsubscribe'
+    | '/founding/success'
     | '/assessment/$type'
     | '/checkout/activating'
     | '/guide/section-1'
@@ -480,6 +500,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/forgot-password'
+    | '/founding'
     | '/privacy'
     | '/signup'
     | '/sitemap.xml'
@@ -494,6 +515,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/coach/login'
     | '/email/unsubscribe'
+    | '/founding/success'
     | '/assessment/$type'
     | '/checkout/activating'
     | '/guide/section-1'
@@ -526,6 +548,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/_coach'
     | '/forgot-password'
+    | '/founding'
     | '/privacy'
     | '/signup'
     | '/sitemap.xml'
@@ -540,6 +563,7 @@ export interface FileRouteTypes {
     | '/_coach/settings'
     | '/coach/login'
     | '/email/unsubscribe'
+    | '/founding_/success'
     | '/_authenticated/assessment/$type'
     | '/_authenticated/checkout/activating'
     | '/_authenticated/guide/section-1'
@@ -573,6 +597,7 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   CoachRoute: typeof CoachRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  FoundingRoute: typeof FoundingRoute
   PrivacyRoute: typeof PrivacyRoute
   SignupRoute: typeof SignupRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -580,6 +605,7 @@ export interface RootRouteChildren {
   UnsubscribeRoute: typeof UnsubscribeRoute
   CoachLoginRoute: typeof CoachLoginRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
+  FoundingSuccessRoute: typeof FoundingSuccessRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicHooksActionRemindersRoute: typeof ApiPublicHooksActionRemindersRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -627,6 +653,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/founding': {
+      id: '/founding'
+      path: '/founding'
+      fullPath: '/founding'
+      preLoaderRoute: typeof FoundingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/forgot-password': {
       id: '/forgot-password'
       path: '/forgot-password'
@@ -653,6 +686,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/founding_/success': {
+      id: '/founding_/success'
+      path: '/founding/success'
+      fullPath: '/founding/success'
+      preLoaderRoute: typeof FoundingSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/email/unsubscribe': {
@@ -995,6 +1035,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   CoachRoute: CoachRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  FoundingRoute: FoundingRoute,
   PrivacyRoute: PrivacyRoute,
   SignupRoute: SignupRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
@@ -1002,6 +1043,7 @@ const rootRouteChildren: RootRouteChildren = {
   UnsubscribeRoute: UnsubscribeRoute,
   CoachLoginRoute: CoachLoginRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
+  FoundingSuccessRoute: FoundingSuccessRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicHooksActionRemindersRoute: ApiPublicHooksActionRemindersRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,

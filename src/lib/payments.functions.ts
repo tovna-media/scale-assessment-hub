@@ -52,6 +52,10 @@ export const createSubscriptionCheckout = createServerFn({ method: 'POST' })
         returnUrl: z.string().url(),
         environment: StripeEnvSchema,
         acceptedTerms: z.boolean(),
+        couponId: z
+          .string()
+          .regex(/^[a-zA-Z0-9_-]+$/)
+          .optional(),
       })
       .parse(input),
   )
@@ -73,6 +77,7 @@ export const createSubscriptionCheckout = createServerFn({ method: 'POST' })
       const session = await stripe.checkout.sessions.create({
         line_items: [{ price: data.priceId, quantity: 1 }],
         mode: 'subscription',
+        ...(data.couponId ? { discounts: [{ coupon: data.couponId }] } : {}),
         success_url: data.returnUrl,
         cancel_url: `${new URL(data.returnUrl).origin}/dashboard`,
         customer: customerId,
