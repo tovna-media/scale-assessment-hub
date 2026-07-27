@@ -25,15 +25,13 @@ const TOTAL_SECTIONS = 12;
 const TOTAL_STEPS = 7;
 
 const FUEL_CHIPS = [
-  "Physical energy",
-  "Mental energy",
-  "Emotional energy",
-  "Spiritual grounding",
-  "Focus & discipline",
-  "Recovery habits",
-  "Personal standards",
-  "Support system",
+  "Firm Up Your Character",
+  "Understand Your Emotions",
+  "Envision Your Success",
+  "Lead Yourself Daily",
 ];
+
+const CADENCE_OPTIONS = ["Weekly", "Bi-Weekly", "Monthly"];
 
 const REVISIT_SECTIONS = [
   "Section 2 — Lead Yourself",
@@ -51,6 +49,8 @@ interface SectionData {
   // Part 1 — Leadership Legacy Review
   p1_legacy: string;
   p1_shaped_by: string;
+  p1_decisions: string;
+  p1_knowledge: string;
   p1_pass_on: string;
   // Part 2 — Choose the Leader
   p2_name: string;
@@ -73,11 +73,14 @@ interface SectionData {
   p4_measure: string;
   // Part 5 — Development Rhythm
   p5_cadence: string;
+  p5_cadence_other: string;
   p5_review: string;
   p5_revisit: string[];
   p5_using_gap_report: string;
   // Part 6 — Carry the Principles Forward
   p6_carry_forward: string;
+  p6_lead_others: string;
+  p6_lead_results: string;
   p6_multiply: string;
   // Commitment
   committed: boolean;
@@ -88,6 +91,8 @@ const EMPTY: SectionData = {
   step: 1,
   p1_legacy: "",
   p1_shaped_by: "",
+  p1_decisions: "",
+  p1_knowledge: "",
   p1_pass_on: "",
   p2_name: "",
   p2_current_role: "",
@@ -106,10 +111,13 @@ const EMPTY: SectionData = {
   p4_feedback: "",
   p4_measure: "",
   p5_cadence: "",
+  p5_cadence_other: "",
   p5_review: "",
   p5_revisit: [],
   p5_using_gap_report: "",
   p6_carry_forward: "",
+  p6_lead_others: "",
+  p6_lead_results: "",
   p6_multiply: "",
   committed: false,
   commitment_date: "",
@@ -305,10 +313,20 @@ type UpdateFn = <K extends keyof SectionData>(k: K, v: SectionData[K]) => void;
 function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Leadership Legacy Review" hint="Zoom out. This is about the leader footprint you want to leave.">
-        <LabeledTextarea label="What legacy do you want your leadership to leave?" value={d.p1_legacy} onChange={(v) => update("p1_legacy", v)} />
-        <LabeledTextarea label="Which leader (past or present) most shaped how you lead — and how?" value={d.p1_shaped_by} onChange={(v) => update("p1_shaped_by", v)} />
-        <LabeledTextarea label="What is the most important thing you need to pass on to the next leader?" value={d.p1_pass_on} onChange={(v) => update("p1_pass_on", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 1 – Leadership Legacy Review
+        </p>
+        <p className="mt-2">Reflect on your current leadership responsibilities.</p>
+      </GuideNote>
+      <SectionBlock label="Evaluate" hint="If you stepped away from your role for the next 30 days…">
+        <LabeledTextarea label="What responsibilities would continue successfully without you?" value={d.p1_legacy} onChange={(v) => update("p1_legacy", v)} />
+        <LabeledTextarea label="What responsibilities would likely stop?" value={d.p1_shaped_by} onChange={(v) => update("p1_shaped_by", v)} />
+        <LabeledTextarea label="What leadership decisions still depend entirely on you?" value={d.p1_decisions} onChange={(v) => update("p1_decisions", v)} />
+        <LabeledTextarea label="What knowledge or experience currently exists only in your head?" value={d.p1_knowledge} onChange={(v) => update("p1_knowledge", v)} />
+      </SectionBlock>
+      <SectionBlock label="Identify">
+        <LabeledTextarea label="Where is your greatest opportunity to begin transferring leadership?" value={d.p1_pass_on} onChange={(v) => update("p1_pass_on", v)} />
       </SectionBlock>
     </div>
   );
@@ -317,11 +335,21 @@ function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Choose the Leader" hint="One person. The leader you will invest in this cycle.">
-        <LabeledInput label="Name" value={d.p2_name} onChange={(v) => update("p2_name", v)} />
-        <LabeledInput label="Current role" value={d.p2_current_role} onChange={(v) => update("p2_current_role", v)} />
-        <LabeledInput label="Potential future role" value={d.p2_future_role} onChange={(v) => update("p2_future_role", v)} />
-        <LabeledTextarea label="Why this leader, why now?" value={d.p2_why} onChange={(v) => update("p2_why", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 2 – Choose the Leader
+        </p>
+        <p className="mt-2">Leadership multiplication begins with one person.</p>
+        <p className="mt-2">
+          Choose one individual you will intentionally develop during your next Leadership
+          Optimization Cycle.
+        </p>
+      </GuideNote>
+      <SectionBlock label="Choose the Leader">
+        <LabeledInput label="Name:" value={d.p2_name} onChange={(v) => update("p2_name", v)} />
+        <LabeledInput label="Current Role:" value={d.p2_current_role} onChange={(v) => update("p2_current_role", v)} />
+        <LabeledInput label="Potential Future Role:" value={d.p2_future_role} onChange={(v) => update("p2_future_role", v)} />
+        <LabeledTextarea label="Why did you choose this person?" value={d.p2_why} onChange={(v) => update("p2_why", v)} />
       </SectionBlock>
     </div>
   );
@@ -330,14 +358,26 @@ function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Leader Development Profile">
-        <LabeledTextarea label="What are their top strengths as a leader?" value={d.p3_strengths} onChange={(v) => update("p3_strengths", v)} />
-        <LabeledInput label="Top GAP #1" value={d.p3_gap1} onChange={(v) => update("p3_gap1", v)} />
-        <LabeledInput label="Top GAP #2" value={d.p3_gap2} onChange={(v) => update("p3_gap2", v)} />
-        <LabeledInput label="Top GAP #3" value={d.p3_gap3} onChange={(v) => update("p3_gap3", v)} />
-        <LabeledTextarea label="Their Success Image — who they're becoming as a leader" value={d.p3_success_image} onChange={(v) => update("p3_success_image", v)} />
-        <LabeledTextarea label="Their Success Drivers — what will fuel their growth" value={d.p3_success_drivers} onChange={(v) => update("p3_success_drivers", v)} />
-        <Chips label="Where is their FUEL strongest / weakest? (select what applies)" options={FUEL_CHIPS} values={d.p3_fuel} onChange={(v) => update("p3_fuel", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 3 – Leader Development Profile
+        </p>
+        <p className="mt-2">
+          Use this person&rsquo;s GAP Report and the conversations you have had with them throughout
+          this process.
+        </p>
+      </GuideNote>
+      <SectionBlock label="Evaluate">
+        <LabeledTextarea label="What strengths are already evident?" value={d.p3_strengths} onChange={(v) => update("p3_strengths", v)} />
+        <div className="space-y-2">
+          <Label className="text-xs font-medium text-foreground">What leadership GAPs should be addressed first?</Label>
+          <Input value={d.p3_gap1} onChange={(e) => update("p3_gap1", e.target.value)} placeholder="1." />
+          <Input value={d.p3_gap2} onChange={(e) => update("p3_gap2", e.target.value)} placeholder="2." />
+          <Input value={d.p3_gap3} onChange={(e) => update("p3_gap3", e.target.value)} placeholder="3." />
+        </div>
+        <LabeledTextarea label="What does their Success Image tell you they are trying to become?" value={d.p3_success_image} onChange={(v) => update("p3_success_image", v)} />
+        <LabeledTextarea label="What Success Drivers deserve the greatest attention?" value={d.p3_success_drivers} onChange={(v) => update("p3_success_drivers", v)} />
+        <Chips label="Which area of FUEL appears to need the greatest development?" options={FUEL_CHIPS} values={d.p3_fuel} onChange={(v) => update("p3_fuel", v)} />
       </SectionBlock>
     </div>
   );
@@ -346,12 +386,18 @@ function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Leadership Transfer Plan" hint="The core output of this section. Fill all five fields to complete Section 10.">
-        <LabeledTextarea label="Principles — the leadership principles you will transfer to them" value={d.p4_principles} onChange={(v) => update("p4_principles", v)} />
-        <LabeledTextarea label="Experiences — what you will put them in to grow them" value={d.p4_experiences} onChange={(v) => update("p4_experiences", v)} />
-        <LabeledTextarea label="Stretch — the specific stretch assignment or decision you'll hand them" value={d.p4_stretch} onChange={(v) => update("p4_stretch", v)} />
-        <LabeledTextarea label="Feedback — how and how often you'll give feedback" value={d.p4_feedback} onChange={(v) => update("p4_feedback", v)} />
-        <LabeledTextarea label="Measure — how you'll know the transfer is working" value={d.p4_measure} onChange={(v) => update("p4_measure", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 4 – Leadership Transfer Plan
+        </p>
+        <p className="mt-2">Leadership is transferred intentionally.</p>
+      </GuideNote>
+      <SectionBlock label="Leadership Transfer Plan">
+        <LabeledTextarea label="What responsibility are you preparing to transfer?" value={d.p4_principles} onChange={(v) => update("p4_principles", v)} />
+        <LabeledTextarea label="Why is this responsibility appropriate at this stage?" value={d.p4_experiences} onChange={(v) => update("p4_experiences", v)} />
+        <LabeledTextarea label="What knowledge must you intentionally teach?" value={d.p4_stretch} onChange={(v) => update("p4_stretch", v)} />
+        <LabeledTextarea label="What experiences should they have before assuming this responsibility?" value={d.p4_feedback} onChange={(v) => update("p4_feedback", v)} />
+        <LabeledTextarea label="How will you know they are ready?" value={d.p4_measure} onChange={(v) => update("p4_measure", v)} />
       </SectionBlock>
     </div>
   );
@@ -360,11 +406,34 @@ function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part5({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 5 – Development Rhythm
+        </p>
+        <p className="mt-2">Leadership development requires consistency.</p>
+      </GuideNote>
+      <SectionBlock label="How often will you intentionally meet with this emerging leader?">
+        <div className="flex flex-wrap gap-2">
+          {CADENCE_OPTIONS.map((opt) => {
+            const active = d.p5_cadence === opt;
+            return (
+              <button
+                key={opt}
+                type="button"
+                onClick={() => update("p5_cadence", active ? "" : opt)}
+                className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium transition ${active ? "bg-[#433993] text-white" : "bg-secondary/60 text-foreground ring-1 ring-inset ring-border hover:ring-[#433993]/40"}`}
+              >
+                {opt}
+              </button>
+            );
+          })}
+        </div>
+        <LabeledInput label="Other:" value={d.p5_cadence_other} onChange={(v) => update("p5_cadence_other", v)} />
+      </SectionBlock>
       <SectionBlock label="Development Rhythm">
-        <LabeledInput label="Meeting cadence with this leader (e.g., weekly 1:1, biweekly review)" value={d.p5_cadence} onChange={(v) => update("p5_cadence", v)} />
-        <LabeledTextarea label="How will you review progress with them?" value={d.p5_review} onChange={(v) => update("p5_review", v)} />
-        <Chips label="Which sections of the Optimized Leader Guide will you have them revisit with you?" options={REVISIT_SECTIONS} values={d.p5_revisit} onChange={(v) => update("p5_revisit", v)} />
-        <LabeledTextarea label="How will you use their GAP Report inside this development rhythm?" value={d.p5_using_gap_report} onChange={(v) => update("p5_using_gap_report", v)} />
+        <LabeledTextarea label="How will you review their progress?" value={d.p5_review} onChange={(v) => update("p5_review", v)} />
+        <Chips label="Which sections of the Optimized Leader Guide will you regularly revisit together?" options={REVISIT_SECTIONS} values={d.p5_revisit} onChange={(v) => update("p5_revisit", v)} />
+        <LabeledTextarea label="How will you use their GAP Report to guide future development?" value={d.p5_using_gap_report} onChange={(v) => update("p5_using_gap_report", v)} />
       </SectionBlock>
     </div>
   );
@@ -373,9 +442,17 @@ function Part5({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part6({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 6 – Carry the Principles Forward
+        </p>
+        <p className="mt-2">As you develop this leader…</p>
+      </GuideNote>
       <SectionBlock label="Carry the Principles Forward">
-        <LabeledTextarea label="Which principles from your own leadership will you carry forward into this leader?" value={d.p6_carry_forward} onChange={(v) => update("p6_carry_forward", v)} />
-        <LabeledTextarea label="How will you multiply — beyond this one leader — over the next 12 months?" value={d.p6_multiply} onChange={(v) => update("p6_multiply", v)} />
+        <LabeledTextarea label="How will you help them Lead Yourself?" value={d.p6_carry_forward} onChange={(v) => update("p6_carry_forward", v)} />
+        <LabeledTextarea label="How will you help them Lead Others?" value={d.p6_lead_others} onChange={(v) => update("p6_lead_others", v)} />
+        <LabeledTextarea label="How will you help them Lead for Results?" value={d.p6_lead_results} onChange={(v) => update("p6_lead_results", v)} />
+        <LabeledTextarea label="What leadership behaviors must they consistently demonstrate before greater responsibility is transferred?" value={d.p6_multiply} onChange={(v) => update("p6_multiply", v)} />
       </SectionBlock>
     </div>
   );
@@ -384,10 +461,17 @@ function Part6({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part7({ d, update, transferPlanFilled }: { d: SectionData; update: UpdateFn; transferPlanFilled: boolean }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>
+          Leadership becomes legacy when what has been invested in you is intentionally invested
+          into someone else.
+        </p>
+      </GuideNote>
       <div className="rounded-2xl border border-[#433993]/30 bg-gradient-to-br from-[#f6f2ff] to-white p-6">
         <p className="text-sm leading-relaxed text-foreground">
-          I commit to leading {d.p2_name || "this leader"} — with intention, discipline, and love —
-          to transfer what I've been given and multiply leadership beyond myself.
+          I commit to intentionally developing this emerging leader by transferring responsibility,
+          teaching principles, modeling consistent leadership, and using the GAP Report and the
+          Fully Resourced process to guide their continued growth.
         </p>
       </div>
       {!transferPlanFilled && (
@@ -398,7 +482,7 @@ function Part7({ d, update, transferPlanFilled }: { d: SectionData; update: Upda
       <div className="flex items-start gap-3">
         <Checkbox id="commit-10" checked={d.committed} onCheckedChange={(v) => update("committed", Boolean(v))} />
         <Label htmlFor="commit-10" className="text-sm leading-relaxed text-foreground">
-          I commit to the Leadership Transfer Plan and development rhythm I've built here.
+          Signature — I commit to developing {d.p2_name || "this leader"}.
         </Label>
       </div>
       <div>
@@ -410,6 +494,14 @@ function Part7({ d, update, transferPlanFilled }: { d: SectionData; update: Upda
 }
 
 // ---------- Shared inputs ----------
+
+function GuideNote({ children }: { children: React.ReactNode }) {
+  return (
+    <section className="rounded-2xl border border-[#433993]/20 bg-[#433993]/[0.04] p-5 text-sm leading-relaxed text-foreground">
+      {children}
+    </section>
+  );
+}
 
 function SectionBlock({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (

@@ -25,57 +25,32 @@ const TOTAL_SECTIONS = 12;
 const TOTAL_STEPS = 7;
 
 const EVAL_CHECKS: { key: keyof EvalChecks; label: string }[] = [
+  { key: "gap_recurring", label: "Has a GAP Report identified a recurring leadership issue?" },
+  { key: "drivers_ignored", label: "Have Success Drivers consistently been ignored?" },
   { key: "markers_stalled", label: "Have Success Markers stalled or declined?" },
-  { key: "same_issue_recurring", label: "Is the same issue coming up again and again?" },
-  { key: "avoiding_person", label: "Am I avoiding a person or a conversation I know I need to have?" },
-  { key: "standards_slipping", label: "Are standards slipping on my team?" },
-  { key: "trust_eroding", label: "Is trust or alignment eroding somewhere?" },
-  { key: "behavior_impacting", label: "Is someone's behavior impacting the team or the results?" },
-  { key: "leader_reluctance", label: "Am I hesitating to lead into something that clearly needs leadership?" },
+  { key: "commitment_not_honored", label: "Has a leadership commitment not been honored?" },
+  { key: "expectations_unclear", label: "Have expectations become unclear?" },
+  { key: "standards_slipped", label: "Have standards slipped?" },
+  { key: "trust_broken", label: "Has trust or communication broken down?" },
 ];
 
 type EvalChecks = {
+  gap_recurring: "" | "yes" | "no";
+  drivers_ignored: "" | "yes" | "no";
   markers_stalled: "" | "yes" | "no";
-  same_issue_recurring: "" | "yes" | "no";
-  avoiding_person: "" | "yes" | "no";
-  standards_slipping: "" | "yes" | "no";
-  trust_eroding: "" | "yes" | "no";
-  behavior_impacting: "" | "yes" | "no";
-  leader_reluctance: "" | "yes" | "no";
+  commitment_not_honored: "" | "yes" | "no";
+  expectations_unclear: "" | "yes" | "no";
+  standards_slipped: "" | "yes" | "no";
+  trust_broken: "" | "yes" | "no";
 };
 
-const IMPACT_INDIVIDUAL = [
-  "Growth stalling",
-  "Trust eroding",
-  "Performance slipping",
-  "Disengagement",
-  "Confusion about expectations",
-  "Loss of ownership",
-];
-const IMPACT_TEAM = [
-  "Standards dropping",
-  "Alignment breaking",
-  "Cadence slowing",
-  "Conflict left unaddressed",
-  "Silos forming",
-  "Culture drift",
-];
-const IMPACT_ORG = [
-  "Success Markers at risk",
-  "Strategy execution weakening",
-  "Reputation impact",
-  "Client / customer impact",
-  "Revenue / results impact",
-  "Leadership pipeline weakening",
-];
+const IMPACT_TARGETS = ["The Individual", "The Team", "The Organization"];
 
 const ALIGNMENT_CHIPS = [
-  "Clear ownership established",
-  "Standard clearly named",
-  "Consequences understood",
-  "Support offered",
-  "Follow-up scheduled",
-  "Mutual commitment",
+  "The Individual",
+  "The Role",
+  "The Organization",
+  "The Leadership Relationship",
 ];
 
 interface SectionData {
@@ -87,17 +62,19 @@ interface SectionData {
   p1_understand: string;
   // Part 2 — Determine the Conversation
   p2_who: string;
+  p2_role: string;
   p2_why_now: string;
-  p2_impact_individual: string[];
-  p2_impact_team: string[];
-  p2_impact_org: string[];
+  p2_impact: string[];
+  p2_impact_describe: string;
   // Part 3 — Prepare the Conversation
   p3_worksheet_complete: boolean;
   p3_worksheet_date: string;
   // Part 4 — Love & Tough Love Reflection
   p4_love: string;
   p4_tough_love: string;
+  p4_protecting: string;
   p4_balance: string;
+  p4_fear: string;
   // Part 5 — Conversation Execution Plan
   p5_name: string;
   p5_date: string;
@@ -120,27 +97,29 @@ interface SectionData {
 const EMPTY: SectionData = {
   step: 1,
   p1_checks: {
+    gap_recurring: "",
+    drivers_ignored: "",
     markers_stalled: "",
-    same_issue_recurring: "",
-    avoiding_person: "",
-    standards_slipping: "",
-    trust_eroding: "",
-    behavior_impacting: "",
-    leader_reluctance: "",
+    commitment_not_honored: "",
+    expectations_unclear: "",
+    standards_slipped: "",
+    trust_broken: "",
   },
   p1_other: "",
   p1_identify: "",
   p1_understand: "",
   p2_who: "",
+  p2_role: "",
   p2_why_now: "",
-  p2_impact_individual: [],
-  p2_impact_team: [],
-  p2_impact_org: [],
+  p2_impact: [],
+  p2_impact_describe: "",
   p3_worksheet_complete: false,
   p3_worksheet_date: "",
   p4_love: "",
   p4_tough_love: "",
+  p4_protecting: "",
   p4_balance: "",
+  p4_fear: "",
   p5_name: "",
   p5_date: "",
   p5_location: "",
@@ -341,7 +320,16 @@ function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
   };
   return (
     <div className="space-y-6">
-      <SectionBlock label="Evaluate — Seven Yes/No checks" hint="Answer each honestly. Any Yes is a signal a crucial conversation may be needed.">
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 1 – Leadership Evaluation
+        </p>
+        <p className="mt-2">
+          Before preparing for a Crucial Conversation, review everything you have built throughout
+          this Leadership Optimization Cycle.
+        </p>
+      </GuideNote>
+      <SectionBlock label="Evaluate">
         <div className="space-y-2">
           {EVAL_CHECKS.map((c) => (
             <div key={c.key} className="flex flex-col gap-2 rounded-lg border border-border bg-background/60 p-3 sm:flex-row sm:items-center sm:justify-between">
@@ -364,13 +352,13 @@ function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
             </div>
           ))}
         </div>
-        <LabeledInput label="Other — anything else you're noticing" value={d.p1_other} onChange={(v) => update("p1_other", v)} />
+        <LabeledInput label="Other:" value={d.p1_other} onChange={(v) => update("p1_other", v)} />
       </SectionBlock>
-      <SectionBlock label="Identify — Which signal is loudest">
-        <LabeledTextarea label="Which of these is the loudest signal right now, and what is it pointing you to?" value={d.p1_identify} onChange={(v) => update("p1_identify", v)} />
+      <SectionBlock label="Identify">
+        <LabeledTextarea label="What issue most requires your leadership right now?" value={d.p1_identify} onChange={(v) => update("p1_identify", v)} />
       </SectionBlock>
-      <SectionBlock label="Understand — Why this signal is showing up now">
-        <LabeledTextarea label="Why is this signal showing up now? What has your leadership tolerated or delayed?" value={d.p1_understand} onChange={(v) => update("p1_understand", v)} />
+      <SectionBlock label="Understand" hint="Stay objective. List facts, observations, and measurable evidence.">
+        <LabeledTextarea label="What evidence supports this conclusion?" value={d.p1_understand} onChange={(v) => update("p1_understand", v)} />
       </SectionBlock>
     </div>
   );
@@ -379,18 +367,20 @@ function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Determine the Conversation">
-        <LabeledInput label="Who is this conversation with?" value={d.p2_who} onChange={(v) => update("p2_who", v)} />
-        <LabeledTextarea label="Why does this conversation need to happen now?" value={d.p2_why_now} onChange={(v) => update("p2_why_now", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 2 – Determine the Conversation
+        </p>
+        <p className="mt-2">Who needs this conversation?</p>
+      </GuideNote>
+      <SectionBlock label="Who needs this conversation?">
+        <LabeledInput label="Name:" value={d.p2_who} onChange={(v) => update("p2_who", v)} />
+        <LabeledInput label="Role:" value={d.p2_role} onChange={(v) => update("p2_role", v)} />
+        <LabeledTextarea label="Why is this conversation necessary now?" value={d.p2_why_now} onChange={(v) => update("p2_why_now", v)} />
       </SectionBlock>
-      <SectionBlock label="Impact — On the Individual">
-        <Chips label="Impact on the individual" options={IMPACT_INDIVIDUAL} values={d.p2_impact_individual} onChange={(v) => update("p2_impact_individual", v)} />
-      </SectionBlock>
-      <SectionBlock label="Impact — On the Team">
-        <Chips label="Impact on the team" options={IMPACT_TEAM} values={d.p2_impact_team} onChange={(v) => update("p2_impact_team", v)} />
-      </SectionBlock>
-      <SectionBlock label="Impact — On the Organization">
-        <Chips label="Impact on the organization" options={IMPACT_ORG} values={d.p2_impact_org} onChange={(v) => update("p2_impact_org", v)} />
+      <SectionBlock label="If this conversation is avoided, what is the likely impact on:">
+        <Chips label="Select all that apply" options={IMPACT_TARGETS} values={d.p2_impact} onChange={(v) => update("p2_impact", v)} />
+        <LabeledTextarea label="Describe:" value={d.p2_impact_describe} onChange={(v) => update("p2_impact_describe", v)} />
       </SectionBlock>
     </div>
   );
@@ -399,17 +389,26 @@ function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Prepare the Conversation" hint="Use the Crucial Conversation Worksheet outside the app to plan the conversation, then confirm below.">
-        <div className="rounded-xl border border-[#433993]/30 bg-gradient-to-br from-[#f6f2ff] to-white p-4 text-sm text-foreground">
-          Download the Crucial Conversation Worksheet from your Optimized Leader Guide resources and complete it before your conversation.
-        </div>
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 3 – Prepare the Conversation
+        </p>
+        <p className="mt-2">
+          Every Crucial Conversation should be prepared using the Crucial Conversation Worksheet.
+        </p>
+        <p className="mt-2">
+          Until this process becomes second nature, do not skip writing it out. The discipline of
+          preparing the conversation is part of becoming a better leader.
+        </p>
+      </GuideNote>
+      <SectionBlock label="Before moving forward:">
         <div className="flex items-start gap-3">
           <Checkbox id="worksheet-8" checked={d.p3_worksheet_complete} onCheckedChange={(v) => update("p3_worksheet_complete", Boolean(v))} />
           <Label htmlFor="worksheet-8" className="text-sm leading-relaxed text-foreground">
             I have completed the Crucial Conversation Worksheet.
           </Label>
         </div>
-        <LabeledInput label="Date completed" type="date" value={d.p3_worksheet_date} onChange={(v) => update("p3_worksheet_date", v)} />
+        <LabeledInput label="Date Completed:" type="date" value={d.p3_worksheet_date} onChange={(v) => update("p3_worksheet_date", v)} />
       </SectionBlock>
     </div>
   );
@@ -418,14 +417,18 @@ function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Love — What you care about here">
-        <LabeledTextarea label="What do you genuinely care about — about this person, this team, this outcome?" value={d.p4_love} onChange={(v) => update("p4_love", v)} />
-      </SectionBlock>
-      <SectionBlock label="Tough Love — The truth that must be said">
-        <LabeledTextarea label="What is the truth you owe them, even if it's hard to say?" value={d.p4_tough_love} onChange={(v) => update("p4_tough_love", v)} />
-      </SectionBlock>
-      <SectionBlock label="Balance — Holding both at once">
-        <LabeledTextarea label="How will you hold love and tough love together in this conversation?" value={d.p4_balance} onChange={(v) => update("p4_balance", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 4 – Love &amp; Tough Love Reflection
+        </p>
+        <p className="mt-2">Before having the conversation, evaluate your leadership.</p>
+      </GuideNote>
+      <SectionBlock label="Evaluate your leadership">
+        <LabeledTextarea label="Am I approaching this conversation because I genuinely want what is best for this person?" value={d.p4_love} onChange={(v) => update("p4_love", v)} />
+        <LabeledTextarea label="Am I willing to address the issue clearly instead of avoiding it?" value={d.p4_tough_love} onChange={(v) => update("p4_tough_love", v)} />
+        <LabeledTextarea label="Am I protecting both the individual and the organization?" value={d.p4_protecting} onChange={(v) => update("p4_protecting", v)} />
+        <LabeledTextarea label="Am I balancing love with tough love?" value={d.p4_balance} onChange={(v) => update("p4_balance", v)} />
+        <LabeledTextarea label="What fear or hesitation must I overcome before having this conversation?" value={d.p4_fear} onChange={(v) => update("p4_fear", v)} />
       </SectionBlock>
     </div>
   );
@@ -434,16 +437,21 @@ function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part5({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Conversation Execution Plan" hint="Lock the details so it actually happens.">
-        <LabeledInput label="Name of the person" value={d.p5_name} onChange={(v) => update("p5_name", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 5 – Conversation Execution Plan
+        </p>
+      </GuideNote>
+      <SectionBlock label="Conversation Execution Plan">
+        <LabeledInput label="Name:" value={d.p5_name} onChange={(v) => update("p5_name", v)} />
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <LabeledInput label="Date of the conversation" type="date" value={d.p5_date} onChange={(v) => update("p5_date", v)} />
-          <LabeledInput label="Location" value={d.p5_location} onChange={(v) => update("p5_location", v)} />
+          <LabeledInput label="Date:" type="date" value={d.p5_date} onChange={(v) => update("p5_date", v)} />
+          <LabeledInput label="Location:" value={d.p5_location} onChange={(v) => update("p5_location", v)} />
         </div>
-        <LabeledInput label="Follow-up date" type="date" value={d.p5_follow_up_date} onChange={(v) => update("p5_follow_up_date", v)} />
-        <LabeledTextarea label="The commitment you're seeking from them" value={d.p5_commitment_sought} onChange={(v) => update("p5_commitment_sought", v)} />
-        <LabeledTextarea label="How that commitment will be measured" value={d.p5_how_measured} onChange={(v) => update("p5_how_measured", v)} />
-        <LabeledInput label="Success Marker that shows progress from this conversation" value={d.p5_success_marker} onChange={(v) => update("p5_success_marker", v)} />
+        <LabeledInput label="Follow-Up Date:" type="date" value={d.p5_follow_up_date} onChange={(v) => update("p5_follow_up_date", v)} />
+        <LabeledTextarea label="What commitment are you seeking?" value={d.p5_commitment_sought} onChange={(v) => update("p5_commitment_sought", v)} />
+        <LabeledTextarea label="How will commitment be measured?" value={d.p5_how_measured} onChange={(v) => update("p5_how_measured", v)} />
+        <LabeledInput label="What Success Marker will demonstrate progress?" value={d.p5_success_marker} onChange={(v) => update("p5_success_marker", v)} />
       </SectionBlock>
     </div>
   );
@@ -452,14 +460,20 @@ function Part5({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part6({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Conversation Evaluation" hint="Come back after the conversation and fill this in.">
-        <LabeledTextarea label="What actually happened in the conversation?" value={d.p6_what_happened} onChange={(v) => update("p6_what_happened", v)} />
-        <LabeledTextarea label="What worked?" value={d.p6_what_worked} onChange={(v) => update("p6_what_worked", v)} />
-        <LabeledTextarea label="What did you miss or want to do differently?" value={d.p6_what_i_missed} onChange={(v) => update("p6_what_i_missed", v)} />
-        <LabeledInput label="The next step you're committing to" value={d.p6_next_step} onChange={(v) => update("p6_next_step", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 6 – Conversation Evaluation
+        </p>
+        <p className="mt-2">After completing the conversation…</p>
+      </GuideNote>
+      <SectionBlock label="Conversation Evaluation">
+        <LabeledTextarea label="What went well?" value={d.p6_what_happened} onChange={(v) => update("p6_what_happened", v)} />
+        <LabeledTextarea label="What did you learn?" value={d.p6_what_worked} onChange={(v) => update("p6_what_worked", v)} />
+        <LabeledTextarea label="What commitments were made?" value={d.p6_what_i_missed} onChange={(v) => update("p6_what_i_missed", v)} />
+        <LabeledTextarea label="What follow-up is required?" value={d.p6_next_step} onChange={(v) => update("p6_next_step", v)} />
       </SectionBlock>
-      <SectionBlock label="Alignment — What the conversation established">
-        <Chips label="Alignment created" options={ALIGNMENT_CHIPS} values={d.p6_alignment} onChange={(v) => update("p6_alignment", v)} />
+      <SectionBlock label="Has this conversation strengthened alignment between:">
+        <Chips label="Select all that apply" options={ALIGNMENT_CHIPS} values={d.p6_alignment} onChange={(v) => update("p6_alignment", v)} />
       </SectionBlock>
     </div>
   );
@@ -468,16 +482,20 @@ function Part6({ d, update }: { d: SectionData; update: UpdateFn }) {
 function StepCommitment({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>Leadership requires courage, preparation, and consistency.</p>
+      </GuideNote>
       <div className="rounded-2xl border border-[#433993]/30 bg-gradient-to-br from-[#f6f2ff] to-white p-6">
         <p className="text-sm leading-relaxed text-foreground">
-          I commit to leading into the conversations that need to happen — with clarity,
-          with love and tough love, and with a Success Marker that proves the shift.
+          I commit to addressing issues with honesty, clarity, love, and tough love. I will prepare
+          every Crucial Conversation using the complete Crucial Conversation Worksheet and follow
+          through on the commitments made.
         </p>
       </div>
       <div className="flex items-start gap-3">
         <Checkbox id="commit-8" checked={d.committed} onCheckedChange={(v) => update("committed", Boolean(v))} />
         <Label htmlFor="commit-8" className="text-sm leading-relaxed text-foreground">
-          I commit to leading the crucial conversation I've named here.
+          Signature — I commit to leading this Crucial Conversation.
         </Label>
       </div>
       <div>
@@ -489,6 +507,14 @@ function StepCommitment({ d, update }: { d: SectionData; update: UpdateFn }) {
 }
 
 // ---------- Shared inputs ----------
+
+function GuideNote({ children }: { children: React.ReactNode }) {
+  return (
+    <section className="rounded-2xl border border-[#433993]/20 bg-[#433993]/[0.04] p-5 text-sm leading-relaxed text-foreground">
+      {children}
+    </section>
+  );
+}
 
 function SectionBlock({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (

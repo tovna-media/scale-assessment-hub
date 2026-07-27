@@ -27,16 +27,12 @@ const TOTAL_STEPS = 9;
 type DriverStatus = "" | "on_track" | "behind" | "needs_revision";
 
 const GAP_CAUSE_CHIPS = [
-  "Unclear priorities",
-  "Overcommitted calendar",
-  "Low follow-through",
-  "Wrong people in wrong seats",
-  "Avoiding a hard decision",
-  "Weak execution rhythm",
-  "Distraction / reactivity",
-  "Skill or knowledge gap",
-  "Energy / capacity leak",
-  "Standards slipping",
+  "Knowledge & Skill Gap",
+  "Capacity & Standards Gap",
+  "Lack of Clarity",
+  "Weak Systems",
+  "Leadership Follow-Through",
+  "Limited Resources",
 ];
 
 interface DriverRow {
@@ -57,8 +53,8 @@ interface PriorityRow {
 
 interface ActivityRow {
   activity: string;
+  owner: string;
   when: string;
-  outcome: string;
 }
 
 interface SectionData {
@@ -153,7 +149,7 @@ const EMPTY: SectionData = {
   p5_why: "",
   p5_execute: "",
   p5_measure: "",
-  p6_activities: Array.from({ length: 4 }, () => ({ activity: "", when: "", outcome: "" })),
+  p6_activities: Array.from({ length: 4 }, () => ({ activity: "", owner: "", when: "" })),
   p6_focus_week: "",
   p6_execute: "",
   p6_measure: "",
@@ -201,12 +197,12 @@ function SectionSevenPage() {
 
   const isComplete = useMemo(() => {
     return (
-      d.p1_execute.trim().length > 0 &&
+      d.p1_current_image.trim().length > 0 &&
       d.p2_drivers.some((r) => r.status !== "") && d.p2_which.trim().length > 0 &&
       d.p3_markers.some((r) => r.marker.trim().length > 0) && d.p3_top_marker.trim().length > 0 &&
       (d.p4_causes.length > 0 || d.p4_causes_other.trim().length > 0) && d.p4_must_change.trim().length > 0 &&
       d.p5_priorities.some((r) => r.priority.trim().length > 0) && d.p5_most_attention.trim().length > 0 &&
-      d.p6_activities.some((r) => r.activity.trim().length > 0) && d.p6_execute.trim().length > 0 &&
+      d.p6_activities.some((r) => r.activity.trim().length > 0) && d.p6_measure.trim().length > 0 &&
       d.p7_review_date.length > 0 && d.p7_adjust.trim().length > 0 &&
       d.p8_lesson.trim().length > 0 && d.p8_principle_4.trim().length > 0 &&
       d.committed && d.commitment_date.length > 0
@@ -338,12 +334,12 @@ function stepTitle(step: number) {
 
 function stepIsValid(step: number, d: SectionData): boolean {
   switch (step) {
-    case 1: return d.p1_execute.trim().length > 0;
+    case 1: return d.p1_current_image.trim().length > 0;
     case 2: return d.p2_drivers.some((r) => r.status !== "") && d.p2_which.trim().length > 0;
     case 3: return d.p3_markers.some((r) => r.marker.trim().length > 0) && d.p3_top_marker.trim().length > 0;
     case 4: return (d.p4_causes.length > 0 || d.p4_causes_other.trim().length > 0) && d.p4_must_change.trim().length > 0;
     case 5: return d.p5_priorities.some((r) => r.priority.trim().length > 0) && d.p5_most_attention.trim().length > 0;
-    case 6: return d.p6_activities.some((r) => r.activity.trim().length > 0) && d.p6_execute.trim().length > 0;
+    case 6: return d.p6_activities.some((r) => r.activity.trim().length > 0) && d.p6_measure.trim().length > 0;
     case 7: return d.p7_review_date.length > 0 && d.p7_adjust.trim().length > 0;
     case 8: return d.p8_lesson.trim().length > 0 && d.p8_principle_4.trim().length > 0;
     case 9: return d.committed && d.commitment_date.length > 0;
@@ -356,23 +352,16 @@ type UpdateFn = <K extends keyof SectionData>(k: K, v: SectionData[K]) => void;
 function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Evaluate — Your current Success Image">
-        <LabeledTextarea label="What is the Success Image you're leading toward right now?" value={d.p1_current_image} onChange={(v) => update("p1_current_image", v)} />
-      </SectionBlock>
-      <SectionBlock label="Identify — What's still true">
-        <LabeledTextarea label="What part of that image is still true and worth leading toward?" value={d.p1_still_true} onChange={(v) => update("p1_still_true", v)} />
-      </SectionBlock>
-      <SectionBlock label="Understand — What needs sharpening">
-        <LabeledTextarea label="What part of that image needs to be sharpened, updated, or replaced?" value={d.p1_needs_sharpening} onChange={(v) => update("p1_needs_sharpening", v)} />
-      </SectionBlock>
-      <SectionBlock label="Build a Plan — What success looks like from here">
-        <LabeledTextarea label="What does success actually look like from here? Describe it in real detail." value={d.p1_looks_like} onChange={(v) => update("p1_looks_like", v)} />
-      </SectionBlock>
-      <SectionBlock label="Execute — First step to lead toward this sharper image">
-        <LabeledInput label="The first step you'll take this week to lead toward it" value={d.p1_execute} onChange={(v) => update("p1_execute", v)} />
-      </SectionBlock>
-      <SectionBlock label="Measure — How you'll know you're moving toward it">
-        <LabeledTextarea label="How will you know you're actually moving toward that Success Image?" value={d.p1_measure} onChange={(v) => update("p1_measure", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 1 – Success Image Review
+        </p>
+        <p className="mt-2">Return to the Success Image you created in Section 2.</p>
+      </GuideNote>
+      <SectionBlock label="Evaluate">
+        <LabeledTextarea label="Which parts of your Success Image have become reality?" value={d.p1_current_image} onChange={(v) => update("p1_current_image", v)} />
+        <LabeledTextarea label="Which parts still require focused attention?" value={d.p1_still_true} onChange={(v) => update("p1_still_true", v)} />
+        <LabeledTextarea label="What progress are you most encouraged by?" value={d.p1_needs_sharpening} onChange={(v) => update("p1_needs_sharpening", v)} />
       </SectionBlock>
     </div>
   );
@@ -386,13 +375,32 @@ function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
   ];
   return (
     <div className="space-y-6">
-      <SectionBlock label="Evaluate — Rate each of your 5 Success Drivers" hint="Name each driver and rate its current status.">
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 2 – Success Driver Review
+        </p>
+        <p className="mt-2">Review your Success Drivers.</p>
+        <p className="mt-3 font-semibold text-foreground">Remember:</p>
+        <p className="mt-1">
+          Success Drivers are the activities that move you toward your Success Image. Success
+          Markers are the measurable evidence those activities are working.
+        </p>
+        <p className="mt-3 font-semibold text-foreground">Example:</p>
+        <p className="mt-1">
+          Success Driver: Conduct one coaching conversation with each salesperson every week.
+        </p>
+        <p className="mt-1">
+          Success Marker: Every salesperson receives four coaching conversations this month and
+          individual performance improves.
+        </p>
+      </GuideNote>
+      <SectionBlock label="Evaluate">
         <div className="space-y-2">
           {d.p2_drivers.map((r, i) => (
             <div key={i} className="flex flex-col gap-2 rounded-lg border border-border bg-background/60 p-3 sm:flex-row sm:items-center sm:justify-between">
               <Input value={r.name} onChange={(e) => {
                 const arr = [...d.p2_drivers]; arr[i] = { ...r, name: e.target.value }; update("p2_drivers", arr);
-              }} placeholder={`Success Driver ${i + 1}`} className="sm:max-w-xs" />
+              }} placeholder={`Driver ${i + 1}`} className="sm:max-w-xs" />
               <div className="flex flex-wrap gap-1">
                 {opts.map(({ v, label }) => {
                   const active = r.status === v;
@@ -414,20 +422,9 @@ function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
           ))}
         </div>
       </SectionBlock>
-      <SectionBlock label="Identify — Which driver deserves attention">
-        <LabeledTextarea label="Which Success Driver deserves your attention most right now?" value={d.p2_which} onChange={(v) => update("p2_which", v)} />
-      </SectionBlock>
-      <SectionBlock label="Understand — Why it deserves that attention">
-        <LabeledTextarea label="Why does that driver deserve the attention? What's it going to cost you if you ignore it?" value={d.p2_why} onChange={(v) => update("p2_why", v)} />
-      </SectionBlock>
-      <SectionBlock label="Build a Plan — What needs to shift for that driver">
-        <LabeledTextarea label="What needs to shift for that driver to move forward?" value={d.p2_understand} onChange={(v) => update("p2_understand", v)} />
-      </SectionBlock>
-      <SectionBlock label="Execute — First action for that driver">
-        <LabeledInput label="The first action you'll take this week on that driver" value={d.p2_execute} onChange={(v) => update("p2_execute", v)} />
-      </SectionBlock>
-      <SectionBlock label="Measure — How you'll know the driver is back on track">
-        <LabeledTextarea label="How will you know that driver is back on track?" value={d.p2_measure} onChange={(v) => update("p2_measure", v)} />
+      <SectionBlock label="Identify">
+        <LabeledTextarea label="Which Success Driver deserves your greatest attention?" value={d.p2_which} onChange={(v) => update("p2_which", v)} />
+        <LabeledTextarea label="Why?" value={d.p2_why} onChange={(v) => update("p2_why", v)} />
       </SectionBlock>
     </div>
   );
@@ -436,13 +433,20 @@ function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Success Marker Builder" hint="For each Success Driver, define the marker that proves progress.">
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 3 – Success Marker Builder
+        </p>
+        <p className="mt-2">Every Success Driver should have measurable evidence.</p>
+        <p className="mt-2">Complete the table below.</p>
+      </GuideNote>
+      <SectionBlock label="Success Driver / Success Marker">
         <div className="space-y-2">
           {d.p3_markers.map((r, i) => (
             <div key={i} className="grid grid-cols-1 gap-2 rounded-lg border border-border bg-background/60 p-3 sm:grid-cols-2">
               <Input value={r.driver} onChange={(e) => {
                 const arr = [...d.p3_markers]; arr[i] = { ...r, driver: e.target.value }; update("p3_markers", arr);
-              }} placeholder={`Success Driver ${i + 1}`} />
+              }} placeholder="Success Driver" />
               <Input value={r.marker} onChange={(e) => {
                 const arr = [...d.p3_markers]; arr[i] = { ...r, marker: e.target.value }; update("p3_markers", arr);
               }} placeholder="Success Marker" />
@@ -450,17 +454,8 @@ function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
           ))}
         </div>
       </SectionBlock>
-      <SectionBlock label="Identify — The marker that matters most over the next 30 days">
-        <LabeledInput label="Which Success Marker matters most over the next 30 days?" value={d.p3_top_marker} onChange={(v) => update("p3_top_marker", v)} />
-      </SectionBlock>
-      <SectionBlock label="Understand — Why that marker matters most">
-        <LabeledTextarea label="Why does that marker matter most right now?" value={d.p3_why} onChange={(v) => update("p3_why", v)} />
-      </SectionBlock>
-      <SectionBlock label="Execute — First action toward that marker">
-        <LabeledInput label="The first action you'll take this week toward that marker" value={d.p3_execute} onChange={(v) => update("p3_execute", v)} />
-      </SectionBlock>
-      <SectionBlock label="Measure — How you'll know you hit it">
-        <LabeledTextarea label="How will you know you hit the marker inside 30 days?" value={d.p3_measure} onChange={(v) => update("p3_measure", v)} />
+      <SectionBlock label="Greatest Impact">
+        <LabeledTextarea label="Which Success Marker will have the greatest impact over the next 30 days?" value={d.p3_top_marker} onChange={(v) => update("p3_top_marker", v)} />
       </SectionBlock>
     </div>
   );
@@ -469,23 +464,20 @@ function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Evaluate — What's causing the gap" hint="Select every cause creating the gap between where you are and where you're leading toward.">
-        <Chips label="Gap causes" options={GAP_CAUSE_CHIPS} values={d.p4_causes} onChange={(v) => update("p4_causes", v)} other={d.p4_causes_other} onOtherChange={(v) => update("p4_causes_other", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 4 – Closing the Gap
+        </p>
+        <p className="mt-2">Review your highest priority Success Marker.</p>
+      </GuideNote>
+      <SectionBlock label="What is preventing better results?" hint="Check all that apply.">
+        <Chips label="What is preventing better results?" options={GAP_CAUSE_CHIPS} values={d.p4_causes} onChange={(v) => update("p4_causes", v)} other={d.p4_causes_other} onOtherChange={(v) => update("p4_causes_other", v)} />
       </SectionBlock>
-      <SectionBlock label="Identify — Evidence you're seeing">
-        <LabeledTextarea label="What evidence are you seeing that tells you this gap is real?" value={d.p4_evidence} onChange={(v) => update("p4_evidence", v)} />
+      <SectionBlock label="Evidence">
+        <LabeledTextarea label="Describe the evidence supporting your conclusion." value={d.p4_evidence} onChange={(v) => update("p4_evidence", v)} />
       </SectionBlock>
-      <SectionBlock label="Understand — Why that gap has stayed open">
-        <LabeledTextarea label="Why has that gap stayed open? What's your part in it?" value={d.p4_understand} onChange={(v) => update("p4_understand", v)} />
-      </SectionBlock>
-      <SectionBlock label="Build a Plan — What must change to close the gap">
-        <LabeledTextarea label="What must change — in you and around you — to close the gap?" value={d.p4_must_change} onChange={(v) => update("p4_must_change", v)} />
-      </SectionBlock>
-      <SectionBlock label="Execute — First move to close it">
-        <LabeledInput label="The first move you'll make this week to close the gap" value={d.p4_execute} onChange={(v) => update("p4_execute", v)} />
-      </SectionBlock>
-      <SectionBlock label="Measure — How you'll know the gap is closing">
-        <LabeledTextarea label="How will you know the gap is actually closing?" value={d.p4_measure} onChange={(v) => update("p4_measure", v)} />
+      <SectionBlock label="What must change?">
+        <LabeledTextarea label="What must change?" value={d.p4_must_change} onChange={(v) => update("p4_must_change", v)} />
       </SectionBlock>
     </div>
   );
@@ -494,11 +486,20 @@ function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part5({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="My Highest Priorities" hint="Three priorities max. Each with why it matters and a first action.">
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 5 – My Highest Priorities
+        </p>
+        <p className="mt-2">Leaders lose momentum when everything becomes important.</p>
+        <p className="mt-2">
+          Identify the three priorities that will have the greatest impact on your Success Image.
+        </p>
+      </GuideNote>
+      <SectionBlock label="Priority / Why It Matters / First Action">
         <div className="space-y-3">
           {d.p5_priorities.map((r, i) => (
             <div key={i} className="rounded-xl border border-border bg-background/40 p-3">
-              <p className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-[#433993]">Priority {i + 1}</p>
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-[#433993]">{i + 1}</p>
               <div className="grid grid-cols-1 gap-2">
                 <LabeledInput label="Priority" value={r.priority} onChange={(v) => {
                   const arr = [...d.p5_priorities]; arr[i] = { ...r, priority: v }; update("p5_priorities", arr);
@@ -514,17 +515,8 @@ function Part5({ d, update }: { d: SectionData; update: UpdateFn }) {
           ))}
         </div>
       </SectionBlock>
-      <SectionBlock label="Identify — Which priority deserves the most attention">
-        <LabeledInput label="Which of the three deserves the most attention right now?" value={d.p5_most_attention} onChange={(v) => update("p5_most_attention", v)} />
-      </SectionBlock>
-      <SectionBlock label="Understand — Why that priority carries the weight">
-        <LabeledTextarea label="Why does that priority carry the most weight?" value={d.p5_why} onChange={(v) => update("p5_why", v)} />
-      </SectionBlock>
-      <SectionBlock label="Execute — First action">
-        <LabeledInput label="The first action you'll take this week on that priority" value={d.p5_execute} onChange={(v) => update("p5_execute", v)} />
-      </SectionBlock>
-      <SectionBlock label="Measure — How you'll know it's progressing">
-        <LabeledTextarea label="How will you know that priority is actually progressing?" value={d.p5_measure} onChange={(v) => update("p5_measure", v)} />
+      <SectionBlock label="Greatest Attention">
+        <LabeledTextarea label="Which ONE priority deserves your greatest attention during the next 30 days?" value={d.p5_most_attention} onChange={(v) => update("p5_most_attention", v)} />
       </SectionBlock>
     </div>
   );
@@ -533,31 +525,32 @@ function Part5({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part6({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Activity Plan" hint="Name the activities that actually move the needle, when you'll do them, and the outcome each is meant to produce.">
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 6 – Activity Plan
+        </p>
+        <p className="mt-2">Meaningful results require consistent execution.</p>
+        <p className="mt-2">For your highest priority:</p>
+      </GuideNote>
+      <SectionBlock label="What activities must consistently happen?" hint="Who owns each activity? When will these activities be completed?">
         <div className="space-y-2">
           {d.p6_activities.map((r, i) => (
             <div key={i} className="grid grid-cols-1 gap-2 rounded-lg border border-border bg-background/60 p-3 sm:grid-cols-3">
               <Input value={r.activity} onChange={(e) => {
                 const arr = [...d.p6_activities]; arr[i] = { ...r, activity: e.target.value }; update("p6_activities", arr);
-              }} placeholder={`Activity ${i + 1}`} />
+              }} placeholder="Activity" />
+              <Input value={r.owner} onChange={(e) => {
+                const arr = [...d.p6_activities]; arr[i] = { ...r, owner: e.target.value }; update("p6_activities", arr);
+              }} placeholder="Owner" />
               <Input value={r.when} onChange={(e) => {
                 const arr = [...d.p6_activities]; arr[i] = { ...r, when: e.target.value }; update("p6_activities", arr);
-              }} placeholder="When (day / cadence)" />
-              <Input value={r.outcome} onChange={(e) => {
-                const arr = [...d.p6_activities]; arr[i] = { ...r, outcome: e.target.value }; update("p6_activities", arr);
-              }} placeholder="Outcome it produces" />
+              }} placeholder="When completed" />
             </div>
           ))}
         </div>
       </SectionBlock>
-      <SectionBlock label="Identify — Your focus for this week">
-        <LabeledTextarea label="What is your single biggest focus for this week?" value={d.p6_focus_week} onChange={(v) => update("p6_focus_week", v)} />
-      </SectionBlock>
-      <SectionBlock label="Execute — The one activity you will not miss">
-        <LabeledInput label="The one activity you commit to not missing this week" value={d.p6_execute} onChange={(v) => update("p6_execute", v)} />
-      </SectionBlock>
-      <SectionBlock label="Measure — How you'll know the plan is producing results">
-        <LabeledTextarea label="How will you know these activities are producing results?" value={d.p6_measure} onChange={(v) => update("p6_measure", v)} />
+      <SectionBlock label="Review">
+        <LabeledTextarea label="How will progress be reviewed?" value={d.p6_measure} onChange={(v) => update("p6_measure", v)} />
       </SectionBlock>
     </div>
   );
@@ -566,14 +559,16 @@ function Part6({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part7({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 7 – Results Review
+        </p>
+        <p className="mt-2">Review your Success Markers.</p>
+      </GuideNote>
       <SectionBlock label="Results Review">
-        <LabeledTextarea label="What are the real wins from this stretch?" value={d.p7_wins} onChange={(v) => update("p7_wins", v)} />
-        <LabeledTextarea label="Where did you fall short of what you set out to do?" value={d.p7_missed} onChange={(v) => update("p7_missed", v)} />
-        <LabeledTextarea label="What is the biggest learning from these results?" value={d.p7_learning} onChange={(v) => update("p7_learning", v)} />
-        <LabeledTextarea label="Based on this review, what adjustment will you make going forward?" value={d.p7_adjust} onChange={(v) => update("p7_adjust", v)} />
-      </SectionBlock>
-      <SectionBlock label="Review Date" hint="Lock in the date you'll come back and review results again.">
-        <LabeledInput label="Next Results Review date" type="date" value={d.p7_review_date} onChange={(v) => update("p7_review_date", v)} />
+        <LabeledTextarea label="What evidence tells you your activities are producing the desired results?" value={d.p7_wins} onChange={(v) => update("p7_wins", v)} />
+        <LabeledTextarea label="If progress is slower than expected, what will you adjust?" value={d.p7_adjust} onChange={(v) => update("p7_adjust", v)} />
+        <LabeledInput label="Review Date" type="date" value={d.p7_review_date} onChange={(v) => update("p7_review_date", v)} />
       </SectionBlock>
     </div>
   );
@@ -582,23 +577,17 @@ function Part7({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part8({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Evaluate — The biggest lesson from leading for results this cycle">
-        <LabeledTextarea label="What is the biggest lesson leading for results has taught you this cycle?" value={d.p8_lesson} onChange={(v) => update("p8_lesson", v)} />
-      </SectionBlock>
-      <SectionBlock label="Identify — Turn the lesson into Principle 4" hint="State it as a principle you'll lead by, going forward.">
-        <LabeledTextarea label="Principle 4 — the leadership principle you're taking forward" value={d.p8_principle_4} onChange={(v) => update("p8_principle_4", v)} placeholder="I lead by…" />
-      </SectionBlock>
-      <SectionBlock label="Understand — Why this principle matters now">
-        <LabeledTextarea label="Why does this principle matter to how you lead from here?" value={d.p8_understand} onChange={(v) => update("p8_understand", v)} />
-      </SectionBlock>
-      <SectionBlock label="Build a Plan — How you'll live it">
-        <LabeledTextarea label="How will you live this principle in the next cycle?" value={d.p8_build} onChange={(v) => update("p8_build", v)} />
-      </SectionBlock>
-      <SectionBlock label="Execute — First time you'll apply it">
-        <LabeledInput label="Where you'll apply this principle first" value={d.p8_execute} onChange={(v) => update("p8_execute", v)} />
-      </SectionBlock>
-      <SectionBlock label="Measure — How you'll know it's shaping how you lead">
-        <LabeledTextarea label="How will you know this principle is actually shaping how you lead?" value={d.p8_measure} onChange={(v) => update("p8_measure", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 8 – Carry It Forward
+        </p>
+        <p className="mt-2">Every principle builds upon the one before it.</p>
+        <p className="mt-2">Reflect on your experience.</p>
+      </GuideNote>
+      <SectionBlock label="Carry It Forward">
+        <LabeledTextarea label="How has Leading Yourself helped you produce better results?" value={d.p8_lesson} onChange={(v) => update("p8_lesson", v)} />
+        <LabeledTextarea label="How has developing others contributed to these results?" value={d.p8_understand} onChange={(v) => update("p8_understand", v)} />
+        <LabeledTextarea label="What lesson will you intentionally carry into Principle 4: Lead Leaders?" value={d.p8_principle_4} onChange={(v) => update("p8_principle_4", v)} />
       </SectionBlock>
     </div>
   );
@@ -607,17 +596,23 @@ function Part8({ d, update }: { d: SectionData; update: UpdateFn }) {
 function StepCommitment({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>
+          Results are not created by intention alone. They are produced through consistent
+          execution aligned with a clear Success Image and focused Success Drivers.
+        </p>
+      </GuideNote>
       <div className="rounded-2xl border border-[#433993]/30 bg-gradient-to-br from-[#f6f2ff] to-white p-6">
         <p className="text-sm leading-relaxed text-foreground">
-          I commit to leading for real results — clarifying my Success Image, holding my
-          Success Markers, closing the gap between where I am and where I'm leading toward,
-          and keeping the discipline my priorities require.
+          During the next phase of my Leadership Optimization Cycle, I commit to focusing on the
+          activities that matter most, measuring meaningful Success Markers, and consistently
+          closing the gap between my current reality and the future I am building.
         </p>
       </div>
       <div className="flex items-start gap-3">
         <Checkbox id="commit-7" checked={d.committed} onCheckedChange={(v) => update("committed", Boolean(v))} />
         <Label htmlFor="commit-7" className="text-sm leading-relaxed text-foreground">
-          I commit to leading for results.
+          Signature — I commit to leading for results.
         </Label>
       </div>
       <div>
@@ -629,6 +624,14 @@ function StepCommitment({ d, update }: { d: SectionData; update: UpdateFn }) {
 }
 
 // ---------- Shared inputs ----------
+
+function GuideNote({ children }: { children: React.ReactNode }) {
+  return (
+    <section className="rounded-2xl border border-[#433993]/20 bg-[#433993]/[0.04] p-5 text-sm leading-relaxed text-foreground">
+      {children}
+    </section>
+  );
+}
 
 function SectionBlock({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (

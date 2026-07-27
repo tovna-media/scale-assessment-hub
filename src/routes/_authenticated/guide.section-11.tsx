@@ -24,15 +24,22 @@ export const Route = createFileRoute("/_authenticated/guide/section-11")({
 const TOTAL_SECTIONS = 12;
 const TOTAL_STEPS = 8;
 
+const HELPING_CHIPS = [
+  "Lead Yourself",
+  "Lead Others",
+  "Lead for Results",
+  "Think independently",
+  "Solve problems instead of depending on me",
+];
+
 const DRIFT_CHIPS = [
+  "Protecting your FUEL",
+  "Reviewing your Success Image",
+  "Executing your Success Drivers",
   "Measuring your Success Markers",
-  "Daily leadership standards",
-  "1:1 consistency with your team",
-  "Follow-through on commitments",
-  "Time protected for the highest priority",
-  "Feedback loops with the leader you're developing",
-  "Recovery & FUEL habits",
-  "Crucial conversations avoided",
+  "Conducting Crucial Conversations",
+  "Following through on commitments",
+  "Developing people intentionally",
   "Other",
 ];
 
@@ -41,15 +48,12 @@ const STRENGTH_PRINCIPLES = [
   "Lead Others",
   "Lead for Results",
   "Lead Leaders",
-  "Crucial Conversations",
-  "Standards & Discipline",
-  "Success Markers",
-  "Development Rhythm",
 ];
 
 interface SectionData {
   step: number;
   // Part 1 — Protect the Process
+  p1_helping: string[];
   p1_what_protects: string;
   p1_threats: string;
   p1_safeguards: string;
@@ -71,15 +75,18 @@ interface SectionData {
   // Part 5 — Standards Protection
   p5_non_negotiables: string;
   p5_slipping: string;
+  p5_org: string;
   p5_reinforce: string;
   // Part 6 — Sustainability Review
   p6_energizing: string;
   p6_draining: string;
+  p6_transfer: string;
   p6_sustain: string;
   // Part 7 — Leadership Reflection
   p7_strength_principles: string[];
   p7_proud_of: string;
   p7_still_growing: string;
+  p7_lesson: string;
   // Commitment
   committed: boolean;
   commitment_date: string;
@@ -87,6 +94,7 @@ interface SectionData {
 
 const EMPTY: SectionData = {
   step: 1,
+  p1_helping: [],
   p1_what_protects: "",
   p1_threats: "",
   p1_safeguards: "",
@@ -104,13 +112,16 @@ const EMPTY: SectionData = {
   p4_adjustment: "",
   p5_non_negotiables: "",
   p5_slipping: "",
+  p5_org: "",
   p5_reinforce: "",
   p6_energizing: "",
   p6_draining: "",
+  p6_transfer: "",
   p6_sustain: "",
   p7_strength_principles: [],
   p7_proud_of: "",
   p7_still_growing: "",
+  p7_lesson: "",
   committed: false,
   commitment_date: "",
 };
@@ -145,7 +156,7 @@ function SectionElevenPage() {
 
   const partsFilled =
     d.p1_what_protects.trim().length > 0 &&
-    d.p2_leader_name.trim().length > 0 &&
+    d.p2_gap_report_review.trim().length > 0 &&
     d.p3_working.trim().length > 0 &&
     (d.p4_drift.length > 0 || d.p4_drift_other.trim().length > 0) &&
     d.p4_adjustment.trim().length > 0 &&
@@ -288,7 +299,7 @@ function stepTitle(step: number) {
 function stepIsValid(step: number, d: SectionData): boolean {
   switch (step) {
     case 1: return d.p1_what_protects.trim().length > 0;
-    case 2: return d.p2_leader_name.trim().length > 0;
+    case 2: return d.p2_gap_report_review.trim().length > 0;
     case 3: return d.p3_working.trim().length > 0;
     case 4: return (d.p4_drift.length > 0 || d.p4_drift_other.trim().length > 0) && d.p4_adjustment.trim().length > 0;
     case 5: return d.p5_non_negotiables.trim().length > 0;
@@ -304,10 +315,18 @@ type UpdateFn = <K extends keyof SectionData>(k: K, v: SectionData[K]) => void;
 function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Protect the Process" hint="You've built a leadership system. Now protect it from erosion.">
-        <LabeledTextarea label="What in your leadership process most needs protecting right now?" value={d.p1_what_protects} onChange={(v) => update("p1_what_protects", v)} />
-        <LabeledTextarea label="What are the biggest threats to that process — internal or external?" value={d.p1_threats} onChange={(v) => update("p1_threats", v)} />
-        <LabeledTextarea label="What safeguards will you put in place to protect it?" value={d.p1_safeguards} onChange={(v) => update("p1_safeguards", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 1 – Protect the Process
+        </p>
+        <p className="mt-2">Review the leader you selected in Section 10.</p>
+      </GuideNote>
+      <SectionBlock label="Evaluate" hint="Am I intentionally helping this leader learn to:">
+        <Chips label="Select all that apply" options={HELPING_CHIPS} values={d.p1_helping} onChange={(v) => update("p1_helping", v)} />
+      </SectionBlock>
+      <SectionBlock label="Identify">
+        <LabeledTextarea label="Where have I been most intentional?" value={d.p1_what_protects} onChange={(v) => update("p1_what_protects", v)} />
+        <LabeledTextarea label="Where have I become reactive instead of intentional?" value={d.p1_threats} onChange={(v) => update("p1_threats", v)} />
       </SectionBlock>
     </div>
   );
@@ -316,11 +335,18 @@ function Part1({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Development Review" hint="Review the leader you're developing — their GAP Report and Transfer Plan progress.">
-        <LabeledInput label="Leader you're developing" value={d.p2_leader_name} onChange={(v) => update("p2_leader_name", v)} />
-        <LabeledTextarea label="What does their GAP Report show now vs. when you started?" value={d.p2_gap_report_review} onChange={(v) => update("p2_gap_report_review", v)} />
-        <LabeledTextarea label="How much of the Transfer Plan has actually landed?" value={d.p2_transfer_progress} onChange={(v) => update("p2_transfer_progress", v)} />
-        <LabeledTextarea label="What is the next move in their development?" value={d.p2_next_move} onChange={(v) => update("p2_next_move", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 2 – Development Review
+        </p>
+        <p className="mt-2">
+          Review this leader&rsquo;s GAP Report and Leadership Transfer Plan.
+        </p>
+      </GuideNote>
+      <SectionBlock label="Evaluate">
+        <LabeledTextarea label="Which leadership GAPs have improved?" value={d.p2_gap_report_review} onChange={(v) => update("p2_gap_report_review", v)} />
+        <LabeledTextarea label="Which GAPs still deserve focused attention?" value={d.p2_transfer_progress} onChange={(v) => update("p2_transfer_progress", v)} />
+        <LabeledTextarea label="What evidence supports your conclusions?" value={d.p2_next_move} onChange={(v) => update("p2_next_move", v)} />
       </SectionBlock>
     </div>
   );
@@ -329,11 +355,18 @@ function Part2({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part3({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Leadership Transfer Review">
-        <LabeledTextarea label="What in the transfer is working?" value={d.p3_working} onChange={(v) => update("p3_working", v)} />
-        <LabeledTextarea label="What is stalling or being resisted?" value={d.p3_stalling} onChange={(v) => update("p3_stalling", v)} />
-        <LabeledTextarea label="Where does ownership need to shift more onto them?" value={d.p3_ownership_shift} onChange={(v) => update("p3_ownership_shift", v)} />
-        <LabeledTextarea label="What one adjustment will you make to the transfer this cycle?" value={d.p3_adjust} onChange={(v) => update("p3_adjust", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 3 – Leadership Transfer Review
+        </p>
+        <p className="mt-2">
+          Leadership is demonstrated when responsibility can be transferred with confidence.
+        </p>
+      </GuideNote>
+      <SectionBlock label="Evaluate">
+        <LabeledTextarea label="What responsibility has successfully been transferred?" value={d.p3_working} onChange={(v) => update("p3_working", v)} />
+        <LabeledTextarea label="What responsibility still depends too heavily on you?" value={d.p3_stalling} onChange={(v) => update("p3_stalling", v)} />
+        <LabeledTextarea label="What knowledge, experience, or coaching still needs to be provided?" value={d.p3_ownership_shift} onChange={(v) => update("p3_ownership_shift", v)} />
       </SectionBlock>
     </div>
   );
@@ -343,13 +376,23 @@ function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
   const showOther = d.p4_drift.includes("Other");
   return (
     <div className="space-y-6">
-      <SectionBlock label="System Drift Review" hint="Drift is silent. Name it before it becomes normal.">
-        <Chips label="Where do you see drift showing up?" options={DRIFT_CHIPS} values={d.p4_drift} onChange={(v) => update("p4_drift", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 4 – System Drift Review
+        </p>
+        <p className="mt-2">
+          As you have invested in developing another leader, evaluate your own leadership.
+        </p>
+      </GuideNote>
+      <SectionBlock label="Have you drifted in any of the following areas?">
+        <Chips label="Select all that apply" options={DRIFT_CHIPS} values={d.p4_drift} onChange={(v) => update("p4_drift", v)} />
         {showOther && (
-          <LabeledInput label="Other drift — describe it" value={d.p4_drift_other} onChange={(v) => update("p4_drift_other", v)} />
+          <LabeledInput label="Other:" value={d.p4_drift_other} onChange={(v) => update("p4_drift_other", v)} />
         )}
-        <LabeledTextarea label="What's the evidence that drift is happening?" value={d.p4_evidence} onChange={(v) => update("p4_evidence", v)} />
-        <LabeledTextarea label="What single adjustment will you make to reverse the drift this week?" value={d.p4_adjustment} onChange={(v) => update("p4_adjustment", v)} />
+      </SectionBlock>
+      <SectionBlock label="Identify">
+        <LabeledTextarea label="What evidence tells you this drift has occurred?" value={d.p4_evidence} onChange={(v) => update("p4_evidence", v)} />
+        <LabeledTextarea label="What adjustment is required?" value={d.p4_adjustment} onChange={(v) => update("p4_adjustment", v)} />
       </SectionBlock>
     </div>
   );
@@ -358,10 +401,17 @@ function Part4({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part5({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 5 – Standards Protection
+        </p>
+        <p className="mt-2">Strong leadership systems are protected by consistent standards.</p>
+      </GuideNote>
       <SectionBlock label="Standards Protection">
-        <LabeledTextarea label="What are the non-negotiable standards in your leadership right now?" value={d.p5_non_negotiables} onChange={(v) => update("p5_non_negotiables", v)} />
-        <LabeledTextarea label="Which of those standards are slipping — for you or your team?" value={d.p5_slipping} onChange={(v) => update("p5_slipping", v)} />
-        <LabeledTextarea label="How will you reinforce those standards this cycle?" value={d.p5_reinforce} onChange={(v) => update("p5_reinforce", v)} />
+        <LabeledTextarea label="What personal leadership standard must remain non-negotiable?" value={d.p5_non_negotiables} onChange={(v) => update("p5_non_negotiables", v)} />
+        <LabeledTextarea label="What leadership standard must this emerging leader consistently demonstrate?" value={d.p5_slipping} onChange={(v) => update("p5_slipping", v)} />
+        <LabeledTextarea label="What organizational standard must never be compromised?" value={d.p5_org} onChange={(v) => update("p5_org", v)} />
+        <LabeledTextarea label="How will each of these standards be reinforced?" value={d.p5_reinforce} onChange={(v) => update("p5_reinforce", v)} />
       </SectionBlock>
     </div>
   );
@@ -370,10 +420,18 @@ function Part5({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part6({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Sustainability Review" hint="If it isn't sustainable, it isn't real leadership — it's a sprint.">
-        <LabeledTextarea label="What's energizing you as a leader right now?" value={d.p6_energizing} onChange={(v) => update("p6_energizing", v)} />
-        <LabeledTextarea label="What's draining you?" value={d.p6_draining} onChange={(v) => update("p6_draining", v)} />
-        <LabeledTextarea label="What will you change so this leadership rhythm is sustainable for the next 12 months?" value={d.p6_sustain} onChange={(v) => update("p6_sustain", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 6 – Sustainability Review
+        </p>
+        <p className="mt-2">Consider the leadership system you are building.</p>
+        <p className="mt-2">If you continued leading this way for the next twelve months…</p>
+      </GuideNote>
+      <SectionBlock label="Sustainability Review">
+        <LabeledTextarea label="Would your people become more Fully Resourced?" value={d.p6_energizing} onChange={(v) => update("p6_energizing", v)} />
+        <LabeledTextarea label="Would your organization become less dependent on you?" value={d.p6_draining} onChange={(v) => update("p6_draining", v)} />
+        <LabeledTextarea label="Would leadership responsibility continue transferring to others?" value={d.p6_transfer} onChange={(v) => update("p6_transfer", v)} />
+        <LabeledTextarea label="What evidence gives you confidence in your answer?" value={d.p6_sustain} onChange={(v) => update("p6_sustain", v)} />
       </SectionBlock>
     </div>
   );
@@ -382,10 +440,17 @@ function Part6({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part7({ d, update }: { d: SectionData; update: UpdateFn }) {
   return (
     <div className="space-y-6">
-      <SectionBlock label="Leadership Reflection">
-        <Chips label="Which principles are your greatest strength right now?" options={STRENGTH_PRINCIPLES} values={d.p7_strength_principles} onChange={(v) => update("p7_strength_principles", v)} />
-        <LabeledTextarea label="What are you most proud of in your leadership this cycle?" value={d.p7_proud_of} onChange={(v) => update("p7_proud_of", v)} />
-        <LabeledTextarea label="Where are you still growing?" value={d.p7_still_growing} onChange={(v) => update("p7_still_growing", v)} />
+      <GuideNote>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#433993]">
+          Part 7 – Leadership Reflection
+        </p>
+        <p className="mt-2">Throughout this Leadership Optimization Cycle…</p>
+      </GuideNote>
+      <SectionBlock label="What leadership principle has become your greatest strength?">
+        <Chips label="Select all that apply" options={STRENGTH_PRINCIPLES} values={d.p7_strength_principles} onChange={(v) => update("p7_strength_principles", v)} />
+        <LabeledTextarea label="Why?" value={d.p7_proud_of} onChange={(v) => update("p7_proud_of", v)} />
+        <LabeledTextarea label="Which principle still deserves your greatest intentional focus?" value={d.p7_still_growing} onChange={(v) => update("p7_still_growing", v)} />
+        <LabeledTextarea label="What lesson from this Leadership Optimization Cycle has most changed your leadership?" value={d.p7_lesson} onChange={(v) => update("p7_lesson", v)} />
       </SectionBlock>
     </div>
   );
@@ -394,10 +459,17 @@ function Part7({ d, update }: { d: SectionData; update: UpdateFn }) {
 function Part8({ d, update, partsFilled }: { d: SectionData; update: UpdateFn; partsFilled: boolean }) {
   return (
     <div className="space-y-6">
+      <GuideNote>
+        <p>
+          Leadership systems remain healthy when they are intentionally protected, consistently
+          practiced, and faithfully reproduced.
+        </p>
+      </GuideNote>
       <div className="rounded-2xl border border-[#433993]/30 bg-gradient-to-br from-[#f6f2ff] to-white p-6">
         <p className="text-sm leading-relaxed text-foreground">
-          I commit to protecting the leadership system I've built — the process, the standards,
-          the people, and the pace — so what I've built keeps compounding.
+          I commit to protecting the leadership system that has shaped my growth by continuing to
+          model the Four Principles, developing leaders with intentionality, reinforcing high
+          standards, and faithfully transferring leadership to others.
         </p>
       </div>
       {!partsFilled && (
@@ -408,7 +480,7 @@ function Part8({ d, update, partsFilled }: { d: SectionData; update: UpdateFn; p
       <div className="flex items-start gap-3">
         <Checkbox id="commit-11" checked={d.committed} onCheckedChange={(v) => update("committed", Boolean(v))} />
         <Label htmlFor="commit-11" className="text-sm leading-relaxed text-foreground">
-          I commit to protect the process, guard the standards, and lead this system for the long haul.
+          Signature — I commit to protecting the leadership system.
         </Label>
       </div>
       <div>
@@ -420,6 +492,14 @@ function Part8({ d, update, partsFilled }: { d: SectionData; update: UpdateFn; p
 }
 
 // ---------- Shared inputs ----------
+
+function GuideNote({ children }: { children: React.ReactNode }) {
+  return (
+    <section className="rounded-2xl border border-[#433993]/20 bg-[#433993]/[0.04] p-5 text-sm leading-relaxed text-foreground">
+      {children}
+    </section>
+  );
+}
 
 function SectionBlock({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
