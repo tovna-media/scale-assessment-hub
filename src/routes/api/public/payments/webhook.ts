@@ -253,7 +253,8 @@ async function handleFoundingCheckoutCompleted(
   }
 
   // Find an existing account for this email, otherwise create one.
-  let userId = await findUserIdByEmail(admin, email);
+  // Signed-in upgrades carry the userId in session metadata; trust that first.
+  let userId = session.metadata?.userId ?? (await findUserIdByEmail(admin, email));
   let isNewAccount = false;
 
   if (!userId) {
@@ -306,6 +307,10 @@ async function handleFoundingCheckoutCompleted(
   console.log('[webhook] founding access granted', { userId, subscriptionId });
 
   // Send the sign-in link so they land in the app without a signup form.
+  if (!isNewAccount && session.metadata?.founding !== '1') {
+    console.log('[webhook] existing member checkout, no sign-in email needed', { userId });
+    return;
+  }
   try {
     const appUrl = 'https://app.getfullyresourced.com';
     const { data: link, error: linkError } = await admin.auth.admin.generateLink({
