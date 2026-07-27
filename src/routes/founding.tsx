@@ -39,6 +39,32 @@ const INCLUDED = [
   "The book, inside the app",
 ];
 
+// Mobile browsers (and the Lovable preview iframe) block top-frame navigation
+// and popups opened after an async call. Try each strategy in order.
+function redirectToCheckout(url: string) {
+  try {
+    if (window.top && window.top !== window.self) {
+      window.top.location.href = url;
+      return;
+    }
+  } catch {
+    // cross-origin frame — fall through
+  }
+  try {
+    window.location.assign(url);
+    return;
+  } catch {
+    // fall through
+  }
+  const a = document.createElement("a");
+  a.href = url;
+  a.target = "_top";
+  a.rel = "noopener";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
 function FoundingPage() {
   const { session } = useAuth();
   const [busy, setBusy] = useState(false);
