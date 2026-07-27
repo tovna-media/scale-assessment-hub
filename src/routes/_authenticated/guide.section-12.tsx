@@ -559,6 +559,14 @@ function Part8({ d, update, partsFilled, newReportReady }: { d: SectionData; upd
 
 // ---------- Shared inputs ----------
 
+function GuideNote({ children }: { children: React.ReactNode }) {
+  return (
+    <section className="rounded-2xl border border-[#433993]/20 bg-[#433993]/[0.04] p-5 text-sm leading-relaxed text-foreground">
+      {children}
+    </section>
+  );
+}
+
 function SectionBlock({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
     <div className="rounded-2xl border border-border bg-card p-4">
