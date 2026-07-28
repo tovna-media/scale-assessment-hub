@@ -24,6 +24,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { getSubscriptionStatus } from "@/lib/payments.functions";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/scale/Logo";
+import { SiteFooter } from "@/components/scale/SiteFooter";
 import {
   AICoachProvider,
   AICoachLauncher,
@@ -61,7 +62,11 @@ function useDisplayName() {
       .eq("id", user.id)
       .maybeSingle()
       .then(({ data }) => {
-        const p = data as { first_name?: string | null; last_name?: string | null; full_name?: string | null } | null;
+        const p = data as {
+          first_name?: string | null;
+          last_name?: string | null;
+          full_name?: string | null;
+        } | null;
         const composed = [p?.first_name, p?.last_name].filter(Boolean).join(" ").trim();
         setName(composed || p?.full_name || null);
       });
@@ -77,13 +82,7 @@ function initialsOf(name: string | null, email: string | null | undefined) {
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
-export function AppShell({
-  pageTitle,
-  children,
-}: {
-  pageTitle: string;
-  children: ReactNode;
-}) {
+export function AppShell({ pageTitle, children }: { pageTitle: string; children: ReactNode }) {
   return (
     <AICoachProvider>
       <AppShellWithSub pageTitle={pageTitle}>{children}</AppShellWithSub>
@@ -91,13 +90,7 @@ export function AppShell({
   );
 }
 
-function AppShellWithSub({
-  pageTitle,
-  children,
-}: {
-  pageTitle: string;
-  children: ReactNode;
-}) {
+function AppShellWithSub({ pageTitle, children }: { pageTitle: string; children: ReactNode }) {
   const { user } = useAuth();
   const [subscribed, setSubscribed] = useState(false);
   const checkSub = useServerFn(getSubscriptionStatus);
@@ -149,7 +142,9 @@ function AppShellInner({
   const sidebarContent = (
     <div
       className="flex h-full flex-col text-white"
-      style={{ background: "linear-gradient(180deg, var(--fr-sidebar-from) 0%, var(--fr-sidebar-to) 100%)" }}
+      style={{
+        background: "linear-gradient(180deg, var(--fr-sidebar-from) 0%, var(--fr-sidebar-to) 100%)",
+      }}
     >
       <div className="flex items-center gap-3 px-6 py-6">
         <Logo className="h-10 w-10 rounded-xl" />
@@ -252,9 +247,7 @@ function AppShellInner({
   return (
     <div className="min-h-screen">
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 lg:block">
-        {sidebarContent}
-      </aside>
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 lg:block">{sidebarContent}</aside>
 
       {/* Mobile drawer */}
       {mobileOpen && (
@@ -284,9 +277,7 @@ function AppShellInner({
                 onClick={() => setMenuOpen((o) => !o)}
                 className="flex items-center gap-3 rounded-full py-1 pl-1 pr-3 text-sm font-medium text-[var(--fr-ink)] transition hover:bg-[var(--fr-surface)]"
               >
-                <span
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--rl-purple-deep)] text-xs font-semibold text-white"
-                >
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--rl-purple-deep)] text-xs font-semibold text-white">
                   {initials}
                 </span>
                 <span className="hidden sm:inline">{name || user?.email}</span>
@@ -333,6 +324,7 @@ function AppShellInner({
           </div>
         </header>
         <main className="min-h-[calc(100vh-4rem)]">{children}</main>
+        <SiteFooter />
       </div>
       {subscribed && <AICoachLauncher />}
       {subscribed && <AICoachPanel />}

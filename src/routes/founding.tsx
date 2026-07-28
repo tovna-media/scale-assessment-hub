@@ -1,15 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Loader2, Check, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/scale/Logo";
+import { SiteFooter } from "@/components/scale/SiteFooter";
 import { useAuth } from "@/lib/auth-context";
 import { getStripeEnvironment, isStripeConfigured } from "@/lib/stripe";
-import { createFoundingCheckout, FOUNDING_COUPON_ID } from "@/lib/founding.functions";
+import { createFoundingCheckout } from "@/lib/founding.functions";
 import { createSubscriptionCheckout } from "@/lib/payments.functions";
-import { MONTHLY_PRICE_ID } from "@/components/PlansDialog";
 
 const TITLE = "Founding membership — Fully Resourced";
 const DESCRIPTION =
@@ -83,16 +83,15 @@ function FoundingPage() {
       const result = session
         ? await startMemberCheckout({
             data: {
-              priceId: MONTHLY_PRICE_ID,
+              plan: "monthly",
               returnUrl: `${origin}/checkout/activating?session_id={CHECKOUT_SESSION_ID}`,
               environment,
               acceptedTerms: true,
-              couponId: FOUNDING_COUPON_ID,
+              founding: true,
             },
           })
         : await startPublicCheckout({
             data: {
-              priceId: MONTHLY_PRICE_ID,
               returnUrl: `${origin}/founding/success?session_id={CHECKOUT_SESSION_ID}`,
               cancelUrl: `${origin}/founding`,
               environment,
@@ -131,8 +130,8 @@ function FoundingPage() {
             Everything you need to close your leadership gaps, in one app.
           </p>
           <p className="mx-auto mt-4 max-w-md rounded-xl bg-rl-purple/5 px-4 py-3 text-sm font-medium text-rl-purple">
-            No coupon code needed. Your 20% founding discount is applied
-            automatically when you check out.
+            No coupon code needed. Your 20% founding discount is applied automatically when you
+            check out.
           </p>
         </header>
 
@@ -183,8 +182,24 @@ function FoundingPage() {
             <ShieldCheck className="h-3.5 w-3.5" />
             Secure checkout through Stripe.
           </p>
+
+          <p className="mt-4 text-center text-xs leading-relaxed text-muted-foreground">
+            Your first month is $77.60 (20% off), then $97/month. Your subscription renews
+            automatically each month until you cancel. You can cancel anytime from your billing page
+            in the app. By continuing you agree to our{" "}
+            <Link to="/terms" className="underline">
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link to="/privacy" className="underline">
+              Privacy Policy
+            </Link>
+            .
+          </p>
         </section>
       </div>
+
+      <SiteFooter />
     </main>
   );
 }

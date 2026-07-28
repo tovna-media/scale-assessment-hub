@@ -5,10 +5,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { createSubscriptionCheckout, createBillingPortalSession } from "@/lib/payments.functions";
 import { getStripeEnvironment, isStripeConfigured } from "@/lib/stripe";
 import { Button } from "@/components/ui/button";
+import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
-
-export const MONTHLY_PRICE_ID = "price_1TtwYbKi9kEwbRKQKPBRgXw7";
-export const ANNUAL_PRICE_ID = "price_1TviepKi9kEwbRKQicUWirMk";
 
 type PlansDialogContextValue = {
   open: (opts?: { source?: string }) => void;
@@ -61,11 +59,10 @@ function PlansDialog({ subscribed, onClose }: { subscribed: boolean; onClose: ()
     setBusy("upgrade");
     setCheckoutUrl(null);
     try {
-      const priceId = billing === "annual" ? ANNUAL_PRICE_ID : MONTHLY_PRICE_ID;
       const returnUrl = `${window.location.origin}/checkout/activating?session_id={CHECKOUT_SESSION_ID}`;
       const result = await startCheckout({
         data: {
-          priceId,
+          plan: billing,
           returnUrl,
           environment: getStripeEnvironment(),
           acceptedTerms: true,
@@ -207,9 +204,7 @@ function PlansDialog({ subscribed, onClose }: { subscribed: boolean; onClose: ()
             price={paidPrice}
             priceSuffix="/mo"
             priceBadge={billing === "annual" ? "Save 15%" : undefined}
-            priceSubtext={
-              billing === "annual" ? "billed annually at $984" : "billed monthly"
-            }
+            priceSubtext={billing === "annual" ? "billed annually at $984" : "billed monthly"}
             features={[
               "Everything in Free",
               "Unlimited assessments and Gap Reports",
@@ -248,6 +243,23 @@ function PlansDialog({ subscribed, onClose }: { subscribed: boolean; onClose: ()
             }
           />
         </div>
+
+        {!subscribed && (
+          <p className="mx-auto mt-5 max-w-2xl text-center text-xs leading-relaxed text-[var(--fr-muted-ink)]">
+            {billing === "annual"
+              ? "The Fully Resourced plan is $984/year (works out to $82/month). Your subscription renews automatically every year until you cancel."
+              : "The Fully Resourced plan is $97/month. Your subscription renews automatically every month until you cancel."}{" "}
+            You can cancel anytime from Manage billing. By upgrading you agree to our{" "}
+            <Link to="/terms" className="underline">
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link to="/privacy" className="underline">
+              Privacy Policy
+            </Link>
+            .
+          </p>
+        )}
       </div>
     </div>
   );
@@ -319,18 +331,14 @@ function PlanCard({
       <p className="mt-1 text-sm text-[var(--fr-muted-ink)]">{tagline}</p>
       <div className="mt-4 flex items-baseline gap-1">
         <span className="text-4xl font-semibold text-[var(--fr-ink)]">{price}</span>
-        {priceSuffix && (
-          <span className="text-base text-[var(--fr-muted-ink)]">{priceSuffix}</span>
-        )}
+        {priceSuffix && <span className="text-base text-[var(--fr-muted-ink)]">{priceSuffix}</span>}
         {priceBadge && (
           <span className="ml-2 rounded-full bg-[#5B2D8E]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#5B2D8E]">
             {priceBadge}
           </span>
         )}
       </div>
-      {priceSubtext && (
-        <p className="mt-1 text-xs text-[var(--fr-muted-ink)]">{priceSubtext}</p>
-      )}
+      {priceSubtext && <p className="mt-1 text-xs text-[var(--fr-muted-ink)]">{priceSubtext}</p>}
       <ul className="mt-5 flex-1 space-y-2.5">
         {features.map((f) => (
           <li key={f} className="flex items-start gap-2 text-sm text-[var(--fr-ink)]">
