@@ -125,7 +125,7 @@ function FoundingPage() {
             Founding Member Offer
           </p>
           <h1 className="mt-3 text-3xl font-bold leading-tight text-rl-purple-deep sm:text-4xl">
-            Unlock the full Fully Resourced app
+            Unlock the Full Fully Resourced App
           </h1>
           <p className="mt-3 text-base text-muted-foreground">
             Everything you need to close your leadership gaps, in one app.
