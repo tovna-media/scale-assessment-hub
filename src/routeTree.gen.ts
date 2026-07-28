@@ -24,6 +24,7 @@ import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe
 import { Route as CoachLoginRouteImport } from './routes/coach.login'
 import { Route as CoachSettingsRouteImport } from './routes/_coach/settings'
 import { Route as CoachCoachRouteImport } from './routes/_coach/coach'
+import { Route as AuthenticatedSecurityRouteImport } from './routes/_authenticated/security'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedPerformanceRouteImport } from './routes/_authenticated/performance'
 import { Route as AuthenticatedGuideRouteImport } from './routes/_authenticated/guide'
@@ -128,6 +129,11 @@ const CoachCoachRoute = CoachCoachRouteImport.update({
   id: '/coach',
   path: '/coach',
   getParentRoute: () => CoachRoute,
+} as any)
+const AuthenticatedSecurityRoute = AuthenticatedSecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
@@ -322,6 +328,7 @@ export interface FileRoutesByFullPath {
   '/guide': typeof AuthenticatedGuideRouteWithChildren
   '/performance': typeof AuthenticatedPerformanceRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/security': typeof AuthenticatedSecurityRoute
   '/coach': typeof CoachCoachRouteWithChildren
   '/settings': typeof CoachSettingsRoute
   '/coach/login': typeof CoachLoginRoute
@@ -368,6 +375,7 @@ export interface FileRoutesByTo {
   '/guide': typeof AuthenticatedGuideRouteWithChildren
   '/performance': typeof AuthenticatedPerformanceRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/security': typeof AuthenticatedSecurityRoute
   '/coach': typeof CoachCoachRouteWithChildren
   '/settings': typeof CoachSettingsRoute
   '/coach/login': typeof CoachLoginRoute
@@ -417,6 +425,7 @@ export interface FileRoutesById {
   '/_authenticated/guide': typeof AuthenticatedGuideRouteWithChildren
   '/_authenticated/performance': typeof AuthenticatedPerformanceRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/security': typeof AuthenticatedSecurityRoute
   '/_coach/coach': typeof CoachCoachRouteWithChildren
   '/_coach/settings': typeof CoachSettingsRoute
   '/coach/login': typeof CoachLoginRoute
@@ -465,6 +474,7 @@ export interface FileRouteTypes {
     | '/guide'
     | '/performance'
     | '/profile'
+    | '/security'
     | '/coach'
     | '/settings'
     | '/coach/login'
@@ -511,6 +521,7 @@ export interface FileRouteTypes {
     | '/guide'
     | '/performance'
     | '/profile'
+    | '/security'
     | '/coach'
     | '/settings'
     | '/coach/login'
@@ -559,6 +570,7 @@ export interface FileRouteTypes {
     | '/_authenticated/guide'
     | '/_authenticated/performance'
     | '/_authenticated/profile'
+    | '/_authenticated/security'
     | '/_coach/coach'
     | '/_coach/settings'
     | '/coach/login'
@@ -722,6 +734,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/coach'
       preLoaderRoute: typeof CoachCoachRouteImport
       parentRoute: typeof CoachRoute
+    }
+    '/_authenticated/security': {
+      id: '/_authenticated/security'
+      path: '/security'
+      fullPath: '/security'
+      preLoaderRoute: typeof AuthenticatedSecurityRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/profile': {
       id: '/_authenticated/profile'
@@ -982,6 +1001,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedGuideRoute: typeof AuthenticatedGuideRouteWithChildren
   AuthenticatedPerformanceRoute: typeof AuthenticatedPerformanceRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedSecurityRoute: typeof AuthenticatedSecurityRoute
   AuthenticatedAssessmentTypeRoute: typeof AuthenticatedAssessmentTypeRoute
   AuthenticatedCheckoutActivatingRoute: typeof AuthenticatedCheckoutActivatingRoute
   AuthenticatedPrintAllRoute: typeof AuthenticatedPrintAllRoute
@@ -995,6 +1015,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedGuideRoute: AuthenticatedGuideRouteWithChildren,
   AuthenticatedPerformanceRoute: AuthenticatedPerformanceRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedSecurityRoute: AuthenticatedSecurityRoute,
   AuthenticatedAssessmentTypeRoute: AuthenticatedAssessmentTypeRoute,
   AuthenticatedCheckoutActivatingRoute: AuthenticatedCheckoutActivatingRoute,
   AuthenticatedPrintAllRoute: AuthenticatedPrintAllRoute,
