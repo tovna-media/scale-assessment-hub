@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Loader2, Check, ShieldCheck } from "lucide-react";
+import { Check, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/scale/Logo";
 import { SiteFooter } from "@/components/scale/SiteFooter";
@@ -10,6 +10,7 @@ import { useAuth } from "@/lib/auth-context";
 import { getStripeEnvironment, isStripeConfigured } from "@/lib/stripe";
 import { createFoundingCheckout } from "@/lib/founding.functions";
 import { createSubscriptionCheckout } from "@/lib/payments.functions";
+import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
 
 const TITLE = "Founding membership — Fully Resourced";
 const DESCRIPTION =
@@ -39,75 +40,47 @@ const INCLUDED = [
   "The book, inside the app",
 ];
 
-// Mobile browsers (and the Lovable preview iframe) block top-frame navigation
-// and popups opened after an async call. Try each strategy in order.
-function redirectToCheckout(url: string) {
-  try {
-    if (window.top && window.top !== window.self) {
-      window.top.location.href = url;
-      return;
-    }
-  } catch {
-    // cross-origin frame — fall through
-  }
-  try {
-    window.location.assign(url);
-    return;
-  } catch {
-    // fall through
-  }
-  const a = document.createElement("a");
-  a.href = url;
-  a.target = "_top";
-  a.rel = "noopener";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-}
-
 function FoundingPage() {
   const { session } = useAuth();
-  const [busy, setBusy] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
   const startPublicCheckout = useServerFn(createFoundingCheckout);
   const startMemberCheckout = useServerFn(createSubscriptionCheckout);
+  const sessionRef = useRef(session);
+  sessionRef.current = session;
 
-  const handleStart = useCallback(async () => {
+  const handleStart = useCallback(() => {
     if (!isStripeConfigured()) {
       toast.error("Payments are not configured yet.");
       return;
     }
-    setBusy(true);
-    try {
-      const origin = window.location.origin;
-      const environment = getStripeEnvironment();
-      const result = session
-        ? await startMemberCheckout({
-            data: {
-              plan: "monthly",
-              returnUrl: `${origin}/checkout/activating?session_id={CHECKOUT_SESSION_ID}`,
-              environment,
-              acceptedTerms: true,
-              founding: true,
-            },
-          })
-        : await startPublicCheckout({
-            data: {
-              returnUrl: `${origin}/founding/success?session_id={CHECKOUT_SESSION_ID}`,
-              cancelUrl: `${origin}/founding`,
-              environment,
-            },
-          });
+    setShowCheckout(true);
+  }, []);
 
-      if ("error" in result && result.error) throw new Error(result.error);
-      const url = "url" in result ? result.url : "";
-      if (!url) throw new Error("No checkout URL returned");
-      redirectToCheckout(url);
-    } catch (e) {
-      console.error("[founding] checkout failed", e);
-      toast.error(e instanceof Error ? e.message : "Could not start checkout.");
-      setBusy(false);
-    }
-  }, [session, startMemberCheckout, startPublicCheckout]);
+  // Stable identity: remounting the provider breaks Stripe's embedded form.
+  const fetchClientSecret = useCallback(async () => {
+    const origin = window.location.origin;
+    const environment = getStripeEnvironment();
+    const result = sessionRef.current
+      ? await startMemberCheckout({
+          data: {
+            plan: "monthly",
+            returnUrl: `${origin}/checkout/activating?session_id={CHECKOUT_SESSION_ID}`,
+            environment,
+            acceptedTerms: true,
+            founding: true,
+          },
+        })
+      : await startPublicCheckout({
+          data: {
+            returnUrl: `${origin}/founding/success?session_id={CHECKOUT_SESSION_ID}`,
+            environment,
+          },
+        });
+    if ("error" in result && result.error) throw new Error(result.error);
+    const clientSecret = "clientSecret" in result ? result.clientSecret : "";
+    if (!clientSecret) throw new Error("No checkout session returned");
+    return clientSecret;
+  }, [startMemberCheckout, startPublicCheckout]);
 
   return (
     <main
@@ -162,21 +135,15 @@ function FoundingPage() {
             First month $77.60, then $97/month. Cancel anytime.
           </p>
 
-          <Button
-            size="lg"
-            className="mt-5 h-12 w-full text-base"
-            onClick={handleStart}
-            disabled={busy}
-          >
-            {busy ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Opening secure checkout...
-              </>
-            ) : (
-              "Start my founding membership"
-            )}
-          </Button>
+          {showCheckout ? (
+            <div className="mt-5">
+              <StripeEmbeddedCheckout fetchClientSecret={fetchClientSecret} />
+            </div>
+          ) : (
+            <Button size="lg" className="mt-5 h-12 w-full text-base" onClick={handleStart}>
+              Start my founding membership
+            </Button>
+          )}
 
           <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
             <ShieldCheck className="h-3.5 w-3.5" />

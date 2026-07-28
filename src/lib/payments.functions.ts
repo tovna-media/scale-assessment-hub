@@ -4,7 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const StripeEnvSchema = z.enum(["sandbox", "live"]);
 
-type CheckoutResult = { url: string } | { error: string };
+type CheckoutResult = { clientSecret: string } | { error: string };
 type PortalResult = { url: string } | { error: string };
 type StatusResult = {
   active: boolean;
@@ -53,7 +53,7 @@ export const createSubscriptionCheckout = createServerFn({ method: "POST" })
         environment: StripeEnvSchema,
         acceptedTerms: z.boolean(),
         // Founding-member upgrade path. The coupon itself is applied server-side
-        // from env — the client only signals which flow it is.
+        // — the client only signals which flow it is.
         founding: z.boolean().optional(),
       })
       .parse(input),
@@ -62,12 +62,12 @@ export const createSubscriptionCheckout = createServerFn({ method: "POST" })
     try {
       if (!data.acceptedTerms) return { error: "You must accept the Terms and Privacy Policy." };
 
-      const { createStripeClient, getStripeErrorMessage, getPriceId, getFoundingCoupon } =
+      const { createStripeClient, resolvePrice, getFoundingCoupon } =
         await import("@/lib/stripe.server");
       const stripe = createStripeClient(data.environment);
 
-      const priceId = getPriceId(data.plan);
-      const coupon = data.founding ? getFoundingCoupon() : null;
+      const price = await resolvePrice(stripe, data.plan);
+      const coupon = data.founding ? await getFoundingCoupon(stripe) : null;
 
       const { userId, supabase } = context;
       const {
@@ -76,24 +76,17 @@ export const createSubscriptionCheckout = createServerFn({ method: "POST" })
       const email = user?.email ?? undefined;
 
       const customerId = await resolveOrCreateCustomer(stripe, { email, userId });
+      const acceptedTermsAt = new Date().toISOString();
 
       const session = await stripe.checkout.sessions.create({
-        line_items: [{ price: priceId, quantity: 1 }],
+        line_items: [{ price: price.id, quantity: 1 }],
         mode: "subscription",
+        ui_mode: "embedded_page",
+        return_url: data.returnUrl,
         ...(coupon ? { discounts: [{ coupon }] } : {}),
-        success_url: data.returnUrl,
-        cancel_url: `${new URL(data.returnUrl).origin}/dashboard`,
         customer: customerId,
-        metadata: {
-          userId,
-          accepted_terms_at: new Date().toISOString(),
-        },
-        subscription_data: {
-          metadata: {
-            userId,
-            accepted_terms_at: new Date().toISOString(),
-          },
-        },
+        metadata: { userId, accepted_terms_at: acceptedTermsAt },
+        subscription_data: { metadata: { userId, accepted_terms_at: acceptedTermsAt } },
       });
 
       // Log that the user accepted terms and initiated checkout
@@ -101,18 +94,18 @@ export const createSubscriptionCheckout = createServerFn({ method: "POST" })
         await supabase.from("funnel_events").insert({
           user_id: userId,
           event_type: "accepted_terms",
-          metadata: { price_id: priceId, session_id: session.id },
+          metadata: { price_id: price.id, session_id: session.id },
         } as never);
         await supabase.from("funnel_events").insert({
           user_id: userId,
           event_type: "started_checkout",
-          metadata: { price_id: priceId, session_id: session.id },
+          metadata: { price_id: price.id, session_id: session.id },
         } as never);
       } catch (e) {
         console.error("[funnel] checkout events insert failed", e);
       }
 
-      return { url: session.url ?? "" };
+      return { clientSecret: session.client_secret ?? "" };
     } catch (error) {
       const { getStripeErrorMessage } = await import("@/lib/stripe.server");
       return { error: getStripeErrorMessage(error) };

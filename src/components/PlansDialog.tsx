@@ -1,8 +1,17 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { Check, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { createSubscriptionCheckout, createBillingPortalSession } from "@/lib/payments.functions";
+import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
 import { getStripeEnvironment, isStripeConfigured } from "@/lib/stripe";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
@@ -47,48 +56,37 @@ export function PlansDialogProvider({
 function PlansDialog({ subscribed, onClose }: { subscribed: boolean; onClose: () => void }) {
   const [billing, setBilling] = useState<"monthly" | "annual">("annual");
   const [busy, setBusy] = useState<"upgrade" | "downgrade" | null>(null);
-  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
+  const [showCheckout, setShowCheckout] = useState(false);
+  // The plan is read at session-creation time, not render time, so the
+  // fetchClientSecret callback can stay referentially stable.
+  const billingRef = useRef(billing);
+  billingRef.current = billing;
   const startCheckout = useServerFn(createSubscriptionCheckout);
   const openPortal = useServerFn(createBillingPortalSession);
 
-  const handleUpgrade = useCallback(async () => {
+  const handleUpgrade = useCallback(() => {
     if (!isStripeConfigured()) {
       toast.error("Payments are not configured yet.");
       return;
     }
-    setBusy("upgrade");
-    setCheckoutUrl(null);
-    try {
-      const returnUrl = `${window.location.origin}/checkout/activating?session_id={CHECKOUT_SESSION_ID}`;
-      const result = await startCheckout({
-        data: {
-          plan: billing,
-          returnUrl,
-          environment: getStripeEnvironment(),
-          acceptedTerms: true,
-        },
-      });
-      if ("error" in result) throw new Error(result.error);
-      if (!result.url) throw new Error("No checkout URL returned");
-      // Navigate the top-level window when possible so mobile browsers (and
-      // embedded preview iframes) reliably reach Stripe. Fall back to the
-      // current window, then to a visible link if the browser blocks it.
-      try {
-        if (window.top && window.top !== window.self) {
-          window.top.location.href = result.url;
-        } else {
-          window.location.href = result.url;
-        }
-        onClose();
-      } catch {
-        setCheckoutUrl(result.url);
-        setBusy(null);
-      }
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not open checkout.");
-      setBusy(null);
-    }
-  }, [billing, onClose, startCheckout]);
+    setShowCheckout(true);
+  }, []);
+
+  // Stable across renders so EmbeddedCheckoutProvider is never remounted.
+  const fetchClientSecret = useCallback(async () => {
+    const returnUrl = `${window.location.origin}/checkout/activating?session_id={CHECKOUT_SESSION_ID}`;
+    const result = await startCheckout({
+      data: {
+        plan: billingRef.current,
+        returnUrl,
+        environment: getStripeEnvironment(),
+        acceptedTerms: true,
+      },
+    });
+    if ("error" in result) throw new Error(result.error);
+    if (!result.clientSecret) throw new Error("No checkout session returned");
+    return result.clientSecret;
+  }, [startCheckout]);
 
   const handleDowngrade = useCallback(async () => {
     if (!isStripeConfigured()) {
@@ -145,120 +143,121 @@ function PlansDialog({ subscribed, onClose }: { subscribed: boolean; onClose: ()
           <X className="h-5 w-5" />
         </button>
 
-        {/* Billing toggle */}
-        <div className="flex justify-center">
-          <div className="inline-flex rounded-full border border-[var(--fr-hairline)] bg-[var(--fr-surface)] p-1">
-            <ToggleButton active={billing === "monthly"} onClick={() => setBilling("monthly")}>
-              Monthly
-            </ToggleButton>
-            <ToggleButton active={billing === "annual"} onClick={() => setBilling("annual")}>
-              Annual
-              <span className="ml-2 rounded-full bg-[#5B2D8E] px-2 py-0.5 text-[10px] font-semibold text-white">
-                Save 15%
-              </span>
-            </ToggleButton>
+        {showCheckout ? (
+          <div className="pt-2">
+            <p className="mb-4 text-center text-sm text-[var(--fr-muted-ink)]">
+              {billing === "annual"
+                ? "Fully Resourced — $984/year (works out to $82/month)"
+                : "Fully Resourced — $97/month"}
+            </p>
+            <StripeEmbeddedCheckout fetchClientSecret={fetchClientSecret} />
           </div>
-        </div>
+        ) : (
+          <>
+            {/* Billing toggle */}
+            <div className="flex justify-center">
+              <div className="inline-flex rounded-full border border-[var(--fr-hairline)] bg-[var(--fr-surface)] p-1">
+                <ToggleButton active={billing === "monthly"} onClick={() => setBilling("monthly")}>
+                  Monthly
+                </ToggleButton>
+                <ToggleButton active={billing === "annual"} onClick={() => setBilling("annual")}>
+                  Annual
+                  <span className="ml-2 rounded-full bg-[#5B2D8E] px-2 py-0.5 text-[10px] font-semibold text-white">
+                    Save 15%
+                  </span>
+                </ToggleButton>
+              </div>
+            </div>
 
-        {/* Plans grid */}
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          {/* Free plan */}
-          <PlanCard
-            eyebrow="Free"
-            tagline="For getting started."
-            price="Free"
-            features={[
-              "Your three assessments, one time",
-              "One personalized Gap Report",
-              "Your dashboard for that one cycle",
-            ]}
-            action={
-              subscribed ? (
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={handleDowngrade}
-                  disabled={busy !== null}
-                >
-                  {busy === "downgrade" ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Opening…
-                    </>
+            {/* Plans grid */}
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              {/* Free plan */}
+              <PlanCard
+                eyebrow="Free"
+                tagline="For getting started."
+                price="Free"
+                features={[
+                  "Your three assessments, one time",
+                  "One personalized Gap Report",
+                  "Your dashboard for that one cycle",
+                ]}
+                action={
+                  subscribed ? (
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={handleDowngrade}
+                      disabled={busy !== null}
+                    >
+                      {busy === "downgrade" ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Opening…
+                        </>
+                      ) : (
+                        "Downgrade"
+                      )}
+                    </Button>
                   ) : (
-                    "Downgrade"
-                  )}
-                </Button>
-              ) : (
-                <Button variant="outline" className="w-full" disabled>
-                  Current plan
-                </Button>
-              )
-            }
-          />
+                    <Button variant="outline" className="w-full" disabled>
+                      Current plan
+                    </Button>
+                  )
+                }
+              />
 
-          {/* Paid plan */}
-          <PlanCard
-            highlighted
-            eyebrow="Fully Resourced"
-            tagline="For leaders who want the full system."
-            price={paidPrice}
-            priceSuffix="/mo"
-            priceBadge={billing === "annual" ? "Save 15%" : undefined}
-            priceSubtext={billing === "annual" ? "billed annually at $984" : "billed monthly"}
-            features={[
-              "Everything in Free",
-              "Unlimited assessments and Gap Reports",
-              "Your full 90-day leadership cycle, a new section every week",
-              "The Fully Resourced AI Coach, on demand",
-              "The Fully Resourced digital book",
-              "A Leadership Performance Dashboard that tracks your growth over time",
-              "Print or save your completed work each week",
-            ]}
-            action={
-              subscribed ? (
-                <Button className="w-full" disabled>
-                  Current plan
-                </Button>
-              ) : checkoutUrl ? (
-                <Button className="w-full bg-[#5B2D8E] text-white hover:bg-[#5B2D8E]/90" asChild>
-                  <a href={checkoutUrl} target="_blank" rel="noopener noreferrer">
-                    Continue to secure checkout
-                  </a>
-                </Button>
-              ) : (
-                <Button
-                  className="w-full bg-[#5B2D8E] text-white hover:bg-[#5B2D8E]/90"
-                  onClick={handleUpgrade}
-                  disabled={busy !== null}
-                >
-                  {busy === "upgrade" ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Opening checkout…
-                    </>
+              {/* Paid plan */}
+              <PlanCard
+                highlighted
+                eyebrow="Fully Resourced"
+                tagline="For leaders who want the full system."
+                price={paidPrice}
+                priceSuffix="/mo"
+                priceBadge={billing === "annual" ? "Save 15%" : undefined}
+                priceSubtext={billing === "annual" ? "billed annually at $984" : "billed monthly"}
+                features={[
+                  "Everything in Free",
+                  "Unlimited assessments and Gap Reports",
+                  "Your full 90-day leadership cycle, a new section every week",
+                  "The Fully Resourced AI Coach, on demand",
+                  "The Fully Resourced digital book",
+                  "A Leadership Performance Dashboard that tracks your growth over time",
+                  "Print or save your completed work each week",
+                ]}
+                action={
+                  subscribed ? (
+                    <Button className="w-full" disabled>
+                      Current plan
+                    </Button>
                   ) : (
-                    "Upgrade"
-                  )}
-                </Button>
-              )
-            }
-          />
-        </div>
+                    <Button
+                      className="w-full bg-[#5B2D8E] text-white hover:bg-[#5B2D8E]/90"
+                      onClick={handleUpgrade}
+                      disabled={busy !== null}
+                    >
+                      Upgrade
+                    </Button>
+                  )
+                }
+              />
+            </div>
 
-        {!subscribed && (
-          <p className="mx-auto mt-5 max-w-2xl text-center text-xs leading-relaxed text-[var(--fr-muted-ink)]">
-            {billing === "annual"
-              ? "The Fully Resourced plan is $984/year (works out to $82/month). Your subscription renews automatically every year until you cancel."
-              : "The Fully Resourced plan is $97/month. Your subscription renews automatically every month until you cancel."}{" "}
-            You can cancel anytime from Manage billing. By upgrading you agree to our{" "}
-            <Link to="/terms" className="underline">
-              Terms of Service
-            </Link>{" "}
-            and{" "}
-            <Link to="/privacy" className="underline">
-              Privacy Policy
-            </Link>
-            .
-          </p>
+            {!subscribed && (
+              <p className="mx-auto mt-5 max-w-2xl text-center text-xs leading-relaxed text-[var(--fr-muted-ink)]">
+                {billing === "annual"
+                  ? "The Fully Resourced plan is $984/year (works out to $82/month). Your subscription renews automatically every year until you cancel."
+                  : "The Fully Resourced plan is $97/month. Your subscription renews automatically every month until you cancel."}{" "}
+                You can cancel anytime from Manage billing. By upgrading you agree to our{" "}
+                <Link to="/terms" className="underline">
+                  Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link to="/privacy" className="underline">
+                  Privacy Policy
+                </Link>
+                .
+              </p>
+            )}
+          </>
         )}
       </div>
     </div>

@@ -1,4 +1,4 @@
-const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string | undefined;
+const publishableKey = import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN as string | undefined;
 
 export function PaymentTestModeBanner() {
   if (!publishableKey) {
@@ -8,7 +8,7 @@ export function PaymentTestModeBanner() {
       </div>
     );
   }
-  if (publishableKey.startsWith('pk_test_')) {
+  if (publishableKey.startsWith("pk_test_")) {
     return (
       <div className="w-full border-b border-orange-300 bg-orange-100 px-4 py-2 text-center text-sm text-orange-800">
         Test mode — no real payment will be charged. Use card 4242 4242 4242 4242.
