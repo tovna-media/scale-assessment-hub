@@ -1,5 +1,5 @@
-import { loadStripe, type Stripe } from '@stripe/stripe-js';
-import { paymentsEnvironmentFromToken, type StripeEnv } from '@/lib/stripe-env';
+import { loadStripe, type Stripe } from "@stripe/stripe-js";
+import { paymentsEnvironmentFromToken, type StripeEnv } from "@/lib/stripe-env";
 
 const clientToken = import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN as string | undefined;
 

@@ -153,111 +153,111 @@ function PlansDialog({ subscribed, onClose }: { subscribed: boolean; onClose: ()
             <StripeEmbeddedCheckout fetchClientSecret={fetchClientSecret} />
           </div>
         ) : (
-        <>
-        {/* Billing toggle */}
-        <div className="flex justify-center">
-          <div className="inline-flex rounded-full border border-[var(--fr-hairline)] bg-[var(--fr-surface)] p-1">
-            <ToggleButton active={billing === "monthly"} onClick={() => setBilling("monthly")}>
-              Monthly
-            </ToggleButton>
-            <ToggleButton active={billing === "annual"} onClick={() => setBilling("annual")}>
-              Annual
-              <span className="ml-2 rounded-full bg-[#5B2D8E] px-2 py-0.5 text-[10px] font-semibold text-white">
-                Save 15%
-              </span>
-            </ToggleButton>
-          </div>
-        </div>
+          <>
+            {/* Billing toggle */}
+            <div className="flex justify-center">
+              <div className="inline-flex rounded-full border border-[var(--fr-hairline)] bg-[var(--fr-surface)] p-1">
+                <ToggleButton active={billing === "monthly"} onClick={() => setBilling("monthly")}>
+                  Monthly
+                </ToggleButton>
+                <ToggleButton active={billing === "annual"} onClick={() => setBilling("annual")}>
+                  Annual
+                  <span className="ml-2 rounded-full bg-[#5B2D8E] px-2 py-0.5 text-[10px] font-semibold text-white">
+                    Save 15%
+                  </span>
+                </ToggleButton>
+              </div>
+            </div>
 
-        {/* Plans grid */}
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          {/* Free plan */}
-          <PlanCard
-            eyebrow="Free"
-            tagline="For getting started."
-            price="Free"
-            features={[
-              "Your three assessments, one time",
-              "One personalized Gap Report",
-              "Your dashboard for that one cycle",
-            ]}
-            action={
-              subscribed ? (
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={handleDowngrade}
-                  disabled={busy !== null}
-                >
-                  {busy === "downgrade" ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Opening…
-                    </>
+            {/* Plans grid */}
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              {/* Free plan */}
+              <PlanCard
+                eyebrow="Free"
+                tagline="For getting started."
+                price="Free"
+                features={[
+                  "Your three assessments, one time",
+                  "One personalized Gap Report",
+                  "Your dashboard for that one cycle",
+                ]}
+                action={
+                  subscribed ? (
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={handleDowngrade}
+                      disabled={busy !== null}
+                    >
+                      {busy === "downgrade" ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Opening…
+                        </>
+                      ) : (
+                        "Downgrade"
+                      )}
+                    </Button>
                   ) : (
-                    "Downgrade"
-                  )}
-                </Button>
-              ) : (
-                <Button variant="outline" className="w-full" disabled>
-                  Current plan
-                </Button>
-              )
-            }
-          />
+                    <Button variant="outline" className="w-full" disabled>
+                      Current plan
+                    </Button>
+                  )
+                }
+              />
 
-          {/* Paid plan */}
-          <PlanCard
-            highlighted
-            eyebrow="Fully Resourced"
-            tagline="For leaders who want the full system."
-            price={paidPrice}
-            priceSuffix="/mo"
-            priceBadge={billing === "annual" ? "Save 15%" : undefined}
-            priceSubtext={billing === "annual" ? "billed annually at $984" : "billed monthly"}
-            features={[
-              "Everything in Free",
-              "Unlimited assessments and Gap Reports",
-              "Your full 90-day leadership cycle, a new section every week",
-              "The Fully Resourced AI Coach, on demand",
-              "The Fully Resourced digital book",
-              "A Leadership Performance Dashboard that tracks your growth over time",
-              "Print or save your completed work each week",
-            ]}
-            action={
-              subscribed ? (
-                <Button className="w-full" disabled>
-                  Current plan
-                </Button>
-              ) : (
-                <Button
-                  className="w-full bg-[#5B2D8E] text-white hover:bg-[#5B2D8E]/90"
-                  onClick={handleUpgrade}
-                  disabled={busy !== null}
-                >
-                  Upgrade
-                </Button>
-              )
-            }
-          />
-        </div>
+              {/* Paid plan */}
+              <PlanCard
+                highlighted
+                eyebrow="Fully Resourced"
+                tagline="For leaders who want the full system."
+                price={paidPrice}
+                priceSuffix="/mo"
+                priceBadge={billing === "annual" ? "Save 15%" : undefined}
+                priceSubtext={billing === "annual" ? "billed annually at $984" : "billed monthly"}
+                features={[
+                  "Everything in Free",
+                  "Unlimited assessments and Gap Reports",
+                  "Your full 90-day leadership cycle, a new section every week",
+                  "The Fully Resourced AI Coach, on demand",
+                  "The Fully Resourced digital book",
+                  "A Leadership Performance Dashboard that tracks your growth over time",
+                  "Print or save your completed work each week",
+                ]}
+                action={
+                  subscribed ? (
+                    <Button className="w-full" disabled>
+                      Current plan
+                    </Button>
+                  ) : (
+                    <Button
+                      className="w-full bg-[#5B2D8E] text-white hover:bg-[#5B2D8E]/90"
+                      onClick={handleUpgrade}
+                      disabled={busy !== null}
+                    >
+                      Upgrade
+                    </Button>
+                  )
+                }
+              />
+            </div>
 
-        {!subscribed && (
-          <p className="mx-auto mt-5 max-w-2xl text-center text-xs leading-relaxed text-[var(--fr-muted-ink)]">
-            {billing === "annual"
-              ? "The Fully Resourced plan is $984/year (works out to $82/month). Your subscription renews automatically every year until you cancel."
-              : "The Fully Resourced plan is $97/month. Your subscription renews automatically every month until you cancel."}{" "}
-            You can cancel anytime from Manage billing. By upgrading you agree to our{" "}
-            <Link to="/terms" className="underline">
-              Terms of Service
-            </Link>{" "}
-            and{" "}
-            <Link to="/privacy" className="underline">
-              Privacy Policy
-            </Link>
-            .
-          </p>
-        )}
-        </>
+            {!subscribed && (
+              <p className="mx-auto mt-5 max-w-2xl text-center text-xs leading-relaxed text-[var(--fr-muted-ink)]">
+                {billing === "annual"
+                  ? "The Fully Resourced plan is $984/year (works out to $82/month). Your subscription renews automatically every year until you cancel."
+                  : "The Fully Resourced plan is $97/month. Your subscription renews automatically every month until you cancel."}{" "}
+                You can cancel anytime from Manage billing. By upgrading you agree to our{" "}
+                <Link to="/terms" className="underline">
+                  Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link to="/privacy" className="underline">
+                  Privacy Policy
+                </Link>
+                .
+              </p>
+            )}
+          </>
         )}
       </div>
     </div>
