@@ -13,6 +13,7 @@ import {
   Shield,
   CreditCard,
   Zap,
+  Lock,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
@@ -154,7 +155,7 @@ function AppShellInner({
         <span className="text-base font-semibold tracking-tight">Fully Resourced</span>
       </div>
       <nav className="mt-2 flex-1 px-3">
-        {NAV.filter((item) => item.action !== "open-ai-coach" || subscribed).map((item) => {
+        {NAV.map((item) => {
           const isActive = Boolean(item.match && currentPath.startsWith(item.match));
           const Icon = item.icon;
           const commonCls = cn(
@@ -164,6 +165,9 @@ function AppShellInner({
               : "text-white/75 hover:bg-white/5 hover:text-white",
           );
           if (item.action === "open-ai-coach") {
+            // Visible to everyone. Paid members open the coach; free members
+            // are sent to the plans/upgrade modal and never mount the embed.
+            const locked = !subscribed;
             return (
               <button
                 key={item.label}
@@ -171,12 +175,16 @@ function AppShellInner({
                 title="Fully Resourced AI Coach"
                 onClick={() => {
                   setMobileOpen(false);
-                  aiCoach.setOpen(true);
+                  if (locked) plansDialog.open();
+                  else aiCoach.setOpen(true);
                 }}
                 className={cn(commonCls, "w-full text-left")}
               >
                 <Icon style={{ width: 18, height: 18 }} />
                 <span className="flex-1">{item.label}</span>
+                {locked && (
+                  <Lock style={{ width: 14, height: 14 }} className="shrink-0 text-white/60" />
+                )}
               </button>
             );
           }

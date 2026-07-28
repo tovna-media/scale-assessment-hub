@@ -439,7 +439,10 @@ function DashboardPage() {
         );
       })()}
 
-      {!subscribed && (
+      {/* Show the large upgrade bar only once the member has generated their
+          SCALE Gap Report. Before that, the assessment nudge card stays the
+          focus and the sidebar "Upgrade Now" is the only upgrade prompt. */}
+      {!subscribed && hasAnyReport && (
         <div
           className="mt-6 flex flex-col gap-4 rounded-2xl p-6 text-white shadow-[0_16px_40px_rgba(42,10,100,0.35)] sm:flex-row sm:items-center sm:justify-between"
           style={{ background: "linear-gradient(135deg, #2a0a64 0%, #5B2D8E 100%)" }}
