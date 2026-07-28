@@ -9,32 +9,78 @@ const getEnv = (key: string): string => {
   return value;
 };
 
-// BYOK Stripe: talks to api.stripe.com directly using the user-provided
-// secret key. Sandbox uses STRIPE_SECRET_KEY (test mode, sk_test_...).
-// Live uses STRIPE_LIVE_SECRET_KEY once go-live is done.
-export function getSecretKey(env: StripeEnv): string {
-  return env === "sandbox" ? getEnv("STRIPE_SECRET_KEY") : getEnv("STRIPE_LIVE_SECRET_KEY");
+const GATEWAY_STRIPE_BASE = "https://connector-gateway.lovable.dev/stripe";
+
+export function getConnectionApiKey(env: StripeEnv): string {
+  return env === "sandbox" ? getEnv("STRIPE_SANDBOX_API_KEY") : getEnv("STRIPE_LIVE_API_KEY");
 }
 
+// Built-in payments: Stripe calls are proxied through the connector gateway,
+// which holds the real Stripe secret. The *_API_KEY values below are gateway
+// connection identifiers, not Stripe secret keys.
 export function createStripeClient(env: StripeEnv): Stripe {
-  return new Stripe(getSecretKey(env), {
+  const connectionApiKey = getConnectionApiKey(env);
+  const lovableApiKey = getEnv("LOVABLE_API_KEY");
+
+  return new Stripe(connectionApiKey, {
     apiVersion: "2026-03-25.dahlia",
-    httpClient: Stripe.createFetchHttpClient(),
+    httpClient: Stripe.createFetchHttpClient((input, init) => {
+      const stripeUrl = input instanceof Request ? input.url : input.toString();
+      const gatewayUrl = stripeUrl.replace("https://api.stripe.com", GATEWAY_STRIPE_BASE);
+      return fetch(gatewayUrl, {
+        ...init,
+        headers: {
+          ...Object.fromEntries(
+            new Headers(
+              init?.headers ?? (input instanceof Request ? input.headers : undefined),
+            ).entries(),
+          ),
+          "X-Connection-Api-Key": connectionApiKey,
+          "Lovable-API-Key": lovableApiKey,
+        },
+      });
+    }),
   });
 }
 
 export type PlanId = "monthly" | "annual";
 
-// Price IDs come from env — never hardcoded and never sent by the client. The
-// client only names a plan; the server maps it to the real Stripe price.
-export function getPriceId(plan: PlanId): string {
-  return plan === "annual" ? getEnv("STRIPE_PRICE_ANNUAL") : getEnv("STRIPE_PRICE_MONTHLY");
+// Human-readable price ids from the product catalog. Stable across test/live.
+export function getPriceLookupKey(plan: PlanId): string {
+  return plan === "annual" ? "fully_resourced_annual" : "fully_resourced_monthly";
 }
 
-// Founding-member coupon, applied server-side so it can't be spoofed or reused
-// on the wrong flow. Returns null when not configured so checkout still works.
-export function getFoundingCoupon(): string | null {
-  return process.env.STRIPE_FOUNDING_COUPON || null;
+// Resolve the human-readable price id to the environment-specific Stripe price.
+export async function resolvePrice(stripe: Stripe, plan: PlanId): Promise<Stripe.Price> {
+  const lookupKey = getPriceLookupKey(plan);
+  const prices = await stripe.prices.list({ lookup_keys: [lookupKey], limit: 1 });
+  if (!prices.data.length) throw new Error(`Price "${lookupKey}" not found`);
+  return prices.data[0];
+}
+
+const FOUNDING_COUPON_ID = "founding20";
+
+// Founding-member discount: 20% off the first month, applied server-side so it
+// can't be spoofed. Created on first use, then reused (same id in test + live).
+export async function getFoundingCoupon(stripe: Stripe): Promise<string | null> {
+  try {
+    const existing = await stripe.coupons.retrieve(FOUNDING_COUPON_ID);
+    if (existing && !existing.deleted) return existing.id;
+  } catch {
+    // not created yet in this environment
+  }
+  try {
+    const created = await stripe.coupons.create({
+      id: FOUNDING_COUPON_ID,
+      percent_off: 20,
+      duration: "once",
+      name: "Founding member — 20% off first month",
+    });
+    return created.id;
+  } catch (error) {
+    console.error("[stripe] founding coupon unavailable", error);
+    return null;
+  }
 }
 
 export function getStripeErrorMessage(error: unknown): string {
@@ -58,7 +104,9 @@ export async function verifyWebhook(
   const signature = req.headers.get("stripe-signature");
   const body = await req.text();
   const secret =
-    env === "sandbox" ? getEnv("STRIPE_WEBHOOK_SECRET") : getEnv("STRIPE_LIVE_WEBHOOK_SECRET");
+    env === "sandbox"
+      ? getEnv("PAYMENTS_SANDBOX_WEBHOOK_SECRET")
+      : getEnv("PAYMENTS_LIVE_WEBHOOK_SECRET");
 
   if (!signature || !body) throw new Error("Missing signature or body");
 

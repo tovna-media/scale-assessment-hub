@@ -1,4 +1,4 @@
-const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string | undefined;
+const publishableKey = import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN as string | undefined;
 
 export function PaymentTestModeBanner() {
   if (!publishableKey) {
