@@ -15,6 +15,9 @@ dist-ssr
 .tanstack/**
 .nitro
 *.local
+# Note: .env / .env.development are committed but hold ONLY public client keys
+# (Supabase URL + anon key, Stripe publishable key). Real secrets live in the
+# hosting env. Local secret overrides go in .env*.local, ignored by *.local above.
 
 # Wrangler / Cloudflare
 .wrangler/

@@ -1,8 +1,8 @@
-import { createServerFn } from '@tanstack/react-start';
-import { z } from 'zod';
-import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-const StripeEnvSchema = z.enum(['sandbox', 'live']);
+const StripeEnvSchema = z.enum(["sandbox", "live"]);
 
 type CheckoutResult = { url: string } | { error: string };
 type PortalResult = { url: string } | { error: string };
@@ -15,10 +15,10 @@ type StatusResult = {
 };
 
 async function resolveOrCreateCustomer(
-  stripe: import('stripe').default,
+  stripe: import("stripe").default,
   options: { email?: string; userId: string },
 ): Promise<string> {
-  if (!/^[a-zA-Z0-9_-]+$/.test(options.userId)) throw new Error('Invalid userId');
+  if (!/^[a-zA-Z0-9_-]+$/.test(options.userId)) throw new Error("Invalid userId");
   const found = await stripe.customers.search({
     query: `metadata['userId']:'${options.userId}'`,
     limit: 1,
@@ -43,28 +43,31 @@ async function resolveOrCreateCustomer(
   return created.id;
 }
 
-export const createSubscriptionCheckout = createServerFn({ method: 'POST' })
+export const createSubscriptionCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
     z
       .object({
-        priceId: z.string().regex(/^[a-zA-Z0-9_-]+$/),
+        plan: z.enum(["monthly", "annual"]),
         returnUrl: z.string().url(),
         environment: StripeEnvSchema,
         acceptedTerms: z.boolean(),
-        couponId: z
-          .string()
-          .regex(/^[a-zA-Z0-9_-]+$/)
-          .optional(),
+        // Founding-member upgrade path. The coupon itself is applied server-side
+        // from env — the client only signals which flow it is.
+        founding: z.boolean().optional(),
       })
       .parse(input),
   )
   .handler(async ({ data, context }): Promise<CheckoutResult> => {
     try {
-      if (!data.acceptedTerms) return { error: 'You must accept the Terms and Privacy Policy.' };
+      if (!data.acceptedTerms) return { error: "You must accept the Terms and Privacy Policy." };
 
-      const { createStripeClient, getStripeErrorMessage } = await import('@/lib/stripe.server');
+      const { createStripeClient, getStripeErrorMessage, getPriceId, getFoundingCoupon } =
+        await import("@/lib/stripe.server");
       const stripe = createStripeClient(data.environment);
+
+      const priceId = getPriceId(data.plan);
+      const coupon = data.founding ? getFoundingCoupon() : null;
 
       const { userId, supabase } = context;
       const {
@@ -75,9 +78,9 @@ export const createSubscriptionCheckout = createServerFn({ method: 'POST' })
       const customerId = await resolveOrCreateCustomer(stripe, { email, userId });
 
       const session = await stripe.checkout.sessions.create({
-        line_items: [{ price: data.priceId, quantity: 1 }],
-        mode: 'subscription',
-        ...(data.couponId ? { discounts: [{ coupon: data.couponId }] } : {}),
+        line_items: [{ price: priceId, quantity: 1 }],
+        mode: "subscription",
+        ...(coupon ? { discounts: [{ coupon }] } : {}),
         success_url: data.returnUrl,
         cancel_url: `${new URL(data.returnUrl).origin}/dashboard`,
         customer: customerId,
@@ -95,28 +98,28 @@ export const createSubscriptionCheckout = createServerFn({ method: 'POST' })
 
       // Log that the user accepted terms and initiated checkout
       try {
-        await supabase.from('funnel_events').insert({
+        await supabase.from("funnel_events").insert({
           user_id: userId,
-          event_type: 'accepted_terms',
-          metadata: { price_id: data.priceId, session_id: session.id },
+          event_type: "accepted_terms",
+          metadata: { price_id: priceId, session_id: session.id },
         } as never);
-        await supabase.from('funnel_events').insert({
+        await supabase.from("funnel_events").insert({
           user_id: userId,
-          event_type: 'started_checkout',
-          metadata: { price_id: data.priceId, session_id: session.id },
+          event_type: "started_checkout",
+          metadata: { price_id: priceId, session_id: session.id },
         } as never);
       } catch (e) {
-        console.error('[funnel] checkout events insert failed', e);
+        console.error("[funnel] checkout events insert failed", e);
       }
 
-      return { url: session.url ?? '' };
+      return { url: session.url ?? "" };
     } catch (error) {
-      const { getStripeErrorMessage } = await import('@/lib/stripe.server');
+      const { getStripeErrorMessage } = await import("@/lib/stripe.server");
       return { error: getStripeErrorMessage(error) };
     }
   });
 
-export const createBillingPortalSession = createServerFn({ method: 'POST' })
+export const createBillingPortalSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
     z
@@ -130,16 +133,16 @@ export const createBillingPortalSession = createServerFn({ method: 'POST' })
     try {
       const { supabase, userId } = context;
       const { data: sub } = await supabase
-        .from('subscriptions')
-        .select('stripe_customer_id')
-        .eq('user_id', userId)
-        .eq('environment', data.environment)
-        .order('created_at', { ascending: false })
+        .from("subscriptions")
+        .select("stripe_customer_id")
+        .eq("user_id", userId)
+        .eq("environment", data.environment)
+        .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
-      if (!sub?.stripe_customer_id) return { error: 'No subscription found for this account.' };
+      if (!sub?.stripe_customer_id) return { error: "No subscription found for this account." };
 
-      const { createStripeClient, getStripeErrorMessage } = await import('@/lib/stripe.server');
+      const { createStripeClient, getStripeErrorMessage } = await import("@/lib/stripe.server");
       const stripe = createStripeClient(data.environment);
       const portal = await stripe.billingPortal.sessions.create({
         customer: sub.stripe_customer_id,
@@ -147,7 +150,7 @@ export const createBillingPortalSession = createServerFn({ method: 'POST' })
       });
       return { url: portal.url };
     } catch (error) {
-      const { getStripeErrorMessage } = await import('@/lib/stripe.server');
+      const { getStripeErrorMessage } = await import("@/lib/stripe.server");
       return { error: getStripeErrorMessage(error) };
     }
   });
@@ -156,15 +159,15 @@ export const createBillingPortalSession = createServerFn({ method: 'POST' })
 // has a currently-active subscription (active/trialing, past_due within 7d, or
 // canceled but still within the paid period). The subscriptions table's own
 // row is what backs this — reads are RLS-scoped to the current user.
-export const getSubscriptionStatus = createServerFn({ method: 'GET' })
+export const getSubscriptionStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<StatusResult> => {
     const { supabase, userId } = context;
     const { data } = await supabase
-      .from('subscriptions')
-      .select('status, cancel_at_period_end, current_period_end, past_due_since')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
+      .from("subscriptions")
+      .select("status, cancel_at_period_end, current_period_end, past_due_since")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
 
@@ -187,12 +190,12 @@ export const getSubscriptionStatus = createServerFn({ method: 'GET' })
     const periodEndMs = row.current_period_end ? Date.parse(row.current_period_end) : null;
     const pastDueSinceMs = row.past_due_since ? Date.parse(row.past_due_since) : null;
     const active =
-      row.status === 'active' ||
-      row.status === 'trialing' ||
-      (row.status === 'past_due' &&
+      row.status === "active" ||
+      row.status === "trialing" ||
+      (row.status === "past_due" &&
         pastDueSinceMs !== null &&
         now - pastDueSinceMs < 7 * 24 * 60 * 60 * 1000) ||
-      (row.status === 'canceled' && periodEndMs !== null && periodEndMs > now);
+      (row.status === "canceled" && periodEndMs !== null && periodEndMs > now);
 
     return {
       active,
@@ -210,16 +213,14 @@ export const pollSubscriptionStatus = getSubscriptionStatus;
 
 // Explicit signal from the checkout return page that the user reached success.
 // Access is granted by the webhook, but we log the funnel step here.
-export const logCheckoutReturn = createServerFn({ method: 'POST' })
+export const logCheckoutReturn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
-    z.object({ sessionId: z.string().optional() }).parse(input),
-  )
+  .inputValidator((input: unknown) => z.object({ sessionId: z.string().optional() }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    await supabase.from('funnel_events').insert({
+    await supabase.from("funnel_events").insert({
       user_id: userId,
-      event_type: 'reached_checkout_return',
+      event_type: "reached_checkout_return",
       metadata: { session_id: data.sessionId ?? null },
     } as never);
     return { ok: true };
