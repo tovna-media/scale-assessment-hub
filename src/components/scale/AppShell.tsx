@@ -11,6 +11,7 @@ import {
   LogOut,
   Menu,
   Shield,
+  ShieldCheck,
   CreditCard,
   Zap,
   Lock,
@@ -300,6 +301,14 @@ function AppShellInner({
                   >
                     <UserIcon className="h-4 w-4" />
                     Edit profile
+                  </Link>
+                  <Link
+                    to="/security"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--fr-ink)] hover:bg-[var(--fr-surface)]"
+                  >
+                    <ShieldCheck className="h-4 w-4" />
+                    Password &amp; Security
                   </Link>
                   <button
                     type="button"
