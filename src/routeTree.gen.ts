@@ -14,11 +14,13 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as LeadersEdgeRouteImport } from './routes/leaders-edge'
 import { Route as FoundingRouteImport } from './routes/founding'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as CoachRouteImport } from './routes/_coach'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LeadersEdgeSuccessRouteImport } from './routes/leaders-edge_.success'
 import { Route as FoundingSuccessRouteImport } from './routes/founding_.success'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as CoachLoginRouteImport } from './routes/coach.login'
@@ -82,6 +84,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LeadersEdgeRoute = LeadersEdgeRouteImport.update({
+  id: '/leaders-edge',
+  path: '/leaders-edge',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FoundingRoute = FoundingRouteImport.update({
   id: '/founding',
   path: '/founding',
@@ -103,6 +110,11 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeadersEdgeSuccessRoute = LeadersEdgeSuccessRouteImport.update({
+  id: '/leaders-edge_/success',
+  path: '/leaders-edge/success',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FoundingSuccessRoute = FoundingSuccessRouteImport.update({
@@ -318,6 +330,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/founding': typeof FoundingRoute
+  '/leaders-edge': typeof LeadersEdgeRoute
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -334,6 +347,7 @@ export interface FileRoutesByFullPath {
   '/coach/login': typeof CoachLoginRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/founding/success': typeof FoundingSuccessRoute
+  '/leaders-edge/success': typeof LeadersEdgeSuccessRoute
   '/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/checkout/activating': typeof AuthenticatedCheckoutActivatingRoute
   '/guide/section-1': typeof AuthenticatedGuideSection1Route
@@ -365,6 +379,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/founding': typeof FoundingRoute
+  '/leaders-edge': typeof LeadersEdgeRoute
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -381,6 +396,7 @@ export interface FileRoutesByTo {
   '/coach/login': typeof CoachLoginRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/founding/success': typeof FoundingSuccessRoute
+  '/leaders-edge/success': typeof LeadersEdgeSuccessRoute
   '/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/checkout/activating': typeof AuthenticatedCheckoutActivatingRoute
   '/guide/section-1': typeof AuthenticatedGuideSection1Route
@@ -415,6 +431,7 @@ export interface FileRoutesById {
   '/_coach': typeof CoachRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/founding': typeof FoundingRoute
+  '/leaders-edge': typeof LeadersEdgeRoute
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -431,6 +448,7 @@ export interface FileRoutesById {
   '/coach/login': typeof CoachLoginRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/founding_/success': typeof FoundingSuccessRoute
+  '/leaders-edge_/success': typeof LeadersEdgeSuccessRoute
   '/_authenticated/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/_authenticated/checkout/activating': typeof AuthenticatedCheckoutActivatingRoute
   '/_authenticated/guide/section-1': typeof AuthenticatedGuideSection1Route
@@ -464,6 +482,7 @@ export interface FileRouteTypes {
     | '/'
     | '/forgot-password'
     | '/founding'
+    | '/leaders-edge'
     | '/privacy'
     | '/signup'
     | '/sitemap.xml'
@@ -480,6 +499,7 @@ export interface FileRouteTypes {
     | '/coach/login'
     | '/email/unsubscribe'
     | '/founding/success'
+    | '/leaders-edge/success'
     | '/assessment/$type'
     | '/checkout/activating'
     | '/guide/section-1'
@@ -511,6 +531,7 @@ export interface FileRouteTypes {
     | '/'
     | '/forgot-password'
     | '/founding'
+    | '/leaders-edge'
     | '/privacy'
     | '/signup'
     | '/sitemap.xml'
@@ -527,6 +548,7 @@ export interface FileRouteTypes {
     | '/coach/login'
     | '/email/unsubscribe'
     | '/founding/success'
+    | '/leaders-edge/success'
     | '/assessment/$type'
     | '/checkout/activating'
     | '/guide/section-1'
@@ -560,6 +582,7 @@ export interface FileRouteTypes {
     | '/_coach'
     | '/forgot-password'
     | '/founding'
+    | '/leaders-edge'
     | '/privacy'
     | '/signup'
     | '/sitemap.xml'
@@ -576,6 +599,7 @@ export interface FileRouteTypes {
     | '/coach/login'
     | '/email/unsubscribe'
     | '/founding_/success'
+    | '/leaders-edge_/success'
     | '/_authenticated/assessment/$type'
     | '/_authenticated/checkout/activating'
     | '/_authenticated/guide/section-1'
@@ -610,6 +634,7 @@ export interface RootRouteChildren {
   CoachRoute: typeof CoachRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   FoundingRoute: typeof FoundingRoute
+  LeadersEdgeRoute: typeof LeadersEdgeRoute
   PrivacyRoute: typeof PrivacyRoute
   SignupRoute: typeof SignupRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -618,6 +643,7 @@ export interface RootRouteChildren {
   CoachLoginRoute: typeof CoachLoginRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   FoundingSuccessRoute: typeof FoundingSuccessRoute
+  LeadersEdgeSuccessRoute: typeof LeadersEdgeSuccessRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicHooksActionRemindersRoute: typeof ApiPublicHooksActionRemindersRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -665,6 +691,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/leaders-edge': {
+      id: '/leaders-edge'
+      path: '/leaders-edge'
+      fullPath: '/leaders-edge'
+      preLoaderRoute: typeof LeadersEdgeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/founding': {
       id: '/founding'
       path: '/founding'
@@ -698,6 +731,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leaders-edge_/success': {
+      id: '/leaders-edge_/success'
+      path: '/leaders-edge/success'
+      fullPath: '/leaders-edge/success'
+      preLoaderRoute: typeof LeadersEdgeSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/founding_/success': {
@@ -1057,6 +1097,7 @@ const rootRouteChildren: RootRouteChildren = {
   CoachRoute: CoachRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   FoundingRoute: FoundingRoute,
+  LeadersEdgeRoute: LeadersEdgeRoute,
   PrivacyRoute: PrivacyRoute,
   SignupRoute: SignupRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
@@ -1065,6 +1106,7 @@ const rootRouteChildren: RootRouteChildren = {
   CoachLoginRoute: CoachLoginRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   FoundingSuccessRoute: FoundingSuccessRoute,
+  LeadersEdgeSuccessRoute: LeadersEdgeSuccessRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicHooksActionRemindersRoute: ApiPublicHooksActionRemindersRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
@@ -1077,3 +1119,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
