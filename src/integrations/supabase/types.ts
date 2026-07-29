@@ -419,6 +419,42 @@ export type Database = {
         }
         Relationships: []
       }
+      redemption_codes: {
+        Row: {
+          campaign: string
+          code: string
+          created_at: string
+          created_by: string | null
+          id: string
+          redeemed_by_email: string | null
+          redeemed_user_id: string | null
+          stripe_session_id: string | null
+          used_at: string | null
+        }
+        Insert: {
+          campaign?: string
+          code: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          redeemed_by_email?: string | null
+          redeemed_user_id?: string | null
+          stripe_session_id?: string | null
+          used_at?: string | null
+        }
+        Update: {
+          campaign?: string
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          redeemed_by_email?: string | null
+          redeemed_user_id?: string | null
+          stripe_session_id?: string | null
+          used_at?: string | null
+        }
+        Relationships: []
+      }
       stripe_events: {
         Row: {
           event_id: string

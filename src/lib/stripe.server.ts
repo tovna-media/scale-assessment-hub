@@ -83,6 +83,34 @@ export async function getFoundingCoupon(stripe: Stripe): Promise<string | null> 
   }
 }
 
+// Leaders Edge discount: 100% off for the first 3 months, then the normal plan
+// price. Rich created this coupon in Stripe; we resolve it by id server-side so
+// the client can never inject a coupon or price. If it's missing in an
+// environment (e.g. a fresh sandbox) we recreate it with the same id and terms.
+const LEADERS_EDGE_COUPON_ID = "1KS7zXTz";
+
+export async function getLeadersEdgeCoupon(stripe: Stripe): Promise<string | null> {
+  try {
+    const existing = await stripe.coupons.retrieve(LEADERS_EDGE_COUPON_ID);
+    if (existing && !existing.deleted) return existing.id;
+  } catch {
+    // not present in this environment — recreate below
+  }
+  try {
+    const created = await stripe.coupons.create({
+      id: LEADERS_EDGE_COUPON_ID,
+      percent_off: 100,
+      duration: "repeating",
+      duration_in_months: 3,
+      name: "leaders-edge",
+    });
+    return created.id;
+  } catch (error) {
+    console.error("[stripe] leaders edge coupon unavailable", error);
+    return null;
+  }
+}
+
 export function getStripeErrorMessage(error: unknown): string {
   if (error && typeof error === "object") {
     const e = error as {

@@ -62,6 +62,20 @@ async function handleSubscriptionUpsert(
     console.warn('[webhook] no userId yet for subscription, deferring', sub.id);
     return;
   }
+
+  // The account may have been deleted from the admin page (which cancels the
+  // Stripe sub and fires this event). The metadata still carries the old userId,
+  // so guard against re-creating a subscriptions row for a user that no longer
+  // exists — the FK would fail and we'd resend a cancellation email.
+  const { data: profileExists } = await admin
+    .from('profiles')
+    .select('id')
+    .eq('id', userId)
+    .maybeSingle();
+  if (!profileExists) {
+    console.warn('[webhook] user no longer exists, skipping upsert', userId, sub.id);
+    return;
+  }
   const item = sub.items?.data?.[0];
   const periodStart = item?.current_period_start ?? sub.current_period_start;
   const periodEnd = item?.current_period_end ?? sub.current_period_end;
@@ -226,10 +240,13 @@ type CheckoutSession = StripeObj & {
 };
 
 /**
- * Founding checkout: Stripe collected the email, we create (or attach) the app
- * account here so nobody ever fills out a signup form.
+ * Subscription checkout completed: Stripe collected the email, we create (or
+ * attach) the app account here so nobody ever fills out a signup form. Shared by
+ * every in-app payment path — founding, Leaders Edge redemption, and signed-in
+ * member upgrades — so account creation, access grant, and the sign-in email
+ * always run the same way. The campaign is read from session metadata.
  */
-async function handleFoundingCheckoutCompleted(
+async function handleCheckoutCompleted(
   admin: Admin,
   session: CheckoutSession,
   env: StripeEnv,
@@ -237,9 +254,14 @@ async function handleFoundingCheckoutCompleted(
   const email = session.customer_details?.email?.trim().toLowerCase();
   const subscriptionId = typeof session.subscription === 'string' ? session.subscription : null;
   if (!email || !subscriptionId) {
-    throw new Error(`founding session missing email or subscription: ${session.id}`);
+    throw new Error(`checkout session missing email or subscription: ${session.id}`);
   }
-  console.log('[webhook] founding checkout start', { sessionId: session.id, subscriptionId });
+
+  const isFounding = session.metadata?.founding === '1';
+  const isLeadersEdge = session.metadata?.leaders_edge === '1';
+  const campaign = isLeadersEdge ? 'leaders_edge' : isFounding ? 'founding' : 'upgrade';
+  const leadersEdgeCode = session.metadata?.leaders_edge_code;
+  console.log('[webhook] checkout start', { sessionId: session.id, subscriptionId, campaign });
 
   // Idempotency: if this subscription was already granted, stop here.
   const { data: existingSub } = await admin
@@ -248,7 +270,7 @@ async function handleFoundingCheckoutCompleted(
     .eq('stripe_subscription_id', subscriptionId)
     .maybeSingle();
   if ((existingSub as { user_id?: string } | null)?.user_id) {
-    console.log('[webhook] founding checkout already processed', subscriptionId);
+    console.log('[webhook] checkout already processed', subscriptionId);
     return;
   }
 
@@ -273,7 +295,7 @@ async function handleFoundingCheckoutCompleted(
       // Race / already-registered: re-resolve instead of failing.
       userId = await findUserIdByEmail(admin, email);
       if (!userId) {
-        console.error('[webhook] founding account creation failed', error);
+        console.error('[webhook] account creation failed', error);
         throw new Error(`account creation failed for ${email}: ${error?.message ?? 'unknown'}`);
       }
     } else {
@@ -281,14 +303,20 @@ async function handleFoundingCheckoutCompleted(
       isNewAccount = true;
     }
   }
-  console.log('[webhook] founding user resolved', { userId, isNewAccount });
+  console.log('[webhook] checkout user resolved', { userId, isNewAccount, campaign });
 
-  // Stamp the userId onto Stripe so every later subscription event resolves it.
+  // Preserve the real campaign when stamping the userId onto Stripe so later
+  // subscription events resolve the user without mislabeling the plan.
+  const campaignMeta: Record<string, string> = { userId };
+  if (isFounding) campaignMeta.founding = '1';
+  if (isLeadersEdge) {
+    campaignMeta.leaders_edge = '1';
+    if (leadersEdgeCode) campaignMeta.leaders_edge_code = leadersEdgeCode;
+  }
+
   const { createStripeClient } = await import('@/lib/stripe.server');
   const stripe = createStripeClient(env);
-  await stripe.subscriptions.update(subscriptionId, {
-    metadata: { userId, founding: '1' },
-  });
+  await stripe.subscriptions.update(subscriptionId, { metadata: campaignMeta });
   if (typeof session.customer === 'string') {
     await stripe.customers.update(session.customer, { metadata: { userId } });
   }
@@ -300,15 +328,31 @@ async function handleFoundingCheckoutCompleted(
     {
       ...sub,
       customer: typeof session.customer === 'string' ? session.customer : sub.customer,
-      metadata: { userId, founding: '1' },
+      metadata: campaignMeta,
     },
     env,
   );
-  console.log('[webhook] founding access granted', { userId, subscriptionId });
+  console.log('[webhook] access granted', { userId, subscriptionId, campaign });
 
-  // Send the sign-in link so they land in the app without a signup form.
-  if (!isNewAccount && session.metadata?.founding !== '1') {
-    console.log('[webhook] existing member checkout, no sign-in email needed', { userId });
+  // Record who redeemed the Leaders Edge code, for the admin code list. The code
+  // was already burned (used_at set) when checkout was created; this just stamps
+  // the redeemer.
+  if (isLeadersEdge && leadersEdgeCode) {
+    try {
+      await admin
+        .from('redemption_codes')
+        .update({ redeemed_user_id: userId, redeemed_by_email: email } as never)
+        .eq('code', leadersEdgeCode);
+    } catch (e) {
+      console.error('[webhook] failed to stamp redemption code', e);
+    }
+  }
+
+  // Send the sign-in link so they land in the app without a signup form. Skip
+  // only for signed-in member upgrades (they already have a session); founding
+  // and Leaders Edge redeemers arrive unauthenticated and need the link.
+  if (!isNewAccount && !isFounding && !isLeadersEdge) {
+    console.log('[webhook] existing member upgrade, no sign-in email needed', { userId });
     return;
   }
   try {
@@ -320,19 +364,20 @@ async function handleFoundingCheckoutCompleted(
     });
     if (linkError) console.error('[webhook] generateLink failed', linkError);
     const signInUrl = link?.properties?.action_link ?? appUrl;
+    const templateName = isLeadersEdge ? 'leaders-edge-access' : 'founding-access';
     const { sendTransactionalEmailServer } = await import('@/lib/email/send.server');
     await sendTransactionalEmailServer({
-      templateName: 'founding-access',
+      templateName,
       recipientEmail: email,
-      idempotencyKey: `founding-access-${session.id}`,
+      idempotencyKey: `${templateName}-${session.id}`,
       templateData: { signInUrl, name: session.customer_details?.name ?? undefined },
     });
-    console.log('[webhook] founding sign-in email queued', { email });
+    console.log('[webhook] sign-in email queued', { email, campaign });
   } catch (e) {
-    console.error('[webhook] founding sign-in email failed', e);
+    console.error('[webhook] sign-in email failed', e);
   }
 
-  console.log('[webhook] founding checkout processed', { userId, isNewAccount });
+  console.log('[webhook] checkout processed', { userId, isNewAccount, campaign });
 }
 
 /** Resolve an auth user id for an email (profiles first, then the auth admin API). */
@@ -411,7 +456,7 @@ export const Route = createFileRoute('/api/public/payments/webhook')({
               // Grant access here: this is the event that fires on payment
               // success and carries the buyer email Stripe collected.
               if (session.mode === 'subscription' && session.subscription) {
-                await handleFoundingCheckoutCompleted(supabaseAdmin, session, env);
+                await handleCheckoutCompleted(supabaseAdmin, session, env);
               } else {
                 console.log('[webhook] checkout session ignored', session.id, session.mode);
               }

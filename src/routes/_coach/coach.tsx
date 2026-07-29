@@ -1,9 +1,21 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { maxScoreFor, type AssessmentType } from "@/lib/assessments";
 import { format, formatDistanceToNowStrict } from "date-fns";
 import {
@@ -17,10 +29,16 @@ import {
   TrendingDown,
   Clock,
   ArrowRight,
+  Trash2,
+  Ticket,
+  Plus,
+  Copy,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { TablePagination, usePagination } from "@/components/ui/table-pagination";
+import { generateRedemptionCode, listRedemptionCodes, deleteUser } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_coach/coach")({
   head: () => ({ meta: [{ title: "Coach Dashboard — SCALE" }] }),
@@ -411,6 +429,9 @@ function CoachDashboardIndex() {
         </div>
       </section>
 
+      {/* Leaders Edge redemption codes */}
+      <LeadersEdgeCodesCard />
+
       {/* Filters */}
       <div className="mt-8 flex flex-wrap items-center gap-3">
         <Input
@@ -559,6 +580,10 @@ function CoachDashboardIndex() {
                           <Mail className="h-3.5 w-3.5" />
                         </a>
                       </Button>
+                      <DeleteMemberButton
+                        row={r}
+                        onDeleted={(id) => setRows((prev) => prev.filter((x) => x.id !== id))}
+                      />
                     </div>
                   </td>
                 </tr>
@@ -641,5 +666,250 @@ function Badge({
       {Icon && <Icon className="h-3 w-3" />}
       {children}
     </span>
+  );
+}
+
+type RedemptionCode = {
+  code: string;
+  created_at: string;
+  used_at: string | null;
+  redeemed_by_email: string | null;
+};
+
+function LeadersEdgeCodesCard() {
+  const genCode = useServerFn(generateRedemptionCode);
+  const listCodes = useServerFn(listRedemptionCodes);
+  const [codes, setCodes] = useState<RedemptionCode[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await listCodes({});
+      if ("error" in res) {
+        toast.error(res.error);
+        return;
+      }
+      setCodes(res.codes);
+    } catch {
+      toast.error("Could not load codes.");
+    } finally {
+      setLoading(false);
+    }
+  }, [listCodes]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  async function handleGenerate() {
+    setGenerating(true);
+    try {
+      const res = await genCode({});
+      if ("error" in res) {
+        toast.error(res.error);
+        return;
+      }
+      try {
+        await navigator.clipboard?.writeText(res.code);
+        toast.success(`Code ${res.code} created and copied`);
+      } catch {
+        toast.success(`Code ${res.code} created`);
+      }
+      await load();
+    } catch {
+      toast.error("Could not generate a code.");
+    } finally {
+      setGenerating(false);
+    }
+  }
+
+  function copyCode(code: string) {
+    navigator.clipboard
+      ?.writeText(code)
+      .then(() => toast.success("Copied"))
+      .catch(() => {});
+  }
+
+  const unusedCount = codes.filter((c) => !c.used_at).length;
+
+  return (
+    <section className="mt-8 rounded-2xl border border-[color:var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)]">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="flex items-center gap-2 font-display text-xl font-semibold text-[color:var(--fr-ink)]">
+            <Ticket className="h-5 w-5 text-[color:var(--rl-purple)]" /> Leaders Edge codes
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Single-use codes for 3 months free. Hand one to each Leaders Edge member to redeem at{" "}
+            <span className="font-medium text-[color:var(--fr-ink)]">/leaders-edge</span>.
+          </p>
+        </div>
+        <Button onClick={handleGenerate} disabled={generating}>
+          {generating ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating…
+            </>
+          ) : (
+            <>
+              <Plus className="mr-2 h-4 w-4" /> Generate code
+            </>
+          )}
+        </Button>
+      </div>
+
+      <div className="mt-4 overflow-x-auto rounded-xl border border-[color:var(--fr-hairline)]">
+        {loading ? (
+          <div className="px-4 py-10 text-center text-sm text-muted-foreground">Loading codes…</div>
+        ) : codes.length === 0 ? (
+          <div className="px-4 py-10 text-center text-sm text-muted-foreground">
+            No codes yet. Generate one to hand to a Leaders Edge member.
+          </div>
+        ) : (
+          <table className="w-full min-w-[640px] text-sm">
+            <thead className="border-b border-[color:var(--fr-hairline)] bg-[color:var(--fr-lilac)]/40 text-left text-[11px] uppercase tracking-wider text-[color:var(--rl-purple-deep)]">
+              <tr>
+                <th className="px-4 py-2.5 font-semibold">Code</th>
+                <th className="px-4 py-2.5 font-semibold">Status</th>
+                <th className="px-4 py-2.5 font-semibold">Redeemed by</th>
+                <th className="px-4 py-2.5 font-semibold">Created</th>
+                <th className="px-4 py-2.5" />
+              </tr>
+            </thead>
+            <tbody>
+              {codes.map((c) => (
+                <tr
+                  key={c.code}
+                  className="border-b border-[color:var(--fr-hairline)]/60 last:border-0"
+                >
+                  <td className="px-4 py-2.5 font-mono font-medium text-[color:var(--fr-ink)]">
+                    {c.code}
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <span
+                      className={cn(
+                        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium",
+                        c.used_at
+                          ? "border-border bg-muted text-muted-foreground"
+                          : "border-emerald-200 bg-emerald-100 text-emerald-800",
+                      )}
+                    >
+                      {c.used_at ? "Used" : "Unused"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2.5 text-muted-foreground">
+                    {c.redeemed_by_email ?? "—"}
+                  </td>
+                  <td className="px-4 py-2.5 text-muted-foreground">
+                    {format(new Date(c.created_at), "MMM d, yyyy")}
+                  </td>
+                  <td className="px-4 py-2.5 text-right">
+                    {!c.used_at && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        title="Copy code"
+                        onClick={() => copyCode(c.code)}
+                      >
+                        <Copy className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+      {!loading && codes.length > 0 && (
+        <p className="mt-3 text-xs text-muted-foreground">
+          {unusedCount} unused · {codes.length - unusedCount} used · {codes.length} total
+        </p>
+      )}
+    </section>
+  );
+}
+
+function DeleteMemberButton({
+  row,
+  onDeleted,
+}: {
+  row: Row;
+  onDeleted: (id: string) => void;
+}) {
+  const del = useServerFn(deleteUser);
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const isPaid =
+    row.subStatus === "active" || row.subStatus === "trialing" || row.subStatus === "past_due";
+
+  async function handleDelete() {
+    setBusy(true);
+    try {
+      const res = await del({ data: { userId: row.id } });
+      if ("error" in res) {
+        toast.error(res.error);
+        return;
+      }
+      const parts = ["Member removed"];
+      if (res.canceledSubscription) parts.push("subscription canceled");
+      if (res.emailedCancellation) parts.push("cancellation email sent");
+      toast.success(parts.join(" · "));
+      setOpen(false);
+      onDeleted(row.id);
+    } catch {
+      toast.error("Could not remove the member.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          title="Remove member"
+          className="text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Remove this member?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This permanently deletes{" "}
+            <span className="font-medium text-foreground">{row.full_name || row.email}</span> and
+            all of their data — assessments, gap reports, and cycle progress.{" "}
+            {isPaid
+              ? "Their subscription will be canceled and they'll be emailed a cancellation notice. "
+              : ""}
+            This can't be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={(e) => {
+              e.preventDefault();
+              void handleDelete();
+            }}
+            disabled={busy}
+            className="bg-rose-600 text-white hover:bg-rose-700"
+          >
+            {busy ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Removing…
+              </>
+            ) : (
+              "Yes, remove"
+            )}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
