@@ -135,19 +135,39 @@ export const deleteUser = createServerFn({ method: "POST" })
       !!s?.stripe_subscription_id &&
       ["active", "trialing", "past_due", "unpaid"].includes((s.status ?? "").toLowerCase());
 
-    // 1) Cancel the Stripe subscription immediately (no future billing).
+    // 1) Cancel the Stripe subscription BEFORE deleting the account, and abort
+    //    the whole delete if we can't stop billing — deleting the account while
+    //    the card keeps getting charged is the worst outcome, and once the
+    //    account is gone we've lost the subscription id to retry with.
+    //    Cancellation runs through the Lovable connector gateway. The SDK's
+    //    immediate cancel() is a DELETE, which the gateway may not forward, so
+    //    on any failure we fall back to cancel_at_period_end (a POST), which the
+    //    gateway proxies reliably and still stops all future billing.
     let canceledSubscription = false;
     if (hadLiveSub && s?.stripe_subscription_id) {
+      const { createStripeClient, getStripeErrorMessage } = await import("@/lib/stripe.server");
+      const subId = s.stripe_subscription_id;
+      const env = s.environment === "live" ? "live" : "sandbox";
       try {
-        const { createStripeClient } = await import("@/lib/stripe.server");
-        const env = s.environment === "live" ? "live" : "sandbox";
         const stripe = createStripeClient(env);
-        await stripe.subscriptions.cancel(s.stripe_subscription_id);
-        canceledSubscription = true;
-      } catch (e) {
-        console.error("[admin] stripe cancel during delete failed", e);
-        // Continue with deletion — an orphaned Stripe sub is safer than a
-        // half-deleted account, and it can be cleaned up manually if needed.
+        try {
+          await stripe.subscriptions.cancel(subId); // immediate (DELETE)
+          canceledSubscription = true;
+        } catch (immediateErr) {
+          console.error(
+            "[admin] immediate cancel failed, falling back to period-end",
+            immediateErr,
+          );
+          await stripe.subscriptions.update(subId, { cancel_at_period_end: true }); // POST
+          canceledSubscription = true;
+        }
+      } catch (err) {
+        console.error("[admin] stripe cancel failed, aborting delete", err);
+        return {
+          error: `Couldn't cancel this member's Stripe subscription (${getStripeErrorMessage(
+            err,
+          )}). They were NOT removed. Cancel the subscription in Stripe, then try again.`,
+        };
       }
     }
 
