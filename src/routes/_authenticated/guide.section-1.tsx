@@ -7,10 +7,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ArrowRight, ExternalLink, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { ASSESSMENT_LIST, type AssessmentType } from "@/lib/assessments";
 import { toast } from "sonner";
-import { verifyDiscCode } from "@/lib/disc-verify.functions";
 import { SectionVideo } from "@/components/scale/SectionVideo";
 import { GapReportPanel } from "@/components/scale/GapReportPanel";
 import { PrintSectionButton } from "@/components/scale/PrintSectionButton";
@@ -25,7 +24,6 @@ export const Route = createFileRoute("/_authenticated/guide/section-1")({
   component: SectionOnePage,
 });
 
-const DISC_URL = "https://richlohman.com/disc-assessment-checkout";
 const TOTAL_SECTIONS = 12;
 
 const REFLECTIONS = [
@@ -37,9 +35,7 @@ const REFLECTIONS = [
 ];
 
 interface SectionData {
-  disc_completed?: boolean;
   reflections?: string[];
-  disc_key_code?: string;
 }
 
 interface GapOption {
@@ -55,11 +51,6 @@ function SectionOnePage() {
   const [showJourney, setShowJourney] = useState(false);
   const [loading, setLoading] = useState(true);
   const [rowId, setRowId] = useState<string | null>(null);
-  const [discCompleted, setDiscCompleted] = useState(false);
-  const [discCode, setDiscCode] = useState("");
-  const [discCodeInput, setDiscCodeInput] = useState("");
-  const [discError, setDiscError] = useState<string | null>(null);
-  const [discVerifying, setDiscVerifying] = useState(false);
   const [priorityGap, setPriorityGap] = useState<string>("");
   const [priorityGapScore, setPriorityGapScore] = useState<number | null>(null);
   const [reflections, setReflections] = useState<string[]>(["", "", "", "", ""]);
@@ -129,8 +120,6 @@ function SectionOnePage() {
       if (row) {
         setRowId(row.id);
         const d = (row.data ?? {}) as SectionData;
-        setDiscCompleted(Boolean(d.disc_completed));
-        setDiscCode(d.disc_key_code ?? "");
         setPriorityGap(row.priority_gap ?? "");
         setPriorityGapScore(row.priority_gap_score ?? null);
         const r = Array.isArray(d.reflections) ? d.reflections : [];
@@ -144,7 +133,7 @@ function SectionOnePage() {
   const assessmentsAllDone =
     assessmentsDone.inner_capacity && assessmentsDone.personal_leadership && assessmentsDone.business_audit;
 
-  const checklistComplete = assessmentsAllDone && discCompleted;
+  const checklistComplete = assessmentsAllDone;
   const priorityGapSet = priorityGap.trim().length > 0;
   const reflectionsDone = reflections.every((r) => r.trim().length > 0);
   const sectionComplete = checklistComplete && priorityGapSet && reflectionsDone;
@@ -158,8 +147,6 @@ function SectionOnePage() {
         user_id: user.id,
         section_number: 1,
         data: {
-          disc_completed: discCompleted,
-          disc_key_code: discCode || undefined,
           reflections,
         } as never,
         priority_gap: priorityGap || null,
@@ -180,43 +167,11 @@ function SectionOnePage() {
     return () => {
       if (saveTimer.current) clearTimeout(saveTimer.current);
     };
-  }, [
-    user,
-    discCompleted,
-    discCode,
-    reflections,
-    priorityGap,
-    priorityGapScore,
-    sectionComplete,
-  ]);
+  }, [user, reflections, priorityGap, priorityGapScore, sectionComplete]);
 
   function selectGap(opt: GapOption) {
     setPriorityGap(opt.label);
     setPriorityGapScore(opt.score);
-  }
-
-  async function submitDiscCode() {
-    const code = discCodeInput.trim();
-    if (!code) return;
-    setDiscVerifying(true);
-    setDiscError(null);
-    try {
-      const res = await verifyDiscCode({ data: { code } });
-      if (res.valid) {
-        setDiscCompleted(true);
-        setDiscCode(code);
-        setDiscCodeInput("");
-        setDiscError(null);
-        toast.success("DISC code verified.");
-      } else {
-        setDiscError("That code is invalid");
-      }
-    } catch (e) {
-      console.error(e);
-      setDiscError("That code is invalid");
-    } finally {
-      setDiscVerifying(false);
-    }
   }
 
   function updateReflection(i: number, value: string) {
@@ -248,7 +203,7 @@ function SectionOnePage() {
         </Link>
         <PrintSectionButton
           section={1}
-          hasContent={hasPrintableContent({ disc_completed: discCompleted, disc_key_code: discCode, reflections })}
+          hasContent={hasPrintableContent({ reflections })}
         />
       </div>
 
@@ -271,13 +226,6 @@ function SectionOnePage() {
         <PartOne
           assessmentsDone={assessmentsDone}
           assessmentsAllDone={assessmentsAllDone}
-          discCompleted={discCompleted}
-          discCode={discCode}
-          discCodeInput={discCodeInput}
-          setDiscCodeInput={setDiscCodeInput}
-          discError={discError}
-          discVerifying={discVerifying}
-          onSubmitDiscCode={submitDiscCode}
           gapOptions={gapOptions}
           priorityGap={priorityGap}
           priorityGapScore={priorityGapScore}
@@ -315,13 +263,6 @@ function SectionOnePage() {
 function PartOne(props: {
   assessmentsDone: Record<AssessmentType, boolean>;
   assessmentsAllDone: boolean;
-  discCompleted: boolean;
-  discCode: string;
-  discCodeInput: string;
-  setDiscCodeInput: (v: string) => void;
-  discError: string | null;
-  discVerifying: boolean;
-  onSubmitDiscCode: () => void;
   gapOptions: GapOption[];
   priorityGap: string;
   priorityGapScore: number | null;
@@ -332,13 +273,6 @@ function PartOne(props: {
   const {
     assessmentsDone,
     assessmentsAllDone,
-    discCompleted,
-    discCode,
-    discCodeInput,
-    setDiscCodeInput,
-    discError,
-    discVerifying,
-    onSubmitDiscCode,
     gapOptions,
     priorityGap,
     priorityGapScore,
@@ -382,61 +316,6 @@ function PartOne(props: {
                   </span>
                 ))}
               </div>
-            }
-          />
-          <ChecklistRow
-            checked={discCompleted}
-            disabled
-            label="Complete your DISC Assessment"
-            sub={
-              discCompleted ? (
-                <p className="mt-1 text-xs text-emerald-700">
-                  Verified{discCode ? ` · code ${discCode}` : ""}
-                </p>
-              ) : (
-                <div className="mt-2 space-y-2">
-                  <div className="flex flex-col gap-2 sm:flex-row">
-                    <input
-                      type="text"
-                      value={discCodeInput}
-                      onChange={(e) => setDiscCodeInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          onSubmitDiscCode();
-                        }
-                      }}
-                      placeholder="Enter DISC key code"
-                      className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:border-[#433993] focus:outline-none"
-                      autoComplete="off"
-                      spellCheck={false}
-                    />
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={onSubmitDiscCode}
-                      disabled={discVerifying || !discCodeInput.trim()}
-                      className="bg-[#433993] text-white hover:bg-[#433993]/90"
-                    >
-                      {discVerifying ? "Verifying…" : "Verify"}
-                    </Button>
-                  </div>
-                  {discError ? (
-                    <p className="text-xs font-medium text-red-600">{discError}</p>
-                  ) : null}
-                  <div>
-                    <Button asChild size="sm" variant="outline">
-                      <a href={DISC_URL} target="_blank" rel="noopener noreferrer">
-                        Get your DISC assessment
-                        <ExternalLink className="ml-2 h-3.5 w-3.5" />
-                      </a>
-                    </Button>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Already have a code? Enter it above to verify.
-                    </p>
-                  </div>
-                </div>
-              )
             }
           />
         </ul>
