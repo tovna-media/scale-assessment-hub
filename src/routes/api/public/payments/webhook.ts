@@ -140,6 +140,13 @@ async function handleSubscriptionUpsert(
       await notifyGhlSubscriptionEvent(userId, 'subscription_canceled', {
         subscription_id: sub.id,
       });
+      const { notifyGhlTag } = await import('@/lib/ghl-notify.server');
+      await notifyGhlTag({
+        userId,
+        event: 'subscription_canceled',
+        tag: 'fully resourced cancelled',
+        extra: { subscription_id: sub.id },
+      });
       await sendSubscriptionEmail(userId, 'subscription-canceled', {
         endsAt: isoFromUnix(periodEnd) ?? undefined,
       });
@@ -333,6 +340,30 @@ async function handleCheckoutCompleted(
     env,
   );
   console.log('[webhook] access granted', { userId, subscriptionId, campaign });
+
+  // Tag in GHL for the specific path they paid through. Fires once per
+  // checkout session (the idempotency check above skips already-processed
+  // subscriptions), so this only fires on the free/no-sub -> paid
+  // transition, not on renewals. Re-subscribing after a cancellation opens
+  // a new checkout session and is fine to tag again.
+  try {
+    const { notifyGhlTag } = await import('@/lib/ghl-notify.server');
+    const subscribeTag = isFounding
+      ? 'fully resourced subscribed - founding'
+      : isLeadersEdge
+        ? 'fully resourced subscribed - leaders edge'
+        : 'fully resourced subscribed - standard';
+    await notifyGhlTag({
+      userId,
+      email,
+      fullName: session.customer_details?.name ?? undefined,
+      event: `subscribe_${campaign}`,
+      tag: subscribeTag,
+      extra: { subscription_id: subscriptionId, campaign },
+    });
+  } catch (e) {
+    console.error('[webhook] GHL subscribe tag failed', e);
+  }
 
   // Record who redeemed the Leaders Edge code, for the admin code list. The code
   // was already burned (used_at set) when checkout was created; this just stamps
