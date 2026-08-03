@@ -44,5 +44,23 @@ export const signupUser = createServerFn({ method: "POST" })
       console.error("[signup] welcome email failed", e);
     }
 
+    // Tag in GHL. Only reached when a new auth user was actually created
+    // above (a retry with the same email fails createUser and returns
+    // early), so this can't double-fire for one account.
+    try {
+      const { notifyGhlTag } = await import("@/lib/ghl-notify.server");
+      await notifyGhlTag({
+        email: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        fullName,
+        phone: data.phone,
+        event: "signup",
+        tag: "fully resourced sign up",
+      });
+    } catch (e) {
+      console.error("[signup] GHL tag failed", e);
+    }
+
     return { ok: true as const };
   });

@@ -195,6 +195,18 @@ export const deleteUser = createServerFn({ method: "POST" })
       } catch (e) {
         console.error("[admin] cancellation email during delete failed", e);
       }
+
+      try {
+        const { notifyGhlTag } = await import("@/lib/ghl-notify.server");
+        await notifyGhlTag({
+          email: p.email,
+          fullName: p.full_name,
+          event: "subscription_canceled_admin_delete",
+          tag: "fully resourced cancelled",
+        });
+      } catch (e) {
+        console.error("[admin] GHL cancellation tag during delete failed", e);
+      }
     }
 
     return { ok: true, canceledSubscription, emailedCancellation };
