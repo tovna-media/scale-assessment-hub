@@ -20,6 +20,33 @@ function redactEmail(email: string | null | undefined): string {
   return `${localPart[0]}***@${domain}`
 }
 
+// Templates a signed-in member may trigger for themselves. Everything else is
+// server-only (see src/lib/email/send.server.ts) so this endpoint cannot be
+// used as an open relay for arbitrary branded mail.
+const CLIENT_ALLOWED_TEMPLATES = new Set(['gap-report-ready'])
+
+/**
+ * Strips caller-controlled fields that could be abused for phishing.
+ * Only plain display text and same-origin links survive.
+ */
+function sanitizeTemplateData(
+  data: Record<string, any>,
+  requestUrl: string,
+): Record<string, any> {
+  const out: Record<string, any> = {}
+  if (typeof data.name === 'string') out.name = data.name.slice(0, 100)
+  if (typeof data.reportUrl === 'string') {
+    try {
+      const origin = new URL(requestUrl).origin
+      const candidate = new URL(data.reportUrl, origin)
+      if (candidate.origin === origin) out.reportUrl = candidate.toString()
+    } catch {
+      // ignore invalid URLs
+    }
+  }
+  return out
+}
+
 // Generate a cryptographically random 32-byte hex token
 function generateToken(): string {
   const bytes = new Uint8Array(32)
@@ -58,6 +85,8 @@ export const Route = createFileRoute("/lovable/email/transactional/send")({
         if (authError || !user) {
           return Response.json({ error: 'Unauthorized' }, { status: 401 })
         }
+
+        const callerEmail = user.email?.toLowerCase() ?? null
 
         // Parse request body
         let templateName: string
@@ -100,6 +129,24 @@ export const Route = createFileRoute("/lovable/email/transactional/send")({
             { status: 404 }
           )
         }
+
+        // Authorization: a client may only trigger allow-listed templates, and
+        // only to their own verified address.
+        if (!CLIENT_ALLOWED_TEMPLATES.has(templateName)) {
+          console.warn('Blocked client-triggered template', { templateName })
+          return Response.json({ error: 'Forbidden' }, { status: 403 })
+        }
+        if (
+          !callerEmail ||
+          !recipientEmail ||
+          recipientEmail.toLowerCase() !== callerEmail
+        ) {
+          return Response.json(
+            { error: 'Forbidden: emails can only be sent to your own address' },
+            { status: 403 }
+          )
+        }
+        templateData = sanitizeTemplateData(templateData, request.url)
 
         // Resolve effective recipient: template-level `to` takes precedence over
         // the caller-provided recipientEmail. This allows notification templates
