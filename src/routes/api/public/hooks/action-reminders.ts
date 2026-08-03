@@ -63,14 +63,20 @@ export const Route = createFileRoute('/api/public/hooks/action-reminders')({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const anonKey = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY
-        const apikey = request.headers.get('apikey')
-        if (!anonKey || apikey !== anonKey) {
+        const supabaseUrl = process.env.SUPABASE_URL!
+        const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+
+        // Authorize with a server-only secret. The Supabase publishable/anon key
+        // is public (it ships in the browser bundle) and must never be accepted
+        // as an authorization credential here.
+        const cronSecret = process.env.CRON_SECRET || serviceKey
+        const authHeader = request.headers.get('Authorization') ?? ''
+        const bearer = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : ''
+        const provided = bearer || (request.headers.get('x-cron-secret') ?? '')
+        if (!cronSecret || provided !== cronSecret) {
           return new Response('Unauthorized', { status: 401 })
         }
 
-        const supabaseUrl = process.env.SUPABASE_URL!
-        const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
         const admin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } })
 
         // Paid members only
