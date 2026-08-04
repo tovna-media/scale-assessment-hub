@@ -46,7 +46,7 @@ type NavItem = {
 const NAV: NavItem[] = [
   { to: "/dashboard", label: "Home", icon: Home, match: "/dashboard" },
   { to: "/cycle", label: "My Cycle", icon: RefreshCw, match: "/cycle" },
-  { to: "/performance", label: "Performance", icon: TrendingUp, match: "/performance" },
+  { to: "/performance", label: "My Progress", icon: TrendingUp, match: "/performance" },
   { label: "Fully Resourced AI Coach", icon: MessageCircle, action: "open-ai-coach" },
   { label: "The Book", icon: BookOpen, soon: true },
 ];

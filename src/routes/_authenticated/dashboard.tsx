@@ -536,18 +536,18 @@ function DashboardPage() {
         </div>
       )}
 
-      {/* Explore Performance — only after the member has generated at least one Gap Report */}
+      {/* Explore My Progress — only after the member has generated at least one Gap Report */}
       {hasAnyReport && (
       <div className="mt-10 flex flex-col gap-4 rounded-2xl border border-[var(--fr-hairline)] bg-white p-6 shadow-[var(--shadow-card)] sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--rl-purple)]">Performance</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--rl-purple)]">My Progress</p>
           <h4 className="mt-1 text-base font-semibold text-[var(--fr-ink)]">See your growth over time</h4>
           <p className="mt-1 text-sm text-[var(--fr-muted-ink)]">
             Per-assessment trends, deltas, and every Gap Report you've generated.
           </p>
         </div>
         <Button asChild variant="outline">
-          <Link to="/performance">Open Performance <ArrowRight className="ml-2 h-4 w-4" /></Link>
+          <Link to="/performance">Open My Progress <ArrowRight className="ml-2 h-4 w-4" /></Link>
         </Button>
       </div>
       )}

@@ -108,6 +108,22 @@ function subLabel(status: SubStatus) {
   }
 }
 
+// Highest milestone the member has reached, in priority order. Reuses the
+// same fields the member-facing Home/My Cycle pages read (subscription
+// status, gap_reports count, optimizer_section_progress max, assessment
+// types attempted) rather than a second progress tracker. "Section N" uses
+// the same next-section definition My Cycle shows (highest completed + 1).
+function stageLabel(r: Row): string {
+  const subscribed = r.subStatus === "active" || r.subStatus === "trialing";
+  if (subscribed && r.reportsCount > 0) {
+    const nextSection = Math.min(12, r.currentSection + 1);
+    return `Section ${nextSection}`;
+  }
+  if (r.reportsCount > 0) return "Gap report generated";
+  if (r.types.size > 0) return `SCALE: ${r.types.size} out of 3`;
+  return "No assessments yet";
+}
+
 function CoachDashboard() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
 
@@ -480,11 +496,11 @@ function CoachDashboardIndex() {
               <tr>
                 <th className="px-4 py-3 font-semibold">Member</th>
                 <th className="px-4 py-3 font-semibold">Subscription</th>
-                <th className="px-4 py-3 font-semibold">Cycle / Section</th>
+                <th className="px-4 py-3 font-semibold">Stage</th>
                 <th className="px-4 py-3 font-semibold">Latest score</th>
                 <th className="px-4 py-3 font-semibold">Last activity</th>
                 <th className="px-4 py-3 font-semibold">Engagement</th>
-                <th className="px-4 py-3 font-semibold">Pipeline</th>
+                <th className="px-4 py-3 font-semibold">Status</th>
                 <th className="px-4 py-3 font-semibold text-right">Actions</th>
               </tr>
             </thead>
@@ -509,10 +525,7 @@ function CoachDashboardIndex() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">
-                    <div className="font-medium text-[color:var(--fr-ink)]">Cycle {r.cycle}</div>
-                    <div className="text-xs">
-                      {r.currentSection === 0 ? "Not started" : `Section ${r.currentSection}/12`}
-                    </div>
+                    <div className="font-medium text-[color:var(--fr-ink)]">{stageLabel(r)}</div>
                   </td>
                   <td className="px-4 py-3">
                     {r.latestScore !== null && r.latestType ? (
