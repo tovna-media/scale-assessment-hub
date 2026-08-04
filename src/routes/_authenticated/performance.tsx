@@ -17,7 +17,7 @@ import { usePlansDialog } from "@/components/PlansDialog";
 import { Lock } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/performance")({
-  head: () => ({ meta: [{ title: "Performance — Fully Resourced" }] }),
+  head: () => ({ meta: [{ title: "My Progress — Fully Resourced" }] }),
   component: PerformancePage,
 });
 
@@ -212,7 +212,7 @@ function PerformancePage() {
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-8 sm:py-10">
       <div className="mb-8">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--rl-purple)]">Your growth</p>
-        <h2 className="mt-2 text-3xl font-bold tracking-tight text-[var(--fr-ink)] sm:text-4xl">Performance</h2>
+        <h2 className="mt-2 text-3xl font-bold tracking-tight text-[var(--fr-ink)] sm:text-4xl">My Progress</h2>
         <p className="mt-1 text-sm text-[var(--fr-muted-ink)]">
           Every score, rating, and marker you've captured — over time. Open any Gap Report, and start a new cycle once you've completed all 12 sections.
         </p>

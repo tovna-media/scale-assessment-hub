@@ -345,7 +345,7 @@ function SectionThreePage() {
         </Link>
         <PrintSectionButton section={3} hasContent={hasPrintableContent(d)} />
       </div>
-      <SectionVideo sectionNumber={3} sectionTitle="Leadership Performance Dashboard" />
+      <SectionVideo sectionNumber={3} sectionTitle="Leadership Performance Dashboard" videoUrl="https://www.youtube.com/embed/PClOJmgldJc" />
 
       <div className="mb-6">
         <div className="flex items-center justify-between text-xs font-medium uppercase tracking-widest text-muted-foreground">

@@ -274,7 +274,7 @@ function SectionFourPage() {
         <PrintSectionButton section={4} hasContent={hasPrintableContent(d)} />
       </div>
 
-      <SectionVideo sectionNumber={4} sectionTitle="Lead Others" />
+      <SectionVideo sectionNumber={4} sectionTitle="Lead Others" videoUrl="https://www.youtube.com/embed/2L3a65WRo5c" />
 
       <div className="mb-6">
         <div className="flex items-center justify-between text-xs font-medium uppercase tracking-widest text-muted-foreground">
