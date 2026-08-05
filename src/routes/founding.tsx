@@ -13,8 +13,7 @@ import { createSubscriptionCheckout } from "@/lib/payments.functions";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
 
 const TITLE = "Founding membership — Fully Resourced";
-const DESCRIPTION =
-  "Start your Fully Resourced membership with 20% off your first month. No coupon code needed — the founding discount applies automatically at checkout.";
+const DESCRIPTION = "Your first 30 days are free. After that, it's $97/month.";
 
 export const Route = createFileRoute("/founding")({
   head: () => ({
@@ -33,6 +32,7 @@ export const Route = createFileRoute("/founding")({
 });
 
 const INCLUDED = [
+  "A monthly check-in with your coach, once a month, sit down with Rich Lohman, a leadership coach with two decades of experience, to review your progress, answer your questions, and keep you moving.",
   "Your assessments and gap report",
   "The Optimized Leader Guide, week by week",
   "The Leadership Performance Dashboard",
@@ -100,11 +100,12 @@ function FoundingPage() {
             Unlock the Full Fully Resourced App
           </h1>
           <p className="mt-3 text-base text-muted-foreground">
-            Everything you need to close your leadership gaps, in one app.
+            Seeing your gaps is the easy part. Closing them is the work and that's what this
+            system walks you through, one week at a time.
           </p>
           <p className="mx-auto mt-4 max-w-md rounded-xl bg-rl-purple/5 px-4 py-3 text-sm font-medium text-rl-purple">
-            No coupon code needed. Your 20% founding discount is applied automatically when you
-            check out.
+            Each week for your first month, you'll work through the next step built to close a
+            real gap holding you back as a leader.
           </p>
         </header>
 
@@ -129,10 +130,10 @@ function FoundingPage() {
             $97<span className="text-base font-medium text-muted-foreground">/month</span>
           </p>
           <p className="mt-2 inline-flex rounded-full bg-rl-purple/10 px-3 py-1 text-xs font-semibold text-rl-purple">
-            Founding member: 20% off your first month
+            Your first 30 days are free
           </p>
           <p className="mt-4 text-[15px] font-medium text-foreground">
-            First month $77.60, then $97/month. Cancel anytime.
+            Start your 30-day free trial. Your card won't be charged today.
           </p>
 
           {showCheckout ? (
@@ -151,9 +152,9 @@ function FoundingPage() {
           </p>
 
           <p className="mt-4 text-center text-xs leading-relaxed text-muted-foreground">
-            Your first month is $77.60 (20% off), then $97/month. Your subscription renews
-            automatically each month until you cancel. You can cancel anytime from your billing page
-            in the app. By continuing you agree to our{" "}
+            Cancel anytime before day 30 and you won't be charged. Your account simply moves to
+            the free plan and you keep your gap report. If you don't cancel, your membership
+            starts at $97/month after the 30 days. By continuing you agree to our{" "}
             <Link to="/terms" className="underline">
               Terms of Service
             </Link>{" "}

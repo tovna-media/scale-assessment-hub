@@ -8,7 +8,6 @@ import { template as subscriptionCanceledTemplate } from './subscription-cancele
 import { template as subscriptionUpdatedTemplate } from './subscription-updated'
 import { template as actionReminderTemplate } from './action-reminder'
 import { template as foundingAccessTemplate } from './founding-access'
-import { template as leadersEdgeAccessTemplate } from './leaders-edge-access'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -37,5 +36,4 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'subscription-updated': subscriptionUpdatedTemplate,
   'action-reminder': actionReminderTemplate,
   'founding-access': foundingAccessTemplate,
-  'leaders-edge-access': leadersEdgeAccessTemplate,
 }
