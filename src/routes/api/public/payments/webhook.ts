@@ -249,9 +249,9 @@ type CheckoutSession = StripeObj & {
 /**
  * Subscription checkout completed: Stripe collected the email, we create (or
  * attach) the app account here so nobody ever fills out a signup form. Shared by
- * every in-app payment path — founding, Leaders Edge redemption, and signed-in
- * member upgrades — so account creation, access grant, and the sign-in email
- * always run the same way. The campaign is read from session metadata.
+ * every in-app payment path — founding and signed-in member upgrades — so
+ * account creation, access grant, and the sign-in email always run the same
+ * way. The campaign is read from session metadata.
  */
 async function handleCheckoutCompleted(
   admin: Admin,
@@ -265,9 +265,7 @@ async function handleCheckoutCompleted(
   }
 
   const isFounding = session.metadata?.founding === '1';
-  const isLeadersEdge = session.metadata?.leaders_edge === '1';
-  const campaign = isLeadersEdge ? 'leaders_edge' : isFounding ? 'founding' : 'upgrade';
-  const leadersEdgeCode = session.metadata?.leaders_edge_code;
+  const campaign = isFounding ? 'founding' : 'upgrade';
   console.log('[webhook] checkout start', { sessionId: session.id, subscriptionId, campaign });
 
   // Idempotency: if this subscription was already granted, stop here.
@@ -316,10 +314,6 @@ async function handleCheckoutCompleted(
   // subscription events resolve the user without mislabeling the plan.
   const campaignMeta: Record<string, string> = { userId };
   if (isFounding) campaignMeta.founding = '1';
-  if (isLeadersEdge) {
-    campaignMeta.leaders_edge = '1';
-    if (leadersEdgeCode) campaignMeta.leaders_edge_code = leadersEdgeCode;
-  }
 
   const { createStripeClient } = await import('@/lib/stripe.server');
   const stripe = createStripeClient(env);
@@ -350,9 +344,7 @@ async function handleCheckoutCompleted(
     const { notifyGhlTag } = await import('@/lib/ghl-notify.server');
     const subscribeTag = isFounding
       ? 'fully resourced subscribed - founding'
-      : isLeadersEdge
-        ? 'fully resourced subscribed - leaders edge'
-        : 'fully resourced subscribed - standard';
+      : 'fully resourced subscribed - standard';
     await notifyGhlTag({
       userId,
       email,
@@ -365,24 +357,10 @@ async function handleCheckoutCompleted(
     console.error('[webhook] GHL subscribe tag failed', e);
   }
 
-  // Record who redeemed the Leaders Edge code, for the admin code list. The code
-  // was already burned (used_at set) when checkout was created; this just stamps
-  // the redeemer.
-  if (isLeadersEdge && leadersEdgeCode) {
-    try {
-      await admin
-        .from('redemption_codes')
-        .update({ redeemed_user_id: userId, redeemed_by_email: email } as never)
-        .eq('code', leadersEdgeCode);
-    } catch (e) {
-      console.error('[webhook] failed to stamp redemption code', e);
-    }
-  }
-
   // Send the sign-in link so they land in the app without a signup form. Skip
   // only for signed-in member upgrades (they already have a session); founding
-  // and Leaders Edge redeemers arrive unauthenticated and need the link.
-  if (!isNewAccount && !isFounding && !isLeadersEdge) {
+  // buyers arrive unauthenticated and need the link.
+  if (!isNewAccount && !isFounding) {
     console.log('[webhook] existing member upgrade, no sign-in email needed', { userId });
     return;
   }
@@ -395,7 +373,7 @@ async function handleCheckoutCompleted(
     });
     if (linkError) console.error('[webhook] generateLink failed', linkError);
     const signInUrl = link?.properties?.action_link ?? appUrl;
-    const templateName = isLeadersEdge ? 'leaders-edge-access' : 'founding-access';
+    const templateName = 'founding-access';
     const { sendTransactionalEmailServer } = await import('@/lib/email/send.server');
     await sendTransactionalEmailServer({
       templateName,

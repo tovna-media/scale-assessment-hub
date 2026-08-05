@@ -9,97 +9,57 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
-import { Route as CoachRouteImport } from './routes/_coach'
-import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
-import { Route as FoundingRouteImport } from './routes/founding'
-import { Route as LeadersEdgeRouteImport } from './routes/leaders-edge'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as SignupRouteImport } from './routes/signup'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as TermsRouteImport } from './routes/terms'
 import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
-import { Route as AuthenticatedCycleRouteImport } from './routes/_authenticated/cycle'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as AuthenticatedGuideRouteImport } from './routes/_authenticated/guide'
-import { Route as AuthenticatedPerformanceRouteImport } from './routes/_authenticated/performance'
-import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
-import { Route as AuthenticatedSecurityRouteImport } from './routes/_authenticated/security'
-import { Route as CoachCoachRouteImport } from './routes/_coach/coach'
-import { Route as CoachSettingsRouteImport } from './routes/_coach/settings'
-import { Route as CoachLoginRouteImport } from './routes/coach.login'
-import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as FoundingRouteImport } from './routes/founding'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as CoachRouteImport } from './routes/_coach'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as FoundingSuccessRouteImport } from './routes/founding_.success'
-import { Route as LeadersEdgeSuccessRouteImport } from './routes/leaders-edge_.success'
-import { Route as AuthenticatedAssessmentTypeRouteImport } from './routes/_authenticated/assessment.$type'
-import { Route as AuthenticatedCheckoutActivatingRouteImport } from './routes/_authenticated/checkout.activating'
-import { Route as AuthenticatedGuideSection1RouteImport } from './routes/_authenticated/guide.section-1'
-import { Route as AuthenticatedGuideSection10RouteImport } from './routes/_authenticated/guide.section-10'
-import { Route as AuthenticatedGuideSection11RouteImport } from './routes/_authenticated/guide.section-11'
-import { Route as AuthenticatedGuideSection12RouteImport } from './routes/_authenticated/guide.section-12'
-import { Route as AuthenticatedGuideSection2RouteImport } from './routes/_authenticated/guide.section-2'
-import { Route as AuthenticatedGuideSection3RouteImport } from './routes/_authenticated/guide.section-3'
-import { Route as AuthenticatedGuideSection4RouteImport } from './routes/_authenticated/guide.section-4'
-import { Route as AuthenticatedGuideSection5RouteImport } from './routes/_authenticated/guide.section-5'
-import { Route as AuthenticatedGuideSection6RouteImport } from './routes/_authenticated/guide.section-6'
-import { Route as AuthenticatedGuideSection7RouteImport } from './routes/_authenticated/guide.section-7'
-import { Route as AuthenticatedGuideSection8RouteImport } from './routes/_authenticated/guide.section-8'
-import { Route as AuthenticatedGuideSection9RouteImport } from './routes/_authenticated/guide.section-9'
-import { Route as AuthenticatedPrintAllRouteImport } from './routes/_authenticated/print.all'
-import { Route as AuthenticatedReportSessionIdRouteImport } from './routes/_authenticated/report.$sessionId'
+import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
+import { Route as CoachLoginRouteImport } from './routes/coach.login'
+import { Route as CoachSettingsRouteImport } from './routes/_coach/settings'
+import { Route as CoachCoachRouteImport } from './routes/_coach/coach'
+import { Route as AuthenticatedSecurityRouteImport } from './routes/_authenticated/security'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedPerformanceRouteImport } from './routes/_authenticated/performance'
+import { Route as AuthenticatedGuideRouteImport } from './routes/_authenticated/guide'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedCycleRouteImport } from './routes/_authenticated/cycle'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
-import { Route as AuthenticatedPrintSectionNumberRouteImport } from './routes/_authenticated/print.section.$number'
-import { Route as CoachCoachAssesseeUserIdRouteImport } from './routes/_coach/coach.assessee.$userId'
-import { Route as ApiPublicHooksActionRemindersRouteImport } from './routes/api/public/hooks/action-reminders'
-import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
-import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
-import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
-import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
-import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
+import { Route as AuthenticatedReportSessionIdRouteImport } from './routes/_authenticated/report.$sessionId'
+import { Route as AuthenticatedPrintAllRouteImport } from './routes/_authenticated/print.all'
+import { Route as AuthenticatedGuideSection9RouteImport } from './routes/_authenticated/guide.section-9'
+import { Route as AuthenticatedGuideSection8RouteImport } from './routes/_authenticated/guide.section-8'
+import { Route as AuthenticatedGuideSection7RouteImport } from './routes/_authenticated/guide.section-7'
+import { Route as AuthenticatedGuideSection6RouteImport } from './routes/_authenticated/guide.section-6'
+import { Route as AuthenticatedGuideSection5RouteImport } from './routes/_authenticated/guide.section-5'
+import { Route as AuthenticatedGuideSection4RouteImport } from './routes/_authenticated/guide.section-4'
+import { Route as AuthenticatedGuideSection3RouteImport } from './routes/_authenticated/guide.section-3'
+import { Route as AuthenticatedGuideSection2RouteImport } from './routes/_authenticated/guide.section-2'
+import { Route as AuthenticatedGuideSection12RouteImport } from './routes/_authenticated/guide.section-12'
+import { Route as AuthenticatedGuideSection11RouteImport } from './routes/_authenticated/guide.section-11'
+import { Route as AuthenticatedGuideSection10RouteImport } from './routes/_authenticated/guide.section-10'
+import { Route as AuthenticatedGuideSection1RouteImport } from './routes/_authenticated/guide.section-1'
+import { Route as AuthenticatedCheckoutActivatingRouteImport } from './routes/_authenticated/checkout.activating'
+import { Route as AuthenticatedAssessmentTypeRouteImport } from './routes/_authenticated/assessment.$type'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
+import { Route as ApiPublicHooksActionRemindersRouteImport } from './routes/api/public/hooks/action-reminders'
+import { Route as CoachCoachAssesseeUserIdRouteImport } from './routes/_coach/coach.assessee.$userId'
+import { Route as AuthenticatedPrintSectionNumberRouteImport } from './routes/_authenticated/print.section.$number'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedRoute = AuthenticatedRouteImport.update({
-  id: '/_authenticated',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CoachRoute = CoachRouteImport.update({
-  id: '/_coach',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
-  id: '/forgot-password',
-  path: '/forgot-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FoundingRoute = FoundingRouteImport.update({
-  id: '/founding',
-  path: '/founding',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LeadersEdgeRoute = LeadersEdgeRouteImport.update({
-  id: '/leaders-edge',
-  path: '/leaders-edge',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SignupRoute = SignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
+const UnsubscribeRoute = UnsubscribeRouteImport.update({
+  id: '/unsubscribe',
+  path: '/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermsRoute = TermsRouteImport.update({
@@ -107,24 +67,77 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
-const UnsubscribeRoute = UnsubscribeRouteImport.update({
-  id: '/unsubscribe',
-  path: '/unsubscribe',
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedCycleRoute = AuthenticatedCycleRouteImport.update({
-  id: '/cycle',
-  path: '/cycle',
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FoundingRoute = FoundingRouteImport.update({
+  id: '/founding',
+  path: '/founding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoachRoute = CoachRouteImport.update({
+  id: '/_coach',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FoundingSuccessRoute = FoundingSuccessRouteImport.update({
+  id: '/founding_/success',
+  path: '/founding/success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
+  id: '/email/unsubscribe',
+  path: '/email/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoachLoginRoute = CoachLoginRouteImport.update({
+  id: '/coach/login',
+  path: '/coach/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoachSettingsRoute = CoachSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => CoachRoute,
+} as any)
+const CoachCoachRoute = CoachCoachRouteImport.update({
+  id: '/coach',
+  path: '/coach',
+  getParentRoute: () => CoachRoute,
+} as any)
+const AuthenticatedSecurityRoute = AuthenticatedSecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedGuideRoute = AuthenticatedGuideRouteImport.update({
-  id: '/guide',
-  path: '/guide',
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedPerformanceRoute =
@@ -133,116 +146,41 @@ const AuthenticatedPerformanceRoute =
     path: '/performance',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
+const AuthenticatedGuideRoute = AuthenticatedGuideRouteImport.update({
+  id: '/guide',
+  path: '/guide',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedSecurityRoute = AuthenticatedSecurityRouteImport.update({
-  id: '/security',
-  path: '/security',
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const CoachCoachRoute = CoachCoachRouteImport.update({
-  id: '/coach',
-  path: '/coach',
-  getParentRoute: () => CoachRoute,
+const AuthenticatedCycleRoute = AuthenticatedCycleRouteImport.update({
+  id: '/cycle',
+  path: '/cycle',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
-const CoachSettingsRoute = CoachSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => CoachRoute,
-} as any)
-const CoachLoginRoute = CoachLoginRouteImport.update({
-  id: '/coach/login',
-  path: '/coach/login',
+const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
+  id: '/lovable/email/suppression',
+  path: '/lovable/email/suppression',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
-  id: '/email/unsubscribe',
-  path: '/email/unsubscribe',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FoundingSuccessRoute = FoundingSuccessRouteImport.update({
-  id: '/founding_/success',
-  path: '/founding/success',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LeadersEdgeSuccessRoute = LeadersEdgeSuccessRouteImport.update({
-  id: '/leaders-edge_/success',
-  path: '/leaders-edge/success',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedAssessmentTypeRoute =
-  AuthenticatedAssessmentTypeRouteImport.update({
-    id: '/assessment/$type',
-    path: '/assessment/$type',
+const AuthenticatedReportSessionIdRoute =
+  AuthenticatedReportSessionIdRouteImport.update({
+    id: '/report/$sessionId',
+    path: '/report/$sessionId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedCheckoutActivatingRoute =
-  AuthenticatedCheckoutActivatingRouteImport.update({
-    id: '/checkout/activating',
-    path: '/checkout/activating',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedGuideSection1Route =
-  AuthenticatedGuideSection1RouteImport.update({
-    id: '/section-1',
-    path: '/section-1',
-    getParentRoute: () => AuthenticatedGuideRoute,
-  } as any)
-const AuthenticatedGuideSection10Route =
-  AuthenticatedGuideSection10RouteImport.update({
-    id: '/section-10',
-    path: '/section-10',
-    getParentRoute: () => AuthenticatedGuideRoute,
-  } as any)
-const AuthenticatedGuideSection11Route =
-  AuthenticatedGuideSection11RouteImport.update({
-    id: '/section-11',
-    path: '/section-11',
-    getParentRoute: () => AuthenticatedGuideRoute,
-  } as any)
-const AuthenticatedGuideSection12Route =
-  AuthenticatedGuideSection12RouteImport.update({
-    id: '/section-12',
-    path: '/section-12',
-    getParentRoute: () => AuthenticatedGuideRoute,
-  } as any)
-const AuthenticatedGuideSection2Route =
-  AuthenticatedGuideSection2RouteImport.update({
-    id: '/section-2',
-    path: '/section-2',
-    getParentRoute: () => AuthenticatedGuideRoute,
-  } as any)
-const AuthenticatedGuideSection3Route =
-  AuthenticatedGuideSection3RouteImport.update({
-    id: '/section-3',
-    path: '/section-3',
-    getParentRoute: () => AuthenticatedGuideRoute,
-  } as any)
-const AuthenticatedGuideSection4Route =
-  AuthenticatedGuideSection4RouteImport.update({
-    id: '/section-4',
-    path: '/section-4',
-    getParentRoute: () => AuthenticatedGuideRoute,
-  } as any)
-const AuthenticatedGuideSection5Route =
-  AuthenticatedGuideSection5RouteImport.update({
-    id: '/section-5',
-    path: '/section-5',
-    getParentRoute: () => AuthenticatedGuideRoute,
-  } as any)
-const AuthenticatedGuideSection6Route =
-  AuthenticatedGuideSection6RouteImport.update({
-    id: '/section-6',
-    path: '/section-6',
-    getParentRoute: () => AuthenticatedGuideRoute,
-  } as any)
-const AuthenticatedGuideSection7Route =
-  AuthenticatedGuideSection7RouteImport.update({
-    id: '/section-7',
-    path: '/section-7',
+const AuthenticatedPrintAllRoute = AuthenticatedPrintAllRouteImport.update({
+  id: '/print/all',
+  path: '/print/all',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedGuideSection9Route =
+  AuthenticatedGuideSection9RouteImport.update({
+    id: '/section-9',
+    path: '/section-9',
     getParentRoute: () => AuthenticatedGuideRoute,
   } as any)
 const AuthenticatedGuideSection8Route =
@@ -251,66 +189,82 @@ const AuthenticatedGuideSection8Route =
     path: '/section-8',
     getParentRoute: () => AuthenticatedGuideRoute,
   } as any)
-const AuthenticatedGuideSection9Route =
-  AuthenticatedGuideSection9RouteImport.update({
-    id: '/section-9',
-    path: '/section-9',
+const AuthenticatedGuideSection7Route =
+  AuthenticatedGuideSection7RouteImport.update({
+    id: '/section-7',
+    path: '/section-7',
     getParentRoute: () => AuthenticatedGuideRoute,
   } as any)
-const AuthenticatedPrintAllRoute = AuthenticatedPrintAllRouteImport.update({
-  id: '/print/all',
-  path: '/print/all',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedReportSessionIdRoute =
-  AuthenticatedReportSessionIdRouteImport.update({
-    id: '/report/$sessionId',
-    path: '/report/$sessionId',
+const AuthenticatedGuideSection6Route =
+  AuthenticatedGuideSection6RouteImport.update({
+    id: '/section-6',
+    path: '/section-6',
+    getParentRoute: () => AuthenticatedGuideRoute,
+  } as any)
+const AuthenticatedGuideSection5Route =
+  AuthenticatedGuideSection5RouteImport.update({
+    id: '/section-5',
+    path: '/section-5',
+    getParentRoute: () => AuthenticatedGuideRoute,
+  } as any)
+const AuthenticatedGuideSection4Route =
+  AuthenticatedGuideSection4RouteImport.update({
+    id: '/section-4',
+    path: '/section-4',
+    getParentRoute: () => AuthenticatedGuideRoute,
+  } as any)
+const AuthenticatedGuideSection3Route =
+  AuthenticatedGuideSection3RouteImport.update({
+    id: '/section-3',
+    path: '/section-3',
+    getParentRoute: () => AuthenticatedGuideRoute,
+  } as any)
+const AuthenticatedGuideSection2Route =
+  AuthenticatedGuideSection2RouteImport.update({
+    id: '/section-2',
+    path: '/section-2',
+    getParentRoute: () => AuthenticatedGuideRoute,
+  } as any)
+const AuthenticatedGuideSection12Route =
+  AuthenticatedGuideSection12RouteImport.update({
+    id: '/section-12',
+    path: '/section-12',
+    getParentRoute: () => AuthenticatedGuideRoute,
+  } as any)
+const AuthenticatedGuideSection11Route =
+  AuthenticatedGuideSection11RouteImport.update({
+    id: '/section-11',
+    path: '/section-11',
+    getParentRoute: () => AuthenticatedGuideRoute,
+  } as any)
+const AuthenticatedGuideSection10Route =
+  AuthenticatedGuideSection10RouteImport.update({
+    id: '/section-10',
+    path: '/section-10',
+    getParentRoute: () => AuthenticatedGuideRoute,
+  } as any)
+const AuthenticatedGuideSection1Route =
+  AuthenticatedGuideSection1RouteImport.update({
+    id: '/section-1',
+    path: '/section-1',
+    getParentRoute: () => AuthenticatedGuideRoute,
+  } as any)
+const AuthenticatedCheckoutActivatingRoute =
+  AuthenticatedCheckoutActivatingRouteImport.update({
+    id: '/checkout/activating',
+    path: '/checkout/activating',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
-  id: '/lovable/email/suppression',
-  path: '/lovable/email/suppression',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedPrintSectionNumberRoute =
-  AuthenticatedPrintSectionNumberRouteImport.update({
-    id: '/print/section/$number',
-    path: '/print/section/$number',
+const AuthenticatedAssessmentTypeRoute =
+  AuthenticatedAssessmentTypeRouteImport.update({
+    id: '/assessment/$type',
+    path: '/assessment/$type',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const CoachCoachAssesseeUserIdRoute =
-  CoachCoachAssesseeUserIdRouteImport.update({
-    id: '/assessee/$userId',
-    path: '/assessee/$userId',
-    getParentRoute: () => CoachCoachRoute,
-  } as any)
-const ApiPublicHooksActionRemindersRoute =
-  ApiPublicHooksActionRemindersRouteImport.update({
-    id: '/api/public/hooks/action-reminders',
-    path: '/api/public/hooks/action-reminders',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicPaymentsWebhookRoute =
-  ApiPublicPaymentsWebhookRouteImport.update({
-    id: '/api/public/payments/webhook',
-    path: '/api/public/payments/webhook',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
-  id: '/lovable/email/auth/preview',
-  path: '/lovable/email/auth/preview',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
-  id: '/lovable/email/auth/webhook',
-  path: '/lovable/email/auth/webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LovableEmailQueueProcessRoute =
-  LovableEmailQueueProcessRouteImport.update({
-    id: '/lovable/email/queue/process',
-    path: '/lovable/email/queue/process',
+const LovableEmailTransactionalSendRoute =
+  LovableEmailTransactionalSendRouteImport.update({
+    id: '/lovable/email/transactional/send',
+    path: '/lovable/email/transactional/send',
     getParentRoute: () => rootRouteImport,
   } as any)
 const LovableEmailTransactionalPreviewRoute =
@@ -319,18 +273,51 @@ const LovableEmailTransactionalPreviewRoute =
     path: '/lovable/email/transactional/preview',
     getParentRoute: () => rootRouteImport,
   } as any)
-const LovableEmailTransactionalSendRoute =
-  LovableEmailTransactionalSendRouteImport.update({
-    id: '/lovable/email/transactional/send',
-    path: '/lovable/email/transactional/send',
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksActionRemindersRoute =
+  ApiPublicHooksActionRemindersRouteImport.update({
+    id: '/api/public/hooks/action-reminders',
+    path: '/api/public/hooks/action-reminders',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const CoachCoachAssesseeUserIdRoute =
+  CoachCoachAssesseeUserIdRouteImport.update({
+    id: '/assessee/$userId',
+    path: '/assessee/$userId',
+    getParentRoute: () => CoachCoachRoute,
+  } as any)
+const AuthenticatedPrintSectionNumberRoute =
+  AuthenticatedPrintSectionNumberRouteImport.update({
+    id: '/print/section/$number',
+    path: '/print/section/$number',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/founding': typeof FoundingRoute
-  '/leaders-edge': typeof LeadersEdgeRoute
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -347,7 +334,6 @@ export interface FileRoutesByFullPath {
   '/coach/login': typeof CoachLoginRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/founding/success': typeof FoundingSuccessRoute
-  '/leaders-edge/success': typeof LeadersEdgeSuccessRoute
   '/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/checkout/activating': typeof AuthenticatedCheckoutActivatingRoute
   '/guide/section-1': typeof AuthenticatedGuideSection1Route
@@ -379,7 +365,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/founding': typeof FoundingRoute
-  '/leaders-edge': typeof LeadersEdgeRoute
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -396,7 +381,6 @@ export interface FileRoutesByTo {
   '/coach/login': typeof CoachLoginRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/founding/success': typeof FoundingSuccessRoute
-  '/leaders-edge/success': typeof LeadersEdgeSuccessRoute
   '/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/checkout/activating': typeof AuthenticatedCheckoutActivatingRoute
   '/guide/section-1': typeof AuthenticatedGuideSection1Route
@@ -431,7 +415,6 @@ export interface FileRoutesById {
   '/_coach': typeof CoachRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/founding': typeof FoundingRoute
-  '/leaders-edge': typeof LeadersEdgeRoute
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -448,7 +431,6 @@ export interface FileRoutesById {
   '/coach/login': typeof CoachLoginRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/founding_/success': typeof FoundingSuccessRoute
-  '/leaders-edge_/success': typeof LeadersEdgeSuccessRoute
   '/_authenticated/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/_authenticated/checkout/activating': typeof AuthenticatedCheckoutActivatingRoute
   '/_authenticated/guide/section-1': typeof AuthenticatedGuideSection1Route
@@ -482,7 +464,6 @@ export interface FileRouteTypes {
     | '/'
     | '/forgot-password'
     | '/founding'
-    | '/leaders-edge'
     | '/privacy'
     | '/signup'
     | '/sitemap.xml'
@@ -499,7 +480,6 @@ export interface FileRouteTypes {
     | '/coach/login'
     | '/email/unsubscribe'
     | '/founding/success'
-    | '/leaders-edge/success'
     | '/assessment/$type'
     | '/checkout/activating'
     | '/guide/section-1'
@@ -531,7 +511,6 @@ export interface FileRouteTypes {
     | '/'
     | '/forgot-password'
     | '/founding'
-    | '/leaders-edge'
     | '/privacy'
     | '/signup'
     | '/sitemap.xml'
@@ -548,7 +527,6 @@ export interface FileRouteTypes {
     | '/coach/login'
     | '/email/unsubscribe'
     | '/founding/success'
-    | '/leaders-edge/success'
     | '/assessment/$type'
     | '/checkout/activating'
     | '/guide/section-1'
@@ -582,7 +560,6 @@ export interface FileRouteTypes {
     | '/_coach'
     | '/forgot-password'
     | '/founding'
-    | '/leaders-edge'
     | '/privacy'
     | '/signup'
     | '/sitemap.xml'
@@ -599,7 +576,6 @@ export interface FileRouteTypes {
     | '/coach/login'
     | '/email/unsubscribe'
     | '/founding_/success'
-    | '/leaders-edge_/success'
     | '/_authenticated/assessment/$type'
     | '/_authenticated/checkout/activating'
     | '/_authenticated/guide/section-1'
@@ -634,7 +610,6 @@ export interface RootRouteChildren {
   CoachRoute: typeof CoachRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   FoundingRoute: typeof FoundingRoute
-  LeadersEdgeRoute: typeof LeadersEdgeRoute
   PrivacyRoute: typeof PrivacyRoute
   SignupRoute: typeof SignupRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -643,7 +618,6 @@ export interface RootRouteChildren {
   CoachLoginRoute: typeof CoachLoginRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   FoundingSuccessRoute: typeof FoundingSuccessRoute
-  LeadersEdgeSuccessRoute: typeof LeadersEdgeSuccessRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicHooksActionRemindersRoute: typeof ApiPublicHooksActionRemindersRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -656,67 +630,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated': {
-      id: '/_authenticated'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_coach': {
-      id: '/_coach'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof CoachRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/forgot-password': {
-      id: '/forgot-password'
-      path: '/forgot-password'
-      fullPath: '/forgot-password'
-      preLoaderRoute: typeof ForgotPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/founding': {
-      id: '/founding'
-      path: '/founding'
-      fullPath: '/founding'
-      preLoaderRoute: typeof FoundingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/leaders-edge': {
-      id: '/leaders-edge'
-      path: '/leaders-edge'
-      fullPath: '/leaders-edge'
-      preLoaderRoute: typeof LeadersEdgeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
+    '/unsubscribe': {
+      id: '/unsubscribe'
+      path: '/unsubscribe'
+      fullPath: '/unsubscribe'
+      preLoaderRoute: typeof UnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/terms': {
@@ -726,81 +644,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/unsubscribe': {
-      id: '/unsubscribe'
-      path: '/unsubscribe'
-      fullPath: '/unsubscribe'
-      preLoaderRoute: typeof UnsubscribeRouteImport
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/cycle': {
-      id: '/_authenticated/cycle'
-      path: '/cycle'
-      fullPath: '/cycle'
-      preLoaderRoute: typeof AuthenticatedCycleRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/guide': {
-      id: '/_authenticated/guide'
-      path: '/guide'
-      fullPath: '/guide'
-      preLoaderRoute: typeof AuthenticatedGuideRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/performance': {
-      id: '/_authenticated/performance'
-      path: '/performance'
-      fullPath: '/performance'
-      preLoaderRoute: typeof AuthenticatedPerformanceRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/profile': {
-      id: '/_authenticated/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof AuthenticatedProfileRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/security': {
-      id: '/_authenticated/security'
-      path: '/security'
-      fullPath: '/security'
-      preLoaderRoute: typeof AuthenticatedSecurityRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_coach/coach': {
-      id: '/_coach/coach'
-      path: '/coach'
-      fullPath: '/coach'
-      preLoaderRoute: typeof CoachCoachRouteImport
-      parentRoute: typeof CoachRoute
-    }
-    '/_coach/settings': {
-      id: '/_coach/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof CoachSettingsRouteImport
-      parentRoute: typeof CoachRoute
-    }
-    '/coach/login': {
-      id: '/coach/login'
-      path: '/coach/login'
-      fullPath: '/coach/login'
-      preLoaderRoute: typeof CoachLoginRouteImport
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/email/unsubscribe': {
-      id: '/email/unsubscribe'
-      path: '/email/unsubscribe'
-      fullPath: '/email/unsubscribe'
-      preLoaderRoute: typeof EmailUnsubscribeRouteImport
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/founding': {
+      id: '/founding'
+      path: '/founding'
+      fullPath: '/founding'
+      preLoaderRoute: typeof FoundingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_coach': {
+      id: '/_coach'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof CoachRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/founding_/success': {
@@ -810,123 +707,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FoundingSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/leaders-edge_/success': {
-      id: '/leaders-edge_/success'
-      path: '/leaders-edge/success'
-      fullPath: '/leaders-edge/success'
-      preLoaderRoute: typeof LeadersEdgeSuccessRouteImport
+    '/email/unsubscribe': {
+      id: '/email/unsubscribe'
+      path: '/email/unsubscribe'
+      fullPath: '/email/unsubscribe'
+      preLoaderRoute: typeof EmailUnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/assessment/$type': {
-      id: '/_authenticated/assessment/$type'
-      path: '/assessment/$type'
-      fullPath: '/assessment/$type'
-      preLoaderRoute: typeof AuthenticatedAssessmentTypeRouteImport
+    '/coach/login': {
+      id: '/coach/login'
+      path: '/coach/login'
+      fullPath: '/coach/login'
+      preLoaderRoute: typeof CoachLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_coach/settings': {
+      id: '/_coach/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof CoachSettingsRouteImport
+      parentRoute: typeof CoachRoute
+    }
+    '/_coach/coach': {
+      id: '/_coach/coach'
+      path: '/coach'
+      fullPath: '/coach'
+      preLoaderRoute: typeof CoachCoachRouteImport
+      parentRoute: typeof CoachRoute
+    }
+    '/_authenticated/security': {
+      id: '/_authenticated/security'
+      path: '/security'
+      fullPath: '/security'
+      preLoaderRoute: typeof AuthenticatedSecurityRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/checkout/activating': {
-      id: '/_authenticated/checkout/activating'
-      path: '/checkout/activating'
-      fullPath: '/checkout/activating'
-      preLoaderRoute: typeof AuthenticatedCheckoutActivatingRouteImport
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/guide/section-1': {
-      id: '/_authenticated/guide/section-1'
-      path: '/section-1'
-      fullPath: '/guide/section-1'
-      preLoaderRoute: typeof AuthenticatedGuideSection1RouteImport
-      parentRoute: typeof AuthenticatedGuideRoute
-    }
-    '/_authenticated/guide/section-10': {
-      id: '/_authenticated/guide/section-10'
-      path: '/section-10'
-      fullPath: '/guide/section-10'
-      preLoaderRoute: typeof AuthenticatedGuideSection10RouteImport
-      parentRoute: typeof AuthenticatedGuideRoute
-    }
-    '/_authenticated/guide/section-11': {
-      id: '/_authenticated/guide/section-11'
-      path: '/section-11'
-      fullPath: '/guide/section-11'
-      preLoaderRoute: typeof AuthenticatedGuideSection11RouteImport
-      parentRoute: typeof AuthenticatedGuideRoute
-    }
-    '/_authenticated/guide/section-12': {
-      id: '/_authenticated/guide/section-12'
-      path: '/section-12'
-      fullPath: '/guide/section-12'
-      preLoaderRoute: typeof AuthenticatedGuideSection12RouteImport
-      parentRoute: typeof AuthenticatedGuideRoute
-    }
-    '/_authenticated/guide/section-2': {
-      id: '/_authenticated/guide/section-2'
-      path: '/section-2'
-      fullPath: '/guide/section-2'
-      preLoaderRoute: typeof AuthenticatedGuideSection2RouteImport
-      parentRoute: typeof AuthenticatedGuideRoute
-    }
-    '/_authenticated/guide/section-3': {
-      id: '/_authenticated/guide/section-3'
-      path: '/section-3'
-      fullPath: '/guide/section-3'
-      preLoaderRoute: typeof AuthenticatedGuideSection3RouteImport
-      parentRoute: typeof AuthenticatedGuideRoute
-    }
-    '/_authenticated/guide/section-4': {
-      id: '/_authenticated/guide/section-4'
-      path: '/section-4'
-      fullPath: '/guide/section-4'
-      preLoaderRoute: typeof AuthenticatedGuideSection4RouteImport
-      parentRoute: typeof AuthenticatedGuideRoute
-    }
-    '/_authenticated/guide/section-5': {
-      id: '/_authenticated/guide/section-5'
-      path: '/section-5'
-      fullPath: '/guide/section-5'
-      preLoaderRoute: typeof AuthenticatedGuideSection5RouteImport
-      parentRoute: typeof AuthenticatedGuideRoute
-    }
-    '/_authenticated/guide/section-6': {
-      id: '/_authenticated/guide/section-6'
-      path: '/section-6'
-      fullPath: '/guide/section-6'
-      preLoaderRoute: typeof AuthenticatedGuideSection6RouteImport
-      parentRoute: typeof AuthenticatedGuideRoute
-    }
-    '/_authenticated/guide/section-7': {
-      id: '/_authenticated/guide/section-7'
-      path: '/section-7'
-      fullPath: '/guide/section-7'
-      preLoaderRoute: typeof AuthenticatedGuideSection7RouteImport
-      parentRoute: typeof AuthenticatedGuideRoute
-    }
-    '/_authenticated/guide/section-8': {
-      id: '/_authenticated/guide/section-8'
-      path: '/section-8'
-      fullPath: '/guide/section-8'
-      preLoaderRoute: typeof AuthenticatedGuideSection8RouteImport
-      parentRoute: typeof AuthenticatedGuideRoute
-    }
-    '/_authenticated/guide/section-9': {
-      id: '/_authenticated/guide/section-9'
-      path: '/section-9'
-      fullPath: '/guide/section-9'
-      preLoaderRoute: typeof AuthenticatedGuideSection9RouteImport
-      parentRoute: typeof AuthenticatedGuideRoute
-    }
-    '/_authenticated/print/all': {
-      id: '/_authenticated/print/all'
-      path: '/print/all'
-      fullPath: '/print/all'
-      preLoaderRoute: typeof AuthenticatedPrintAllRouteImport
+    '/_authenticated/performance': {
+      id: '/_authenticated/performance'
+      path: '/performance'
+      fullPath: '/performance'
+      preLoaderRoute: typeof AuthenticatedPerformanceRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/report/$sessionId': {
-      id: '/_authenticated/report/$sessionId'
-      path: '/report/$sessionId'
-      fullPath: '/report/$sessionId'
-      preLoaderRoute: typeof AuthenticatedReportSessionIdRouteImport
+    '/_authenticated/guide': {
+      id: '/_authenticated/guide'
+      path: '/guide'
+      fullPath: '/guide'
+      preLoaderRoute: typeof AuthenticatedGuideRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/cycle': {
+      id: '/_authenticated/cycle'
+      path: '/cycle'
+      fullPath: '/cycle'
+      preLoaderRoute: typeof AuthenticatedCycleRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/lovable/email/suppression': {
@@ -936,53 +784,123 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailSuppressionRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/print/section/$number': {
-      id: '/_authenticated/print/section/$number'
-      path: '/print/section/$number'
-      fullPath: '/print/section/$number'
-      preLoaderRoute: typeof AuthenticatedPrintSectionNumberRouteImport
+    '/_authenticated/report/$sessionId': {
+      id: '/_authenticated/report/$sessionId'
+      path: '/report/$sessionId'
+      fullPath: '/report/$sessionId'
+      preLoaderRoute: typeof AuthenticatedReportSessionIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_coach/coach/assessee/$userId': {
-      id: '/_coach/coach/assessee/$userId'
-      path: '/assessee/$userId'
-      fullPath: '/coach/assessee/$userId'
-      preLoaderRoute: typeof CoachCoachAssesseeUserIdRouteImport
-      parentRoute: typeof CoachCoachRoute
+    '/_authenticated/print/all': {
+      id: '/_authenticated/print/all'
+      path: '/print/all'
+      fullPath: '/print/all'
+      preLoaderRoute: typeof AuthenticatedPrintAllRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/api/public/hooks/action-reminders': {
-      id: '/api/public/hooks/action-reminders'
-      path: '/api/public/hooks/action-reminders'
-      fullPath: '/api/public/hooks/action-reminders'
-      preLoaderRoute: typeof ApiPublicHooksActionRemindersRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_authenticated/guide/section-9': {
+      id: '/_authenticated/guide/section-9'
+      path: '/section-9'
+      fullPath: '/guide/section-9'
+      preLoaderRoute: typeof AuthenticatedGuideSection9RouteImport
+      parentRoute: typeof AuthenticatedGuideRoute
     }
-    '/api/public/payments/webhook': {
-      id: '/api/public/payments/webhook'
-      path: '/api/public/payments/webhook'
-      fullPath: '/api/public/payments/webhook'
-      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_authenticated/guide/section-8': {
+      id: '/_authenticated/guide/section-8'
+      path: '/section-8'
+      fullPath: '/guide/section-8'
+      preLoaderRoute: typeof AuthenticatedGuideSection8RouteImport
+      parentRoute: typeof AuthenticatedGuideRoute
     }
-    '/lovable/email/auth/preview': {
-      id: '/lovable/email/auth/preview'
-      path: '/lovable/email/auth/preview'
-      fullPath: '/lovable/email/auth/preview'
-      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_authenticated/guide/section-7': {
+      id: '/_authenticated/guide/section-7'
+      path: '/section-7'
+      fullPath: '/guide/section-7'
+      preLoaderRoute: typeof AuthenticatedGuideSection7RouteImport
+      parentRoute: typeof AuthenticatedGuideRoute
     }
-    '/lovable/email/auth/webhook': {
-      id: '/lovable/email/auth/webhook'
-      path: '/lovable/email/auth/webhook'
-      fullPath: '/lovable/email/auth/webhook'
-      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_authenticated/guide/section-6': {
+      id: '/_authenticated/guide/section-6'
+      path: '/section-6'
+      fullPath: '/guide/section-6'
+      preLoaderRoute: typeof AuthenticatedGuideSection6RouteImport
+      parentRoute: typeof AuthenticatedGuideRoute
     }
-    '/lovable/email/queue/process': {
-      id: '/lovable/email/queue/process'
-      path: '/lovable/email/queue/process'
-      fullPath: '/lovable/email/queue/process'
-      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+    '/_authenticated/guide/section-5': {
+      id: '/_authenticated/guide/section-5'
+      path: '/section-5'
+      fullPath: '/guide/section-5'
+      preLoaderRoute: typeof AuthenticatedGuideSection5RouteImport
+      parentRoute: typeof AuthenticatedGuideRoute
+    }
+    '/_authenticated/guide/section-4': {
+      id: '/_authenticated/guide/section-4'
+      path: '/section-4'
+      fullPath: '/guide/section-4'
+      preLoaderRoute: typeof AuthenticatedGuideSection4RouteImport
+      parentRoute: typeof AuthenticatedGuideRoute
+    }
+    '/_authenticated/guide/section-3': {
+      id: '/_authenticated/guide/section-3'
+      path: '/section-3'
+      fullPath: '/guide/section-3'
+      preLoaderRoute: typeof AuthenticatedGuideSection3RouteImport
+      parentRoute: typeof AuthenticatedGuideRoute
+    }
+    '/_authenticated/guide/section-2': {
+      id: '/_authenticated/guide/section-2'
+      path: '/section-2'
+      fullPath: '/guide/section-2'
+      preLoaderRoute: typeof AuthenticatedGuideSection2RouteImport
+      parentRoute: typeof AuthenticatedGuideRoute
+    }
+    '/_authenticated/guide/section-12': {
+      id: '/_authenticated/guide/section-12'
+      path: '/section-12'
+      fullPath: '/guide/section-12'
+      preLoaderRoute: typeof AuthenticatedGuideSection12RouteImport
+      parentRoute: typeof AuthenticatedGuideRoute
+    }
+    '/_authenticated/guide/section-11': {
+      id: '/_authenticated/guide/section-11'
+      path: '/section-11'
+      fullPath: '/guide/section-11'
+      preLoaderRoute: typeof AuthenticatedGuideSection11RouteImport
+      parentRoute: typeof AuthenticatedGuideRoute
+    }
+    '/_authenticated/guide/section-10': {
+      id: '/_authenticated/guide/section-10'
+      path: '/section-10'
+      fullPath: '/guide/section-10'
+      preLoaderRoute: typeof AuthenticatedGuideSection10RouteImport
+      parentRoute: typeof AuthenticatedGuideRoute
+    }
+    '/_authenticated/guide/section-1': {
+      id: '/_authenticated/guide/section-1'
+      path: '/section-1'
+      fullPath: '/guide/section-1'
+      preLoaderRoute: typeof AuthenticatedGuideSection1RouteImport
+      parentRoute: typeof AuthenticatedGuideRoute
+    }
+    '/_authenticated/checkout/activating': {
+      id: '/_authenticated/checkout/activating'
+      path: '/checkout/activating'
+      fullPath: '/checkout/activating'
+      preLoaderRoute: typeof AuthenticatedCheckoutActivatingRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/assessment/$type': {
+      id: '/_authenticated/assessment/$type'
+      path: '/assessment/$type'
+      fullPath: '/assessment/$type'
+      preLoaderRoute: typeof AuthenticatedAssessmentTypeRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/lovable/email/transactional/send': {
+      id: '/lovable/email/transactional/send'
+      path: '/lovable/email/transactional/send'
+      fullPath: '/lovable/email/transactional/send'
+      preLoaderRoute: typeof LovableEmailTransactionalSendRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lovable/email/transactional/preview': {
@@ -992,12 +910,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lovable/email/transactional/send': {
-      id: '/lovable/email/transactional/send'
-      path: '/lovable/email/transactional/send'
-      fullPath: '/lovable/email/transactional/send'
-      preLoaderRoute: typeof LovableEmailTransactionalSendRouteImport
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/action-reminders': {
+      id: '/api/public/hooks/action-reminders'
+      path: '/api/public/hooks/action-reminders'
+      fullPath: '/api/public/hooks/action-reminders'
+      preLoaderRoute: typeof ApiPublicHooksActionRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_coach/coach/assessee/$userId': {
+      id: '/_coach/coach/assessee/$userId'
+      path: '/assessee/$userId'
+      fullPath: '/coach/assessee/$userId'
+      preLoaderRoute: typeof CoachCoachAssesseeUserIdRouteImport
+      parentRoute: typeof CoachCoachRoute
+    }
+    '/_authenticated/print/section/$number': {
+      id: '/_authenticated/print/section/$number'
+      path: '/print/section/$number'
+      fullPath: '/print/section/$number'
+      preLoaderRoute: typeof AuthenticatedPrintSectionNumberRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
   }
 }
@@ -1097,7 +1057,6 @@ const rootRouteChildren: RootRouteChildren = {
   CoachRoute: CoachRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   FoundingRoute: FoundingRoute,
-  LeadersEdgeRoute: LeadersEdgeRoute,
   PrivacyRoute: PrivacyRoute,
   SignupRoute: SignupRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
@@ -1106,7 +1065,6 @@ const rootRouteChildren: RootRouteChildren = {
   CoachLoginRoute: CoachLoginRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   FoundingSuccessRoute: FoundingSuccessRoute,
-  LeadersEdgeSuccessRoute: LeadersEdgeSuccessRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicHooksActionRemindersRoute: ApiPublicHooksActionRemindersRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
@@ -1119,3 +1077,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

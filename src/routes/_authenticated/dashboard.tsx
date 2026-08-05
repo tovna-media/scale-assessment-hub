@@ -17,8 +17,8 @@ import { YourActionsCard } from "@/components/scale/YourActionsCard";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Home — Fully Resourced" }] }),
-  validateSearch: (search: Record<string, unknown>) => ({
-    checkout: search.checkout === "success" ? ("success" as const) : undefined,
+  validateSearch: (search: Record<string, unknown>): { checkout?: "success"; upgrade?: boolean } => ({
+    checkout: search.checkout === "success" ? "success" : undefined,
     upgrade: search.upgrade === true || search.upgrade === "true" || search.upgrade === "1" ? true : undefined,
   }),
   component: DashboardPage,

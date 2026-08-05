@@ -58,55 +58,18 @@ export async function resolvePrice(stripe: Stripe, plan: PlanId): Promise<Stripe
   return prices.data[0];
 }
 
-const FOUNDING_COUPON_ID = "founding20";
+// Founding-member discount: first month free, applied server-side so it can't
+// be spoofed. This coupon is pre-created in Stripe (same id in test + live) —
+// resolved by id only, never created here, so its terms are never guessed.
+const FOUNDING_COUPON_ID = "FUgqCeaS";
 
-// Founding-member discount: 20% off the first month, applied server-side so it
-// can't be spoofed. Created on first use, then reused (same id in test + live).
 export async function getFoundingCoupon(stripe: Stripe): Promise<string | null> {
   try {
     const existing = await stripe.coupons.retrieve(FOUNDING_COUPON_ID);
     if (existing && !existing.deleted) return existing.id;
-  } catch {
-    // not created yet in this environment
-  }
-  try {
-    const created = await stripe.coupons.create({
-      id: FOUNDING_COUPON_ID,
-      percent_off: 20,
-      duration: "once",
-      name: "Founding member — 20% off first month",
-    });
-    return created.id;
+    return null;
   } catch (error) {
     console.error("[stripe] founding coupon unavailable", error);
-    return null;
-  }
-}
-
-// Leaders Edge discount: 100% off for the first 3 months, then the normal plan
-// price. Rich created this coupon in Stripe; we resolve it by id server-side so
-// the client can never inject a coupon or price. If it's missing in an
-// environment (e.g. a fresh sandbox) we recreate it with the same id and terms.
-const LEADERS_EDGE_COUPON_ID = "1KS7zXTz";
-
-export async function getLeadersEdgeCoupon(stripe: Stripe): Promise<string | null> {
-  try {
-    const existing = await stripe.coupons.retrieve(LEADERS_EDGE_COUPON_ID);
-    if (existing && !existing.deleted) return existing.id;
-  } catch {
-    // not present in this environment — recreate below
-  }
-  try {
-    const created = await stripe.coupons.create({
-      id: LEADERS_EDGE_COUPON_ID,
-      percent_off: 100,
-      duration: "repeating",
-      duration_in_months: 3,
-      name: "leaders-edge",
-    });
-    return created.id;
-  } catch (error) {
-    console.error("[stripe] leaders edge coupon unavailable", error);
     return null;
   }
 }

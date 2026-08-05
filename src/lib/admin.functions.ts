@@ -2,14 +2,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-type GenerateResult = { code: string } | { error: string };
-type CodeRow = {
-  code: string;
-  created_at: string;
-  used_at: string | null;
-  redeemed_by_email: string | null;
-};
-type ListResult = { codes: CodeRow[] } | { error: string };
 type DeleteResult =
   | { ok: true; canceledSubscription: boolean; emailedCancellation: boolean }
   | { error: string };
@@ -26,63 +18,6 @@ async function assertCoach(userId: string): Promise<boolean> {
     .maybeSingle();
   return Boolean(data);
 }
-
-// Unambiguous alphabet — no 0/O/1/I/L so codes read cleanly over email/phone.
-const CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
-
-function randomCode(): string {
-  const bytes = new Uint8Array(8);
-  crypto.getRandomValues(bytes);
-  const body = Array.from(bytes, (b) => CODE_ALPHABET[b % CODE_ALPHABET.length]).join("");
-  return `LE-${body}`;
-}
-
-/**
- * Generate a single-use Leaders Edge redemption code (coaches only). Codes are
- * created server-side with the service-role client so they can't be minted from
- * the browser. Returns the plain code for the admin to hand to a member.
- */
-export const generateRedemptionCode = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<GenerateResult> => {
-    const { userId } = context;
-    if (!(await assertCoach(userId))) return { error: "Not authorized." };
-
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    // Retry a couple of times on the (astronomically unlikely) code collision.
-    for (let attempt = 0; attempt < 5; attempt++) {
-      const code = randomCode();
-      const { error } = await supabaseAdmin
-        .from("redemption_codes")
-        .insert({ code, campaign: "leaders_edge", created_by: userId } as never);
-      if (!error) return { code };
-      if (error.code !== "23505") {
-        console.error("[admin] generate code failed", error);
-        return { error: "Could not generate a code. Please try again." };
-      }
-    }
-    return { error: "Could not generate a unique code. Please try again." };
-  });
-
-/** List Leaders Edge codes with used/unused status (coaches only). */
-export const listRedemptionCodes = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<ListResult> => {
-    const { userId } = context;
-    if (!(await assertCoach(userId))) return { error: "Not authorized." };
-
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin
-      .from("redemption_codes")
-      .select("code, created_at, used_at, redeemed_by_email")
-      .eq("campaign", "leaders_edge")
-      .order("created_at", { ascending: false });
-    if (error) {
-      console.error("[admin] list codes failed", error);
-      return { error: "Could not load codes." };
-    }
-    return { codes: (data ?? []) as CodeRow[] };
-  });
 
 /**
  * Remove a user from the system (coaches only). If they're a paying member we
