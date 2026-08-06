@@ -12,6 +12,11 @@ export const Route = createFileRoute("/terms")({
           "Terms of Service for the Fully Resourced Leadership System app, including subscription, billing, and auto-renewal terms.",
       },
       { property: "og:title", content: "Terms of Service — Fully Resourced" },
+      {
+        property: "og:description",
+        content:
+          "Terms of Service for the Fully Resourced Leadership System membership, including subscriptions, billing, and acceptable use.",
+      },
       { property: "og:url", content: CANONICAL },
     ],
     links: [{ rel: "canonical", href: CANONICAL }],

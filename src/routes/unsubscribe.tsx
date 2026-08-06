@@ -138,9 +138,26 @@ const btn: React.CSSProperties = {
   cursor: 'pointer',
 }
 
+const CANONICAL = 'https://app.getfullyresourced.com/unsubscribe';
+
 export const Route = createFileRoute('/unsubscribe')({
   component: UnsubscribePage,
   head: () => ({
-    meta: [{ title: 'Unsubscribe · Fully Resourced' }],
+    meta: [
+      { title: 'Unsubscribe · Fully Resourced' },
+      {
+        name: 'description',
+        content:
+          'Manage your email preferences for the Fully Resourced Leadership System. Confirm unsubscribe from app notifications.',
+      },
+      { property: 'og:title', content: 'Unsubscribe · Fully Resourced' },
+      {
+        property: 'og:description',
+        content:
+          'Manage your email preferences and confirm unsubscribe from Fully Resourced app notifications.',
+      },
+      { property: 'og:url', content: CANONICAL },
+    ],
+    links: [{ rel: 'canonical', href: CANONICAL }],
   }),
 })

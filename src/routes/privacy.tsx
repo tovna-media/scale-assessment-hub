@@ -12,6 +12,11 @@ export const Route = createFileRoute("/privacy")({
           "Privacy Policy for the Fully Resourced Leadership System app: what we collect, how we use it, and the choices you have.",
       },
       { property: "og:title", content: "Privacy Policy — Fully Resourced" },
+      {
+        property: "og:description",
+        content:
+          "Read how the Fully Resourced Leadership System app collects, uses, and protects your personal information.",
+      },
       { property: "og:url", content: CANONICAL },
     ],
     links: [{ rel: "canonical", href: CANONICAL }],
