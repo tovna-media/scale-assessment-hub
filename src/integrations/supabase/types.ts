@@ -419,24 +419,6 @@ export type Database = {
         }
         Relationships: []
       }
-      signup_attempts: {
-        Row: {
-          created_at: string
-          id: number
-          ip: string
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          ip: string
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          ip?: string
-        }
-        Relationships: []
-      }
       stripe_events: {
         Row: {
           event_id: string
