@@ -22,10 +22,81 @@ export const Route = createFileRoute("/founding")({
       { name: "description", content: DESCRIPTION },
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
-      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://app.getfullyresourced.com/founding" },
+      { property: "og:type", content: "product" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: TITLE },
       { name: "twitter:description", content: DESCRIPTION },
+    ],
+    links: [{ rel: "canonical", href: "https://app.getfullyresourced.com/founding" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Service",
+          "name": "Fully Resourced Founding Membership",
+          "description": DESCRIPTION,
+          "url": "https://app.getfullyresourced.com/founding",
+          "provider": {
+            "@id": "#organization",
+            "@type": "Organization",
+            "name": "Lohman Leadership Group",
+            "url": "https://app.getfullyresourced.com/",
+            "founder": {
+              "@type": "Person",
+              "name": "Rich Lohman",
+            },
+          },
+          "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Leadership membership",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "item": {
+                  "@type": "Service",
+                  "name": "SCALE assessments and personalized Gap Report",
+                },
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "item": {
+                  "@type": "Service",
+                  "name": "The Optimized Leader Guide — 12 in-app sections",
+                },
+              },
+              {
+                "@type": "ListItem",
+                "position": 3,
+                "item": {
+                  "@type": "Service",
+                  "name": "The Fully Resourced AI Coach",
+                },
+              },
+              {
+                "@type": "ListItem",
+                "position": 4,
+                "item": {
+                  "@type": "Service",
+                  "name": "Leadership Performance Dashboard",
+                },
+              },
+              {
+                "@type": "ListItem",
+                "position": 5,
+                "item": {
+                  "@type": "Service",
+                  "name": "Monthly 1:1 coaching check-in with Rich Lohman",
+                },
+              },
+            ],
+          },
+          "termsOfService": "https://app.getfullyresourced.com/terms",
+        }),
+      },
     ],
   }),
   component: FoundingPage,
