@@ -32,7 +32,7 @@ export const Route = createFileRoute("/")({
         content:
           "Sign in to access your SCALE Gap Report and the 12-section Optimized Leader Guide.",
       },
-      { property: "og:url", content: "https://scale.richlohman.com/" },
+      { property: "og:url", content: "https://app.getfullyresourced.com/" },
       { name: "twitter:title", content: "Sign in — Fully Resourced Leadership System" },
       {
         name: "twitter:description",
@@ -40,7 +40,7 @@ export const Route = createFileRoute("/")({
           "Sign in to access your SCALE Gap Report and the 12-section Optimized Leader Guide.",
       },
     ],
-    links: [{ rel: "canonical", href: "https://scale.richlohman.com/" }],
+    links: [{ rel: "canonical", href: "https://app.getfullyresourced.com/" }],
   }),
   component: Index,
 });
