@@ -5,7 +5,7 @@
 This file loads at the start of every session. Keep it lean. Deeper context lives in `docs/context/` — read the relevant file when a task touches that area. The code and `supabase/migrations` + `src/integrations/supabase/types.ts` are the ultimate source of truth; this doc explains intent and where things live.
 
 ## What this is
-A member coaching app for Rich Lohman's Fully Resourced Leadership System, live at scale.richlohman.com. Members take three SCALE assessments, get a personalized Gap Report, then (paid) work a guided 12-week Leadership Optimization Cycle with a home dashboard, an AI coach, and a digital book. getfullyresourced.com is the marketing front door; this repo is the product.
+A member coaching app for Rich Lohman's Fully Resourced Leadership System, live at app.getfullyresourced.com. Members take three SCALE assessments, get a personalized Gap Report, then (paid) work a guided 12-week Leadership Optimization Cycle with a home dashboard, an AI coach, and a digital book. getfullyresourced.com is the marketing front door; this repo is the product.
 
 ## Stack
 - TanStack Start (React full-stack) + TanStack Router (file-based routes in `src/routes`) + TanStack Query.
