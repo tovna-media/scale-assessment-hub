@@ -10,6 +10,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { signupUser } from "@/lib/signup.functions";
 import { Logo } from "@/components/scale/Logo";
 import { SiteFooter } from "@/components/scale/SiteFooter";
+import { TurnstileWidget } from "@/components/scale/TurnstileWidget";
 
 export const Route = createFileRoute("/signup")({
   head: () => ({
@@ -48,6 +49,7 @@ function SignupPage() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -58,9 +60,13 @@ function SignupPage() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (!turnstileToken) {
+      toast.error("Please complete the captcha.");
+      return;
+    }
     setSubmitting(true);
     const result = await doSignup({
-      data: { email, password, firstName, lastName, phone },
+      data: { email, password, firstName, lastName, phone, turnstileToken },
     }).catch((err: unknown) => ({
       ok: false as const,
       error: err instanceof Error ? err.message : "Signup failed",
@@ -160,10 +166,11 @@ function SignupPage() {
                 />
                 <p className="text-xs text-muted-foreground">At least 8 characters.</p>
               </div>
+              <TurnstileWidget onToken={setTurnstileToken} />
               <Button
                 type="submit"
                 className="w-full bg-rl-purple-cta text-white hover:bg-rl-purple-cta/90"
-                disabled={submitting}
+                disabled={submitting || !turnstileToken}
               >
                 {submitting ? "Creating account…" : "Create account"}
               </Button>
