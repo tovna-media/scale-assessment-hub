@@ -27,14 +27,14 @@ export const Route = createFileRoute("/signup")({
         content:
           "Start the three SCALE assessments and get a personalized leadership Gap Report from coach Rich Lohman.",
       },
-      { property: "og:url", content: "https://scale.richlohman.com/signup" },
+      { property: "og:url", content: "https://app.getfullyresourced.com/signup" },
       { name: "twitter:title", content: "Create your account — Fully Resourced Leadership System" },
       {
         name: "twitter:description",
         content: "Start the three SCALE assessments and get a personalized leadership Gap Report.",
       },
     ],
-    links: [{ rel: "canonical", href: "https://scale.richlohman.com/signup" }],
+    links: [{ rel: "canonical", href: "https://app.getfullyresourced.com/signup" }],
   }),
   component: SignupPage,
 });
