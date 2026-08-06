@@ -7,11 +7,28 @@ const InputSchema = z.object({
   firstName: z.string().min(1),
   lastName: z.string().min(1),
   phone: z.string().min(1),
+  turnstileToken: z.string().min(1),
 });
 
 export const signupUser = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => InputSchema.parse(input))
   .handler(async ({ data }) => {
+    const { getClientIp, checkAndRecordSignupAttempt, verifyTurnstileToken } =
+      await import("@/lib/signup-abuse.server");
+    const ip = getClientIp();
+
+    // Cap attempts per IP first — cheap, and blocks scripted mass signups
+    // even if a CAPTCHA bypass is found.
+    const { allowed } = await checkAndRecordSignupAttempt(ip);
+    if (!allowed) {
+      return { ok: false as const, error: "Too many signup attempts. Please try again later." };
+    }
+
+    const captchaOk = await verifyTurnstileToken(data.turnstileToken, ip);
+    if (!captchaOk) {
+      return { ok: false as const, error: "Captcha verification failed. Please try again." };
+    }
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const fullName = `${data.firstName} ${data.lastName}`.trim();
 
