@@ -18,7 +18,12 @@ export async function checkAndRecordSignupAttempt(ip: string): Promise<{ allowed
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const windowStart = new Date(Date.now() - SIGNUP_WINDOW_MS).toISOString();
 
-  const { count, error: countError } = await supabaseAdmin
+  // signup_attempts is a server-only table not present in generated types.
+  const db = supabaseAdmin as unknown as {
+    from: (table: string) => any;
+  };
+
+  const { count, error: countError } = await db
     .from("signup_attempts")
     .select("*", { count: "exact", head: true })
     .eq("ip", ip)
@@ -34,7 +39,7 @@ export async function checkAndRecordSignupAttempt(ip: string): Promise<{ allowed
     return { allowed: false };
   }
 
-  const { error: insertError } = await supabaseAdmin.from("signup_attempts").insert({ ip });
+  const { error: insertError } = await db.from("signup_attempts").insert({ ip });
   if (insertError) {
     console.error("[signup] rate limit record failed", insertError);
   }
