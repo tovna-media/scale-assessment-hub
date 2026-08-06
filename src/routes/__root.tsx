@@ -62,6 +62,32 @@ export const Route = createRootRoute({
         href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap",
       },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebSite",
+              "name": "Fully Resourced Leadership System",
+              "url": "https://app.getfullyresourced.com/",
+              "publisher": { "@id": "#organization" },
+            },
+            {
+              "@id": "#organization",
+              "@type": "Organization",
+              "name": "Lohman Leadership Group",
+              "url": "https://app.getfullyresourced.com/",
+              "founder": {
+                "@type": "Person",
+                "name": "Rich Lohman",
+              },
+            },
+          ],
+        }),
+      },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
