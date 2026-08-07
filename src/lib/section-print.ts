@@ -17,6 +17,15 @@ export const SECTION_TITLES: Record<number, string> = {
 
 const ACRONYMS = new Set(["fuel", "disc", "rl", "gap", "kpi", "kpis"]);
 
+// Shorthand prefixes used in field keys that should expand to their full
+// term rather than being capitalized as-is (e.g. si_health -> "Success
+// Image Health", not "Si Health").
+const EXPANSIONS: Record<string, string> = {
+  si: "Success Image",
+  sd: "Success Drivers",
+  sm: "Success Markers",
+};
+
 export function humanizeKey(key: string): string {
   // Strip common prefixes: p1_, part2_, step3_, s4_, q5_
   let k = key.replace(/^(p|part|step|s|q)\d+_/i, "");
@@ -25,11 +34,11 @@ export function humanizeKey(key: string): string {
   return k
     .split(" ")
     .filter(Boolean)
-    .map((w) =>
-      ACRONYMS.has(w.toLowerCase())
-        ? w.toUpperCase()
-        : w.charAt(0).toUpperCase() + w.slice(1),
-    )
+    .map((w) => {
+      const lw = w.toLowerCase();
+      if (EXPANSIONS[lw]) return EXPANSIONS[lw];
+      return ACRONYMS.has(lw) ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1);
+    })
     .join(" ");
 }
 
