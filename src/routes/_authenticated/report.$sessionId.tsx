@@ -720,11 +720,7 @@ function ReportView({
         <Markdown text={session.gap_report ?? ""} />
       </article>
 
-      <div className="mt-10 grid gap-4 sm:grid-cols-2 no-print">
-        <PathCard
-          title="DIY Path"
-          desc="Self-directed implementation using the SCALE framework."
-        />
+      <div className="mt-10 grid gap-4 no-print">
         {!subscribed && (
           <PathCard
             title="Fully Resourced"

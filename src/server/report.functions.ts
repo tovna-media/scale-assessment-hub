@@ -110,8 +110,7 @@ Same format as above for business audit subcategories present.
 2-3 paragraphs explaining how gaps in one area cascade into the others. Be specific to the scores.
 
 # Your Next Step
-Recommend a path. Briefly describe these three options and which fits this assessee best:
-- DIY Path (self-directed)
+Recommend a path. Briefly describe these options and which fits this assessee best:
 - Leaders Edge (group program)
 - 1:1 Coaching with Rich (recommended for high-impact gaps)
 
