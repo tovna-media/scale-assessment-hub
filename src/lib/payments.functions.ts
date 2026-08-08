@@ -78,6 +78,16 @@ export const createSubscriptionCheckout = createServerFn({ method: "POST" })
       const customerId = await resolveOrCreateCustomer(stripe, { email, userId });
       const acceptedTermsAt = new Date().toISOString();
 
+      // The webhook reads metadata.founding off the checkout session to decide
+      // which subscribe tag to fire — it must be set here whenever the founding
+      // coupon is being applied, or a signed-in member using the trial page
+      // gets mistagged as a standard upgrade.
+      const checkoutMetadata: Record<string, string> = {
+        userId,
+        accepted_terms_at: acceptedTermsAt,
+        ...(data.founding ? { founding: "1" } : {}),
+      };
+
       const session = await stripe.checkout.sessions.create({
         line_items: [{ price: price.id, quantity: 1 }],
         mode: "subscription",
@@ -85,8 +95,8 @@ export const createSubscriptionCheckout = createServerFn({ method: "POST" })
         return_url: data.returnUrl,
         ...(coupon ? { discounts: [{ coupon }] } : {}),
         customer: customerId,
-        metadata: { userId, accepted_terms_at: acceptedTermsAt },
-        subscription_data: { metadata: { userId, accepted_terms_at: acceptedTermsAt } },
+        metadata: checkoutMetadata,
+        subscription_data: { metadata: checkoutMetadata },
       });
 
       // Log that the user accepted terms and initiated checkout
