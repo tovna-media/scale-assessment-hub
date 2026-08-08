@@ -6,7 +6,7 @@ Source of truth for schema: `supabase/migrations/*` and `src/integrations/supaba
 TanStack Start (React full-stack, SSR) + TanStack Router (file-based, `src/routes`, generated `src/routeTree.gen.ts`) + TanStack Query. TypeScript, Vite, Tailwind v4, shadcn/ui. Supabase backend. Stripe billing. Email via Lovable email package. Deployed on Cloudflare (nitro + wrangler).
 
 ## Route groups (`src/routes`)
-- Public: `index.tsx`, `signup.tsx`, `forgot-password.tsx`, `terms.tsx`, `privacy.tsx`, `unsubscribe.tsx`, `founding.tsx` + `founding_.success.tsx` (founding-member flow), `coach.login.tsx`.
+- Public: `index.tsx`, `signup.tsx`, `forgot-password.tsx`, `terms.tsx`, `privacy.tsx`, `unsubscribe.tsx`, `30-day-trial.tsx` + `30-day-trial_.success.tsx` (30-day free trial checkout flow; `founding.tsx` + `founding_.success.tsx` are now thin redirects to the new paths, kept for previously shared links), `coach.login.tsx`.
 - `_authenticated/` (member area, guarded by `_authenticated.tsx`): `dashboard.tsx` (home), `assessment.$type.tsx`, `report.$sessionId.tsx` (gap report), `cycle.tsx` + `guide.tsx` + `guide.section-1..12.tsx`, `performance.tsx`, `print.all.tsx` + `print.section.$number.tsx`, `profile.tsx`, `security.tsx`, `checkout.activating.tsx` (post-checkout "activating" state that polls for the webhook to grant access).
 - `_coach/` (admin, guarded by `_coach.tsx`): `coach.tsx`, `coach.assessee.$userId.tsx`, `settings.tsx`.
 - API / server: `api/public/payments/webhook.ts` (Stripe), `api/public/hooks/action-reminders.ts` (twice-weekly action reminder email), `email/unsubscribe.ts`, `lovable/email/*` (email queue, transactional send, auth emails, suppression).
