@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import logoAsset from "@/assets/fr-logo.png.asset.json";
 import {
   SECTION_TITLES,
   groupByPart,
@@ -17,7 +16,7 @@ export function PrintHeader({ memberName, memberEmail }: { memberName: string; m
   return (
     <header className="mb-8 flex items-start justify-between border-b pb-4" style={{ borderColor: PURPLE }}>
       <div className="flex items-center gap-3">
-        <img src={logoAsset.url} alt="Rich Lohman" className="h-12 w-12 rounded-lg" />
+        <img src="/logo-icon.png" alt="Fully Resourced" className="h-12 w-12 rounded-lg" />
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em]" style={{ color: PURPLE }}>
             Fully Resourced · Optimized Leader Guide
