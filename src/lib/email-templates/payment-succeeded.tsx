@@ -12,7 +12,7 @@ interface Props {
 const Email = ({ name, amount, appUrl = APP_URL }: Props) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Payment received — you're all set with Get Fully Resourced.</Preview>
+    <Preview>Payment received — you're all set with Fully Resourced.</Preview>
     <Body style={s.main}>
       <Container style={s.container}>
         <Section style={s.header}><Img src={LOGO_URL} alt="Fully Resourced" style={s.logo} /></Section>
@@ -25,7 +25,6 @@ const Email = ({ name, amount, appUrl = APP_URL }: Props) => (
         <Section style={{ textAlign: 'center', margin: '32px 0' }}>
           <Button style={s.button} href={`${appUrl}/dashboard`}>Go to your dashboard</Button>
         </Section>
-        <Text style={s.footer}>Questions about billing? Just reply to this email.</Text>
       </Container>
     </Body>
   </Html>
@@ -33,7 +32,7 @@ const Email = ({ name, amount, appUrl = APP_URL }: Props) => (
 
 export const template = {
   component: Email,
-  subject: 'Payment received — Get Fully Resourced',
+  subject: 'Payment received — Fully Resourced',
   displayName: 'Payment succeeded',
   previewData: { name: 'Alex', amount: '$97.00' },
 } satisfies TemplateEntry

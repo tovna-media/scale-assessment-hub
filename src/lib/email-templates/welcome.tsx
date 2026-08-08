@@ -42,9 +42,6 @@ const Email = ({ name, appUrl = 'https://scale.richlohman.com' }: Props) => (
             Start your assessments
           </Button>
         </Section>
-        <Text style={footer}>
-          Questions? Just reply to this email — we read every one.
-        </Text>
       </Container>
     </Body>
   </Html>
