@@ -18,14 +18,13 @@ const Email = ({ name, endsAt, appUrl = APP_URL }: Props) => (
         <Section style={s.header}><Img src={LOGO_URL} alt="Fully Resourced" style={s.logo} /></Section>
         <Heading style={s.h1}>Your subscription is canceled</Heading>
         <Text style={s.body}>
-          {name ? `${name}, ` : ''}your Get Fully Resourced subscription has been canceled
+          {name ? `${name}, ` : ''}your Fully Resourced subscription has been canceled
           {endsAt ? ` and access remains until ${endsAt}` : ''}. Your assessments and
           past Gap Reports stay in your account.
         </Text>
         <Section style={{ textAlign: 'center', margin: '32px 0' }}>
           <Button style={s.button} href={`${appUrl}/dashboard`}>Reactivate anytime</Button>
         </Section>
-        <Text style={s.footer}>If this was a mistake, reply and we'll sort it out.</Text>
       </Container>
     </Body>
   </Html>
@@ -33,7 +32,7 @@ const Email = ({ name, endsAt, appUrl = APP_URL }: Props) => (
 
 export const template = {
   component: Email,
-  subject: 'Your Get Fully Resourced subscription is canceled',
+  subject: 'Your Fully Resourced subscription is canceled',
   displayName: 'Subscription canceled',
   previewData: { name: 'Alex', endsAt: 'Dec 31, 2026' },
 } satisfies TemplateEntry

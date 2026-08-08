@@ -31,6 +31,16 @@ function isoFromUnix(seconds: number | null | undefined): string | null {
   return typeof seconds === 'number' ? new Date(seconds * 1000).toISOString() : null;
 }
 
+/** Human-readable date for member-facing emails, e.g. "September 8, 2026". */
+function formatDateForEmail(iso: string | null): string | undefined {
+  if (!iso) return undefined;
+  return new Date(iso).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
 function priceIdOf(sub: StripeSubscription): string | null {
   const price = sub.items?.data?.[0]?.price;
   return price?.lookup_key ?? price?.metadata?.lovable_external_id ?? price?.id ?? null;
@@ -172,7 +182,7 @@ async function handleSubscriptionUpsert(
       extra: { subscription_id: sub.id },
     });
     await sendSubscriptionEmail(userId, 'subscription-canceled', {
-      endsAt: isoFromUnix(periodEnd) ?? undefined,
+      endsAt: formatDateForEmail(isoFromUnix(periodEnd)),
     });
   }
 }

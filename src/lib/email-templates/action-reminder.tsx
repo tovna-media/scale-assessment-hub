@@ -37,7 +37,7 @@ const Email = ({ name, pastDue = [], dueSoon = [] }: Props) => {
       <Body style={s.main}>
         <Container style={s.container}>
           <Section style={s.header}>
-            <Img src={LOGO_URL} alt="Get Fully Resourced" style={s.logo} />
+            <Img src={LOGO_URL} alt="Fully Resourced" style={s.logo} />
           </Section>
           <Heading style={s.h1}>Your action steps</Heading>
           <Text style={s.body}>{greeting}</Text>

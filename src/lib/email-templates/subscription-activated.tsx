@@ -22,7 +22,7 @@ interface Props {
 const Email = ({ name, appUrl = APP_URL }: Props) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Your Get Fully Resourced account is active.</Preview>
+    <Preview>Your Fully Resourced account is active.</Preview>
     <Body style={s.main}>
       <Container style={s.container}>
         <Section style={s.header}>
