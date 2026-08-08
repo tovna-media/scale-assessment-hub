@@ -8,22 +8,6 @@ import { z } from "zod";
  * account other than the one the token was issued for.
  */
 
-export const getPasswordSetupToken = createServerFn({ method: "GET" })
-  .inputValidator((input: unknown) => z.object({ sessionId: z.string().min(1) }).parse(input))
-  .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: row } = await supabaseAdmin
-      .from("password_setup_tokens")
-      .select("token, expires_at")
-      .eq("checkout_session_id", data.sessionId)
-      .is("used_at", null)
-      .maybeSingle();
-    if (!row || new Date(row.expires_at).getTime() < Date.now()) {
-      return { token: null as string | null };
-    }
-    return { token: row.token };
-  });
-
 export const getPasswordSetupInfo = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) => z.object({ token: z.string().min(32) }).parse(input))
   .handler(async ({ data }) => {
