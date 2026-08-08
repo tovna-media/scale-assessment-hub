@@ -1,8 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { CheckCircle2, Mail } from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { CheckCircle2, Loader2, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/scale/Logo";
 import { useAuth } from "@/lib/auth-context";
+import { getPasswordSetupToken } from "@/lib/password-setup.functions";
 
 export const Route = createFileRoute("/30-day-trial_/success")({
   head: () => ({
@@ -22,11 +25,52 @@ export const Route = createFileRoute("/30-day-trial_/success")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
+  validateSearch: (search: Record<string, unknown>) => ({
+    session_id: typeof search.session_id === "string" ? search.session_id : undefined,
+  }),
   component: TrialSuccessPage,
 });
 
 function TrialSuccessPage() {
   const { session } = useAuth();
+  const { session_id } = Route.useSearch();
+  const navigate = useNavigate();
+  const getToken = useServerFn(getPasswordSetupToken);
+  const [waited, setWaited] = useState(0);
+
+  // Brand-new signups: poll for the password-setup token the webhook issues,
+  // then send them straight to /set-password. Existing accounts (already
+  // signed in, or paying anonymously with an email that already has one)
+  // never get a token here and fall through to the "check your email" copy.
+  useEffect(() => {
+    if (session || !session_id) return;
+    let cancelled = false;
+    let attempts = 0;
+    const started = Date.now();
+
+    async function poll() {
+      if (cancelled) return;
+      try {
+        const { token } = await getToken({ data: { sessionId: session_id as string } });
+        if (cancelled) return;
+        if (token) {
+          navigate({ to: "/set-password/$token", params: { token }, replace: true });
+          return;
+        }
+      } catch {
+        /* keep polling */
+      }
+      attempts += 1;
+      setWaited(Math.round((Date.now() - started) / 1000));
+      if (attempts >= 20) return; // ~45s of polling, then fall back to the email copy below
+      const delay = attempts < 6 ? 1500 : 3000;
+      setTimeout(poll, delay);
+    }
+    void poll();
+    return () => {
+      cancelled = true;
+    };
+  }, [session, session_id, getToken, navigate]);
 
   return (
     <main
@@ -56,10 +100,17 @@ function TrialSuccessPage() {
               Your payment went through and your account is being set up right now — no signup form
               needed.
             </p>
-            <p className="mt-4 flex items-start gap-2 rounded-xl bg-rl-purple/5 px-4 py-3 text-left text-sm text-rl-purple">
-              <Mail className="mt-0.5 h-4 w-4 shrink-0" />
-              Check your email for your sign-in link. It arrives within a minute of your payment.
-            </p>
+            {waited < 45 ? (
+              <p className="mt-4 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Setting up your account…
+              </p>
+            ) : (
+              <p className="mt-4 flex items-start gap-2 rounded-xl bg-rl-purple/5 px-4 py-3 text-left text-sm text-rl-purple">
+                <Mail className="mt-0.5 h-4 w-4 shrink-0" />
+                Check your email for your sign-in link. It arrives within a minute of your payment.
+              </p>
+            )}
           </>
         )}
       </div>

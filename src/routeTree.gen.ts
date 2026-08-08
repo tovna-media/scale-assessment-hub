@@ -32,6 +32,7 @@ import { Route as CoachSettingsRouteImport } from './routes/_coach/settings'
 import { Route as CoachLoginRouteImport } from './routes/coach.login'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as FoundingSuccessRouteImport } from './routes/founding_.success'
+import { Route as SetPasswordTokenRouteImport } from './routes/set-password.$token'
 import { Route as AuthenticatedAssessmentTypeRouteImport } from './routes/_authenticated/assessment.$type'
 import { Route as AuthenticatedCheckoutActivatingRouteImport } from './routes/_authenticated/checkout.activating'
 import { Route as AuthenticatedGuideSection1RouteImport } from './routes/_authenticated/guide.section-1'
@@ -171,6 +172,11 @@ const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
 const FoundingSuccessRoute = FoundingSuccessRouteImport.update({
   id: '/founding_/success',
   path: '/founding/success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SetPasswordTokenRoute = SetPasswordTokenRouteImport.update({
+  id: '/set-password/$token',
+  path: '/set-password/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAssessmentTypeRoute =
@@ -348,6 +354,7 @@ export interface FileRoutesByFullPath {
   '/coach/login': typeof CoachLoginRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/founding/success': typeof FoundingSuccessRoute
+  '/set-password/$token': typeof SetPasswordTokenRoute
   '/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/checkout/activating': typeof AuthenticatedCheckoutActivatingRoute
   '/guide/section-1': typeof AuthenticatedGuideSection1Route
@@ -397,6 +404,7 @@ export interface FileRoutesByTo {
   '/coach/login': typeof CoachLoginRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/founding/success': typeof FoundingSuccessRoute
+  '/set-password/$token': typeof SetPasswordTokenRoute
   '/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/checkout/activating': typeof AuthenticatedCheckoutActivatingRoute
   '/guide/section-1': typeof AuthenticatedGuideSection1Route
@@ -449,6 +457,7 @@ export interface FileRoutesById {
   '/coach/login': typeof CoachLoginRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/founding_/success': typeof FoundingSuccessRoute
+  '/set-password/$token': typeof SetPasswordTokenRoute
   '/_authenticated/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/_authenticated/checkout/activating': typeof AuthenticatedCheckoutActivatingRoute
   '/_authenticated/guide/section-1': typeof AuthenticatedGuideSection1Route
@@ -500,6 +509,7 @@ export interface FileRouteTypes {
     | '/coach/login'
     | '/email/unsubscribe'
     | '/founding/success'
+    | '/set-password/$token'
     | '/assessment/$type'
     | '/checkout/activating'
     | '/guide/section-1'
@@ -549,6 +559,7 @@ export interface FileRouteTypes {
     | '/coach/login'
     | '/email/unsubscribe'
     | '/founding/success'
+    | '/set-password/$token'
     | '/assessment/$type'
     | '/checkout/activating'
     | '/guide/section-1'
@@ -600,6 +611,7 @@ export interface FileRouteTypes {
     | '/coach/login'
     | '/email/unsubscribe'
     | '/founding_/success'
+    | '/set-password/$token'
     | '/_authenticated/assessment/$type'
     | '/_authenticated/checkout/activating'
     | '/_authenticated/guide/section-1'
@@ -644,6 +656,7 @@ export interface RootRouteChildren {
   CoachLoginRoute: typeof CoachLoginRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   FoundingSuccessRoute: typeof FoundingSuccessRoute
+  SetPasswordTokenRoute: typeof SetPasswordTokenRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicHooksActionRemindersRoute: typeof ApiPublicHooksActionRemindersRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -815,6 +828,13 @@ declare module '@tanstack/react-router' {
       path: '/founding/success'
       fullPath: '/founding/success'
       preLoaderRoute: typeof FoundingSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/set-password/$token': {
+      id: '/set-password/$token'
+      path: '/set-password/$token'
+      fullPath: '/set-password/$token'
+      preLoaderRoute: typeof SetPasswordTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/assessment/$type': {
@@ -1107,6 +1127,7 @@ const rootRouteChildren: RootRouteChildren = {
   CoachLoginRoute: CoachLoginRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   FoundingSuccessRoute: FoundingSuccessRoute,
+  SetPasswordTokenRoute: SetPasswordTokenRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicHooksActionRemindersRoute: ApiPublicHooksActionRemindersRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,

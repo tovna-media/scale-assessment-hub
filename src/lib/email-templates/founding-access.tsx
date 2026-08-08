@@ -30,18 +30,14 @@ const Email = ({ name, signInUrl = "https://app.getfullyresourced.com" }: Props)
         </Section>
         <Heading style={h1}>You're in{name ? `, ${name}` : ""}</Heading>
         <Text style={body}>
-          Your Fully Resourced membership is active. Use the button below to sign in — it logs you
-          straight into the app, where you can set a password any time from your profile.
+          Your Fully Resourced membership is active. Use the button below to go straight to your
+          dashboard.
         </Text>
         <Section style={{ textAlign: "center", margin: "32px 0" }}>
           <Button style={button} href={signInUrl}>
             Sign in to the app
           </Button>
         </Section>
-        <Text style={body}>
-          Your first step: complete the three SCALE assessments to unlock your personalized Gap
-          Report.
-        </Text>
         <Text style={footer}>
           If the button doesn't work, copy and paste this link into your browser: {signInUrl}
         </Text>
@@ -52,7 +48,7 @@ const Email = ({ name, signInUrl = "https://app.getfullyresourced.com" }: Props)
 
 export const template = {
   component: Email,
-  subject: "Your Fully Resourced membership is active",
+  subject: "Your Fully Resourced membership is active.",
   displayName: "30-day trial access",
   previewData: { name: "Alex", signInUrl: "https://app.getfullyresourced.com" },
 } satisfies TemplateEntry;
