@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { CheckCircle2, Loader2, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/scale/Logo";
 import { useAuth } from "@/lib/auth-context";
-import { getPasswordSetupToken } from "@/lib/password-setup.functions";
+import { getStripeEnvironment } from "@/lib/stripe";
+import { resolveCheckoutSession } from "@/lib/checkout-resolve.functions";
 
 export const Route = createFileRoute("/30-day-trial_/success")({
   head: () => ({
@@ -35,42 +36,55 @@ function TrialSuccessPage() {
   const { session } = useAuth();
   const { session_id } = Route.useSearch();
   const navigate = useNavigate();
-  const getToken = useServerFn(getPasswordSetupToken);
-  const [waited, setWaited] = useState(0);
+  const resolve = useServerFn(resolveCheckoutSession);
+  const [existingAccount, setExistingAccount] = useState(false);
+  const [failed, setFailed] = useState(false);
 
-  // Brand-new signups: poll for the password-setup token the webhook issues,
-  // then send them straight to /set-password. Existing accounts (already
-  // signed in, or paying anonymously with an email that already has one)
-  // never get a token here and fall through to the "check your email" copy.
+  // Brand-new signups: resolve the checkout directly (this does the same
+  // account-creation work the webhook does, synchronously) and redirect
+  // straight to /set-password — no waiting on the webhook. Existing accounts
+  // (already signed in, or paying anonymously with an email that already has
+  // one) never get a token here and fall through to the "check your email"
+  // copy for the magic-link path instead.
   useEffect(() => {
     if (session || !session_id) return;
     let cancelled = false;
-    let attempts = 0;
-    const started = Date.now();
 
-    async function poll() {
-      if (cancelled) return;
+    async function run(attempt: number): Promise<void> {
       try {
-        const { token } = await getToken({ data: { sessionId: session_id as string } });
+        const { token, ready } = await resolve({
+          data: { sessionId: session_id as string, environment: getStripeEnvironment() },
+        });
         if (cancelled) return;
         if (token) {
           navigate({ to: "/set-password/$token", params: { token }, replace: true });
           return;
         }
+        if (ready) {
+          setExistingAccount(true);
+          return;
+        }
+        // Stripe hasn't marked the session complete yet — extremely rare this
+        // soon after redirect, but retry a couple of times before giving up.
+        if (attempt < 3) {
+          setTimeout(() => void run(attempt + 1), 1000);
+        } else {
+          setFailed(true);
+        }
       } catch {
-        /* keep polling */
+        if (cancelled) return;
+        if (attempt < 3) {
+          setTimeout(() => void run(attempt + 1), 1000);
+        } else {
+          setFailed(true);
+        }
       }
-      attempts += 1;
-      setWaited(Math.round((Date.now() - started) / 1000));
-      if (attempts >= 20) return; // ~45s of polling, then fall back to the email copy below
-      const delay = attempts < 6 ? 1500 : 3000;
-      setTimeout(poll, delay);
     }
-    void poll();
+    void run(1);
     return () => {
       cancelled = true;
     };
-  }, [session, session_id, getToken, navigate]);
+  }, [session, session_id, resolve, navigate]);
 
   return (
     <main
@@ -94,23 +108,31 @@ function TrialSuccessPage() {
               <Link to="/dashboard">Go to my dashboard</Link>
             </Button>
           </>
+        ) : existingAccount ? (
+          <>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Your membership is active. This email already has an account with us.
+            </p>
+            <p className="mt-4 flex items-start gap-2 rounded-xl bg-rl-purple/5 px-4 py-3 text-left text-sm text-rl-purple">
+              <Mail className="mt-0.5 h-4 w-4 shrink-0" />
+              Check your email for your sign-in link. It arrives within a minute of your payment.
+            </p>
+          </>
+        ) : failed ? (
+          <p className="mt-4 text-sm text-muted-foreground">
+            Your payment went through, but we couldn't finish setting up your account automatically.
+            Contact us and we'll get you sorted.
+          </p>
         ) : (
           <>
             <p className="mt-3 text-sm text-muted-foreground">
               Your payment went through and your account is being set up right now — no signup form
               needed.
             </p>
-            {waited < 45 ? (
-              <p className="mt-4 flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Setting up your account…
-              </p>
-            ) : (
-              <p className="mt-4 flex items-start gap-2 rounded-xl bg-rl-purple/5 px-4 py-3 text-left text-sm text-rl-purple">
-                <Mail className="mt-0.5 h-4 w-4 shrink-0" />
-                Check your email for your sign-in link. It arrives within a minute of your payment.
-              </p>
-            )}
+            <p className="mt-4 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Verifying your payment…
+            </p>
           </>
         )}
       </div>
