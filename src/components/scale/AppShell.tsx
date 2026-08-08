@@ -147,7 +147,7 @@ function AppShellInner({
       }}
     >
       <div className="flex items-center gap-3 px-6 py-6">
-        <Logo className="h-10 w-10 rounded-xl" />
+        <Logo className="h-10 w-10 rounded-xl" variant="icon" />
         <span className="text-base font-semibold tracking-tight">Fully Resourced</span>
       </div>
       <nav className="mt-2 flex-1 px-3">

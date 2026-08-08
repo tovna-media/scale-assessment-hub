@@ -20,5 +20,4 @@ export const brandStyles = {
 
 export const APP_URL = 'https://app.getfullyresourced.com'
 
-export const LOGO_URL =
-  'https://app.getfullyresourced.com/__l5e/assets-v1/39180481-4501-4f67-8873-d809a41213d2/fr-logo.png'
+export const LOGO_URL = 'https://app.getfullyresourced.com/logo-light.png'
