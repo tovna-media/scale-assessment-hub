@@ -54,6 +54,7 @@ async function handleSubscriptionUpsert(
   admin: Admin,
   sub: StripeSubscription,
   env: StripeEnv,
+  opts?: { skipActivationEmail?: boolean },
 ) {
   const userId = await resolveUserId(admin, sub);
   if (!userId) {
@@ -128,8 +129,12 @@ async function handleSubscriptionUpsert(
       });
       // Send activation email only on the first transition into active (from a
       // non-active prior state). invoice.payment_succeeded handles ongoing renewals.
+      // Brand-new accounts skip this — they get the paid welcome email once
+      // their password is set instead (see handleCheckoutCompleted).
       if (!prevStatus || (prevStatus !== 'active' && prevStatus !== 'trialing')) {
-        await sendSubscriptionEmail(userId, 'subscription-activated', {});
+        if (!opts?.skipActivationEmail) {
+          await sendSubscriptionEmail(userId, 'subscription-activated', {});
+        }
       } else {
         // Same-account plan change while active — treat as update
         await sendSubscriptionEmail(userId, 'subscription-updated', {
@@ -350,6 +355,7 @@ async function handleCheckoutCompleted(
       metadata: campaignMeta,
     },
     env,
+    { skipActivationEmail: isNewAccount },
   );
   console.log('[webhook] access granted', { userId, subscriptionId, campaign });
 
@@ -375,10 +381,44 @@ async function handleCheckoutCompleted(
     console.error('[webhook] GHL subscribe tag failed', e);
   }
 
-  // Send the sign-in link so they land in the app without a signup form. Skip
-  // only for signed-in member upgrades (they already have a session); founding
-  // buyers arrive unauthenticated and need the link.
-  if (!isNewAccount && !isFounding) {
+  // Brand-new accounts have no password yet. Instead of a magic link, hand
+  // them a one-time token to set their own password at /set-password/:token.
+  // The paid welcome email fires once that password is actually set (see
+  // src/lib/password-setup.functions.ts) so it lines up with them having a
+  // real, loggable-into account — not here, on payment.
+  if (isNewAccount) {
+    try {
+      const bytes = new Uint8Array(32);
+      crypto.getRandomValues(bytes);
+      const token = Array.from(bytes)
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
+      // 1 hour, matching Supabase's own default magic-link/OTP expiry.
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+      const { error: tokenError } = await admin.from('password_setup_tokens').insert({
+        token,
+        user_id: userId,
+        checkout_session_id: session.id,
+        email,
+        expires_at: expiresAt,
+      } as never);
+      if (tokenError) {
+        console.error('[webhook] password setup token insert failed', tokenError);
+      } else {
+        console.log('[webhook] password setup token issued', { userId });
+      }
+    } catch (e) {
+      console.error('[webhook] password setup token failed', e);
+    }
+    console.log('[webhook] checkout processed', { userId, isNewAccount, campaign });
+    return;
+  }
+
+  // Existing account: they already have a password and can log in normally.
+  // Skip the sign-in email for signed-in member upgrades (they already have a
+  // session); founding buyers who checked out anonymously with an email that
+  // already has an account still need a way in.
+  if (!isFounding) {
     console.log('[webhook] existing member upgrade, no sign-in email needed', { userId });
     return;
   }
