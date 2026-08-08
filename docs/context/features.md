@@ -37,8 +37,8 @@ Sent from the app via the Lovable email package, not GHL. Action reminder: twice
 ## Coach admin (`_coach/coach.tsx`, `coach.assessee.$userId.tsx`, `settings.tsx`)
 Rich-only admin: members, their assessments/progress, settings.
 
-## Founding member flow (`founding.tsx`, `founding_.success.tsx`)
-Temporary launch-period page. Founding members get 20% off their first month. The logic is already built and working. This is time-boxed to the launch — retire the page and its Stripe coupon after the launch period ends.
+## 30-day free trial checkout (`30-day-trial.tsx`, `30-day-trial_.success.tsx`)
+Public checkout page at `/30-day-trial` (formerly `/founding` — that path now redirects here). Card-required 30-day free trial; the internal Stripe coupon and GHL tag names still use the "founding" naming, but customer-facing copy is trial-first only. The logic is already built and working. This is time-boxed to the launch — retire the page and its Stripe coupon after the launch period ends.
 
 ## Password update — built
 Registered members can update their own password (built via Claude Code). Lives in the account area alongside `security.tsx` / `ChangePasswordCard.tsx`.

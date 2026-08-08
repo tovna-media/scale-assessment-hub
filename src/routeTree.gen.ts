@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as R30DayTrialRouteImport } from './routes/30-day-trial'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as CoachRouteImport } from './routes/_coach'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
@@ -19,6 +20,7 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
+import { Route as R30DayTrialSuccessRouteImport } from './routes/30-day-trial_.success'
 import { Route as AuthenticatedCycleRouteImport } from './routes/_authenticated/cycle'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedGuideRouteImport } from './routes/_authenticated/guide'
@@ -62,6 +64,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const R30DayTrialRoute = R30DayTrialRouteImport.update({
+  id: '/30-day-trial',
+  path: '/30-day-trial',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -103,6 +110,11 @@ const TermsRoute = TermsRouteImport.update({
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
   id: '/unsubscribe',
   path: '/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const R30DayTrialSuccessRoute = R30DayTrialSuccessRouteImport.update({
+  id: '/30-day-trial_/success',
+  path: '/30-day-trial/success',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedCycleRoute = AuthenticatedCycleRouteImport.update({
@@ -316,6 +328,7 @@ const LovableEmailTransactionalSendRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/30-day-trial': typeof R30DayTrialRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/founding': typeof FoundingRoute
   '/privacy': typeof PrivacyRoute
@@ -323,6 +336,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
+  '/30-day-trial/success': typeof R30DayTrialSuccessRoute
   '/cycle': typeof AuthenticatedCycleRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/guide': typeof AuthenticatedGuideRouteWithChildren
@@ -363,6 +377,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/30-day-trial': typeof R30DayTrialRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/founding': typeof FoundingRoute
   '/privacy': typeof PrivacyRoute
@@ -370,6 +385,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
+  '/30-day-trial/success': typeof R30DayTrialSuccessRoute
   '/cycle': typeof AuthenticatedCycleRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/guide': typeof AuthenticatedGuideRouteWithChildren
@@ -411,6 +427,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/30-day-trial': typeof R30DayTrialRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_coach': typeof CoachRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
@@ -420,6 +437,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
+  '/30-day-trial_/success': typeof R30DayTrialSuccessRoute
   '/_authenticated/cycle': typeof AuthenticatedCycleRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/guide': typeof AuthenticatedGuideRouteWithChildren
@@ -462,6 +480,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/30-day-trial'
     | '/forgot-password'
     | '/founding'
     | '/privacy'
@@ -469,6 +488,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/unsubscribe'
+    | '/30-day-trial/success'
     | '/cycle'
     | '/dashboard'
     | '/guide'
@@ -509,6 +529,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/30-day-trial'
     | '/forgot-password'
     | '/founding'
     | '/privacy'
@@ -516,6 +537,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/unsubscribe'
+    | '/30-day-trial/success'
     | '/cycle'
     | '/dashboard'
     | '/guide'
@@ -556,6 +578,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/30-day-trial'
     | '/_authenticated'
     | '/_coach'
     | '/forgot-password'
@@ -565,6 +588,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/unsubscribe'
+    | '/30-day-trial_/success'
     | '/_authenticated/cycle'
     | '/_authenticated/dashboard'
     | '/_authenticated/guide'
@@ -606,6 +630,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  R30DayTrialRoute: typeof R30DayTrialRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   CoachRoute: typeof CoachRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
@@ -615,6 +640,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
+  R30DayTrialSuccessRoute: typeof R30DayTrialSuccessRoute
   CoachLoginRoute: typeof CoachLoginRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   FoundingSuccessRoute: typeof FoundingSuccessRoute
@@ -635,6 +661,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/30-day-trial': {
+      id: '/30-day-trial'
+      path: '/30-day-trial'
+      fullPath: '/30-day-trial'
+      preLoaderRoute: typeof R30DayTrialRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -698,6 +731,13 @@ declare module '@tanstack/react-router' {
       path: '/unsubscribe'
       fullPath: '/unsubscribe'
       preLoaderRoute: typeof UnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/30-day-trial_/success': {
+      id: '/30-day-trial_/success'
+      path: '/30-day-trial/success'
+      fullPath: '/30-day-trial/success'
+      preLoaderRoute: typeof R30DayTrialSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/cycle': {
@@ -1053,6 +1093,7 @@ const CoachRouteWithChildren = CoachRoute._addFileChildren(CoachRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  R30DayTrialRoute: R30DayTrialRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   CoachRoute: CoachRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
@@ -1062,6 +1103,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   UnsubscribeRoute: UnsubscribeRoute,
+  R30DayTrialSuccessRoute: R30DayTrialSuccessRoute,
   CoachLoginRoute: CoachLoginRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   FoundingSuccessRoute: FoundingSuccessRoute,
@@ -1077,3 +1119,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
