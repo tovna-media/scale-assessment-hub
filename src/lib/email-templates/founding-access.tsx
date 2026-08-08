@@ -53,7 +53,7 @@ const Email = ({ name, signInUrl = "https://app.getfullyresourced.com" }: Props)
 export const template = {
   component: Email,
   subject: "Your Fully Resourced membership is active",
-  displayName: "Founding member access",
+  displayName: "30-day trial access",
   previewData: { name: "Alex", signInUrl: "https://app.getfullyresourced.com" },
 } satisfies TemplateEntry;
 

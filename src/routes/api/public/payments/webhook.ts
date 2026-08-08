@@ -83,10 +83,14 @@ async function handleSubscriptionUpsert(
   // Preserve past_due_since across updates
   const { data: existing } = await admin
     .from('subscriptions')
-    .select('status, past_due_since')
+    .select('status, past_due_since, cancel_at_period_end')
     .eq('stripe_subscription_id', sub.id)
     .maybeSingle();
-  const prev = existing as { status?: string; past_due_since?: string | null } | null;
+  const prev = existing as {
+    status?: string;
+    past_due_since?: string | null;
+    cancel_at_period_end?: boolean | null;
+  } | null;
 
   let pastDueSince: string | null = prev?.past_due_since ?? null;
   if (sub.status === 'past_due') {
@@ -136,21 +140,35 @@ async function handleSubscriptionUpsert(
       await notifyGhlSubscriptionEvent(userId, 'subscription_past_due', {
         subscription_id: sub.id,
       });
-    } else if (sub.status === 'canceled' || sub.status === 'unpaid') {
-      await notifyGhlSubscriptionEvent(userId, 'subscription_canceled', {
-        subscription_id: sub.id,
-      });
-      const { notifyGhlTag } = await import('@/lib/ghl-notify.server');
-      await notifyGhlTag({
-        userId,
-        event: 'subscription_canceled',
-        tag: 'fully resourced cancelled',
-        extra: { subscription_id: sub.id },
-      });
-      await sendSubscriptionEmail(userId, 'subscription-canceled', {
-        endsAt: isoFromUnix(periodEnd) ?? undefined,
-      });
     }
+  }
+
+  // Cancellation notice fires the moment the member cancels, not when the
+  // subscription actually ends. Stripe's customer portal schedules
+  // cancel_at_period_end=true by default rather than canceling immediately —
+  // status stays active/trialing until the period runs out, sometimes weeks
+  // later. We treat "cancel_at_period_end flips on" as the cancellation event.
+  // The `!prevCancelAtPeriodEnd` guard on the status-transition branch stops
+  // us from tagging a second time once that scheduled cancellation actually
+  // lands (status -> canceled/unpaid).
+  const prevCancelAtPeriodEnd = prev?.cancel_at_period_end ?? false;
+  const cancelRequestedNow = (sub.cancel_at_period_end ?? false) && !prevCancelAtPeriodEnd;
+  const justCanceled =
+    (sub.status === 'canceled' || sub.status === 'unpaid') && prevStatus !== sub.status;
+  if (cancelRequestedNow || (justCanceled && !prevCancelAtPeriodEnd)) {
+    await notifyGhlSubscriptionEvent(userId, 'subscription_canceled', {
+      subscription_id: sub.id,
+    });
+    const { notifyGhlTag } = await import('@/lib/ghl-notify.server');
+    await notifyGhlTag({
+      userId,
+      event: 'subscription_canceled',
+      tag: 'fully resourced cancelled',
+      extra: { subscription_id: sub.id },
+    });
+    await sendSubscriptionEmail(userId, 'subscription-canceled', {
+      endsAt: isoFromUnix(periodEnd) ?? undefined,
+    });
   }
 }
 
@@ -343,7 +361,7 @@ async function handleCheckoutCompleted(
   try {
     const { notifyGhlTag } = await import('@/lib/ghl-notify.server');
     const subscribeTag = isFounding
-      ? 'fully resourced subscribed - founding'
+      ? 'fully resourced subscribed-30-day-trial'
       : 'fully resourced subscribed - standard';
     await notifyGhlTag({
       userId,
