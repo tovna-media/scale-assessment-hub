@@ -20,7 +20,7 @@ export function AppHeader({ variant = "assessee" }: { variant?: "assessee" | "co
           <Logo className="h-9 w-auto" />
           <div className="hidden sm:block border-l border-border pl-3">
             <div className="font-display text-sm font-semibold leading-none text-foreground">
-              SCALE Gap Report
+              Fully Resourced
             </div>
             <div className="mt-1 text-xs text-muted-foreground">
               {variant === "coach" ? "Coach Dashboard" : "Assessment Hub"}
