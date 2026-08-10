@@ -694,6 +694,46 @@ export async function handleCheckoutCompleted(
   }
   console.log('[webhook] checkout user resolved', { userId, isNewAccount, campaign })
 
+  // Brand-new accounts have no password yet — issue their one-time
+  // /set-password/:token before touching Stripe at all, not after. Stripe's
+  // own customer.subscription.created/updated webhook events call
+  // handleSubscriptionUpsert directly (see webhook.ts), independent of this
+  // function and without its skipActivationEmail flag — its only backstop
+  // against sending the paid-activation email before a password exists is
+  // hasPendingPasswordSetup(), which checks whether this token row exists.
+  // The metadata update below is itself what triggers one of those webhook
+  // events, so if the token were inserted afterward (as it used to be, at
+  // the very end of this function), a webhook racing in from that update
+  // could land — and call handleSubscriptionUpsert — before the insert
+  // committed, finding no pending token and sending the email early anyway.
+  // Inserting first closes that window: the token exists before any Stripe
+  // API call that could fan out a webhook to a caller relying on it.
+  if (isNewAccount) {
+    try {
+      const bytes = new Uint8Array(32)
+      crypto.getRandomValues(bytes)
+      const token = Array.from(bytes)
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('')
+      // 1 hour, matching Supabase's own default magic-link/OTP expiry.
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString()
+      const { error: tokenError } = await admin.from('password_setup_tokens').insert({
+        token,
+        user_id: userId,
+        checkout_session_id: session.id,
+        email,
+        expires_at: expiresAt,
+      } as never)
+      if (tokenError) {
+        console.error('[webhook] password setup token insert failed', tokenError)
+      } else {
+        console.log('[webhook] password setup token issued', { userId })
+      }
+    } catch (e) {
+      console.error('[webhook] password setup token failed', e)
+    }
+  }
+
   // Preserve the real campaign when stamping the userId onto Stripe so later
   // subscription events resolve the user without mislabeling the plan.
   const campaignMeta: Record<string, string> = { userId }
@@ -759,35 +799,12 @@ export async function handleCheckoutCompleted(
     console.error('[webhook] GHL subscribe tag failed', e)
   }
 
-  // Brand-new accounts have no password yet. Instead of a magic link, hand
-  // them a one-time token to set their own password at /set-password/:token.
-  // The paid welcome email fires once that password is actually set (see
-  // src/lib/password-setup.functions.ts) so it lines up with them having a
-  // real, loggable-into account — not here, on payment.
+  // Brand-new accounts have no password yet — their /set-password/:token was
+  // already issued above, before any Stripe call that could trigger a
+  // webhook. The paid welcome email fires once that password is actually set
+  // (see src/lib/password-setup.functions.ts) so it lines up with them
+  // having a real, loggable-into account — not here, on payment.
   if (isNewAccount) {
-    try {
-      const bytes = new Uint8Array(32)
-      crypto.getRandomValues(bytes)
-      const token = Array.from(bytes)
-        .map((b) => b.toString(16).padStart(2, '0'))
-        .join('')
-      // 1 hour, matching Supabase's own default magic-link/OTP expiry.
-      const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString()
-      const { error: tokenError } = await admin.from('password_setup_tokens').insert({
-        token,
-        user_id: userId,
-        checkout_session_id: session.id,
-        email,
-        expires_at: expiresAt,
-      } as never)
-      if (tokenError) {
-        console.error('[webhook] password setup token insert failed', tokenError)
-      } else {
-        console.log('[webhook] password setup token issued', { userId })
-      }
-    } catch (e) {
-      console.error('[webhook] password setup token failed', e)
-    }
     console.log('[webhook] checkout processed', { userId, isNewAccount, campaign })
     return { blocked: false }
   }
