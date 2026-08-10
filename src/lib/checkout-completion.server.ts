@@ -422,15 +422,28 @@ export async function handleSubscriptionUpsert(
       // member has ever set a password.
       if (!prevStatus || (prevStatus !== 'active' && prevStatus !== 'trialing')) {
         if (!opts?.skipActivationEmail && !(await hasPendingPasswordSetup(admin, userId))) {
-          await sendSubscriptionEmail(userId, 'founding-access', {
-            signInUrl: 'https://app.getfullyresourced.com/dashboard',
-          })
+          // This branch also covers a later recovery into active (e.g. from
+          // past_due), which should send its own email rather than being
+          // deduped against the original activation — key on the period,
+          // not just the subscription, so only true races over the *same*
+          // transition collapse into one send.
+          await sendSubscriptionEmail(
+            userId,
+            'founding-access',
+            { signInUrl: 'https://app.getfullyresourced.com/dashboard' },
+            `${sub.id}-${periodStart ?? ''}`,
+          )
         }
       } else {
-        // Same-account plan change while active — treat as update
-        await sendSubscriptionEmail(userId, 'subscription-updated', {
-          changeType: 'change',
-        })
+        // Same-account plan change while active — treat as update. Keyed to
+        // the specific plan+period so a genuinely later plan change still
+        // sends its own email instead of being deduped against this one.
+        await sendSubscriptionEmail(
+          userId,
+          'subscription-updated',
+          { changeType: 'change' },
+          `${sub.id}-${priceIdOf(sub)}-${periodStart ?? ''}`,
+        )
       }
     } else if (sub.status === 'past_due') {
       await notifyGhlSubscriptionEvent(userId, 'subscription_past_due', {
@@ -462,9 +475,12 @@ export async function handleSubscriptionUpsert(
       tag: 'fully resourced cancelled',
       extra: { subscription_id: sub.id },
     })
-    await sendSubscriptionEmail(userId, 'subscription-canceled', {
-      endsAt: formatDateForEmail(isoFromUnix(periodEnd)),
-    })
+    await sendSubscriptionEmail(
+      userId,
+      'subscription-canceled',
+      { endsAt: formatDateForEmail(isoFromUnix(periodEnd)) },
+      sub.id,
+    )
   }
 
   return { blocked: false }
@@ -536,11 +552,26 @@ export async function handleInvoicePaymentSucceeded(
           currency: invoice.currency.toUpperCase(),
         }).format(invoice.amount_paid / 100)
       : undefined
-  await sendSubscriptionEmail(r.user_id, 'payment-succeeded', {
-    amount,
-  })
+  await sendSubscriptionEmail(
+    r.user_id,
+    'payment-succeeded',
+    { amount },
+    typeof invoice.id === 'string' ? invoice.id : subId,
+  )
 }
 
+/**
+ * `idempotencyId` must identify the logical event being emailed about (a
+ * subscription id, an invoice id, a plan+period combo — never wall-clock
+ * time). Stripe fires multiple independent webhook events for the same
+ * real-world change (checkout.session.completed, customer.subscription.
+ * created, customer.subscription.updated can all land within moments of
+ * each other for one signup), and each one calls handleSubscriptionUpsert
+ * separately — a caller-unique key here is what makes sendTransactionalEmail-
+ * Server's own idempotency actually dedupe those races into a single send,
+ * instead of every racing caller minting a guaranteed-unique key and all of
+ * them going out.
+ */
 async function sendSubscriptionEmail(
   userId: string,
   templateName:
@@ -549,6 +580,7 @@ async function sendSubscriptionEmail(
     | 'subscription-updated'
     | 'payment-succeeded',
   extra: Record<string, unknown>,
+  idempotencyId: string,
 ) {
   try {
     const { getUserEmailAndName, sendTransactionalEmailServer } = await import(
@@ -559,7 +591,7 @@ async function sendSubscriptionEmail(
     await sendTransactionalEmailServer({
       templateName,
       recipientEmail: email,
-      idempotencyKey: `${templateName}-${userId}-${Date.now()}`,
+      idempotencyKey: `${templateName}-${userId}-${idempotencyId}`,
       templateData: { name: name ?? undefined, ...extra },
     })
   } catch (e) {
