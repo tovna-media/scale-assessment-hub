@@ -3,7 +3,6 @@ import { template as welcomeTemplate } from './welcome'
 import { template as gapReportReadyTemplate } from './gap-report-ready'
 import { template as notificationTemplate } from './notification'
 import { template as paymentSucceededTemplate } from './payment-succeeded'
-import { template as subscriptionActivatedTemplate } from './subscription-activated'
 import { template as subscriptionCanceledTemplate } from './subscription-canceled'
 import { template as subscriptionUpdatedTemplate } from './subscription-updated'
 import { template as actionReminderTemplate } from './action-reminder'
@@ -31,7 +30,6 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'gap-report-ready': gapReportReadyTemplate,
   notification: notificationTemplate,
   'payment-succeeded': paymentSucceededTemplate,
-  'subscription-activated': subscriptionActivatedTemplate,
   'subscription-canceled': subscriptionCanceledTemplate,
   'subscription-updated': subscriptionUpdatedTemplate,
   'action-reminder': actionReminderTemplate,
