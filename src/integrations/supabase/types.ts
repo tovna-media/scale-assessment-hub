@@ -107,6 +107,42 @@ export type Database = {
         }
         Relationships: []
       }
+      card_verifications: {
+        Row: {
+          checked_at: string | null
+          checks: Json | null
+          created_at: string
+          id: string
+          payment_method_id: string | null
+          reason: string | null
+          status: string
+          stripe_subscription_id: string
+          user_id: string | null
+        }
+        Insert: {
+          checked_at?: string | null
+          checks?: Json | null
+          created_at?: string
+          id?: string
+          payment_method_id?: string | null
+          reason?: string | null
+          status?: string
+          stripe_subscription_id: string
+          user_id?: string | null
+        }
+        Update: {
+          checked_at?: string | null
+          checks?: Json | null
+          created_at?: string
+          id?: string
+          payment_method_id?: string | null
+          reason?: string | null
+          status?: string
+          stripe_subscription_id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       coach_notes: {
         Row: {
           assessee_id: string

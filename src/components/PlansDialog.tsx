@@ -145,10 +145,14 @@ function PlansDialog({ subscribed, onClose }: { subscribed: boolean; onClose: ()
 
         {showCheckout ? (
           <div className="pt-2">
-            <p className="mb-4 text-center text-sm text-[var(--fr-muted-ink)]">
+            <p className="mb-2 text-center text-sm text-[var(--fr-muted-ink)]">
               {billing === "annual"
                 ? "Fully Resourced — $984/year (works out to $82/month)"
                 : "Fully Resourced — $97/month"}
+            </p>
+            <p className="mb-4 text-center text-xs text-[var(--fr-muted-ink)]">
+              If you enter a new card, we place a temporary $1 hold to verify it. It's never charged
+              and is released automatically.
             </p>
             <StripeEmbeddedCheckout fetchClientSecret={fetchClientSecret} />
           </div>
