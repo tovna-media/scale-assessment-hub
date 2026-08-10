@@ -59,13 +59,19 @@ export async function resolvePrice(stripe: Stripe, plan: PlanId): Promise<Stripe
 }
 
 // Founding-member discount: first month free, applied server-side so it can't
-// be spoofed. This coupon is pre-created in Stripe (same id in test + live) —
-// resolved by id only, never created here, so its terms are never guessed.
-const FOUNDING_COUPON_ID = "FUgqCeaS";
+// be spoofed. This coupon is pre-created in Stripe — resolved by id only,
+// never created here, so its terms are never guessed. Test and live mode are
+// entirely separate Stripe accounts, so the same coupon has a different id in
+// each; a single hardcoded id silently resolved to "no coupon" (full price
+// charged) whenever run against the environment it wasn't created in.
+const FOUNDING_COUPON_ID: Record<StripeEnv, string> = {
+  sandbox: "H71tjKh3",
+  live: "FUgqCeaS",
+};
 
-export async function getFoundingCoupon(stripe: Stripe): Promise<string | null> {
+export async function getFoundingCoupon(stripe: Stripe, env: StripeEnv): Promise<string | null> {
   try {
-    const existing = await stripe.coupons.retrieve(FOUNDING_COUPON_ID);
+    const existing = await stripe.coupons.retrieve(FOUNDING_COUPON_ID[env]);
     if (existing && !existing.deleted) return existing.id;
     return null;
   } catch (error) {
