@@ -40,14 +40,20 @@ function TrialSuccessPage() {
   const [existingAccount, setExistingAccount] = useState(false);
   const [failed, setFailed] = useState(false);
 
-  // Brand-new signups: resolve the checkout directly (this does the same
-  // account-creation work the webhook does, synchronously) and redirect
-  // straight to /set-password — no waiting on the webhook. Existing accounts
-  // (already signed in, or paying anonymously with an email that already has
-  // one) never get a token here and fall through to the "check your email"
-  // copy for the magic-link path instead.
+  // This page is the return URL ONLY for the not-signed-in (public) checkout.
+  // Decide create-password vs. welcome from the checkout itself — never from
+  // whatever session happens to already be in this browser. Supabase persists
+  // sessions in localStorage, so a leftover login from an earlier visit
+  // survives the Stripe redirect; gating on `session` here made a brand-new
+  // paid signup skip the create-password step entirely whenever the browser
+  // still held any prior session. We always resolve the checkout: a token means
+  // a brand-new account (redirect to /set-password), `ready` with no token
+  // means the email already had an account.
   useEffect(() => {
-    if (session || !session_id) return;
+    if (!session_id) {
+      setFailed(true);
+      return;
+    }
     let cancelled = false;
 
     async function run(attempt: number): Promise<void> {
@@ -84,7 +90,7 @@ function TrialSuccessPage() {
     return () => {
       cancelled = true;
     };
-  }, [session, session_id, resolve, navigate]);
+  }, [session_id, resolve, navigate]);
 
   return (
     <main
@@ -99,25 +105,27 @@ function TrialSuccessPage() {
         <h1 className="mt-4 text-2xl font-bold text-rl-purple-deep">
           You're in. Welcome to Fully Resourced.
         </h1>
-        {session ? (
-          <>
-            <p className="mt-3 text-sm text-muted-foreground">
-              Your membership is active. Head to your dashboard to get started.
-            </p>
-            <Button asChild size="lg" className="mt-6 w-full">
-              <Link to="/dashboard">Go to my dashboard</Link>
-            </Button>
-          </>
-        ) : existingAccount ? (
-          <>
-            <p className="mt-3 text-sm text-muted-foreground">
-              Your membership is active. This email already has an account with us.
-            </p>
-            <p className="mt-4 flex items-start gap-2 rounded-xl bg-rl-purple/5 px-4 py-3 text-left text-sm text-rl-purple">
-              <Mail className="mt-0.5 h-4 w-4 shrink-0" />
-              Check your email for your sign-in link. It arrives within a minute of your payment.
-            </p>
-          </>
+        {existingAccount ? (
+          session ? (
+            <>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Your membership is active. Head to your dashboard to get started.
+              </p>
+              <Button asChild size="lg" className="mt-6 w-full">
+                <Link to="/dashboard">Go to my dashboard</Link>
+              </Button>
+            </>
+          ) : (
+            <>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Your membership is active. This email already has an account with us.
+              </p>
+              <p className="mt-4 flex items-start gap-2 rounded-xl bg-rl-purple/5 px-4 py-3 text-left text-sm text-rl-purple">
+                <Mail className="mt-0.5 h-4 w-4 shrink-0" />
+                Check your email for your sign-in link. It arrives within a minute of your payment.
+              </p>
+            </>
+          )
         ) : failed ? (
           <p className="mt-4 text-sm text-muted-foreground">
             Your payment went through, but we couldn't finish setting up your account automatically.
