@@ -34,14 +34,29 @@ export const resolveCheckoutSession = createServerFn({ method: "POST" })
     const session = await stripe.checkout.sessions.retrieve(data.sessionId);
 
     if (session.status !== "complete" || session.mode !== "subscription" || !session.subscription) {
-      return { token: null as string | null, ready: false as const };
+      return {
+        token: null as string | null,
+        ready: false as const,
+        verificationFailed: false as const,
+      };
     }
 
-    await handleCheckoutCompleted(
+    const result = await handleCheckoutCompleted(
       supabaseAdmin,
       session as unknown as CheckoutSession,
       data.environment,
     );
+
+    if (result.blocked) {
+      // Card failed the $1 verification check — no subscription, no access,
+      // no password step, no email. Let the return page show a clear error
+      // instead of trying to resolve a set-password token that was never issued.
+      return {
+        token: null as string | null,
+        ready: true as const,
+        verificationFailed: true as const,
+      };
+    }
 
     const { data: tokenRow } = await supabaseAdmin
       .from("password_setup_tokens")
@@ -50,5 +65,9 @@ export const resolveCheckoutSession = createServerFn({ method: "POST" })
       .is("used_at", null)
       .maybeSingle();
 
-    return { token: tokenRow?.token ?? null, ready: true as const };
+    return {
+      token: tokenRow?.token ?? null,
+      ready: true as const,
+      verificationFailed: false as const,
+    };
   });

@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { CheckCircle2, Loader2, Mail } from "lucide-react";
+import { AlertCircle, CheckCircle2, Loader2, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/scale/Logo";
 import { useAuth } from "@/lib/auth-context";
@@ -39,6 +39,7 @@ function TrialSuccessPage() {
   const resolve = useServerFn(resolveCheckoutSession);
   const [existingAccount, setExistingAccount] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [verificationFailed, setVerificationFailed] = useState(false);
 
   // This page is the return URL ONLY for the not-signed-in (public) checkout.
   // Decide create-password vs. welcome from the checkout itself — never from
@@ -58,10 +59,18 @@ function TrialSuccessPage() {
 
     async function run(attempt: number): Promise<void> {
       try {
-        const { token, ready } = await resolve({
+        const {
+          token,
+          ready,
+          verificationFailed: cardFailed,
+        } = await resolve({
           data: { sessionId: session_id as string, environment: getStripeEnvironment() },
         });
         if (cancelled) return;
+        if (cardFailed) {
+          setVerificationFailed(true);
+          return;
+        }
         if (token) {
           navigate({ to: "/set-password/$token", params: { token }, replace: true });
           return;
@@ -101,11 +110,27 @@ function TrialSuccessPage() {
         <div className="flex justify-center">
           <Logo className="h-9 w-auto" />
         </div>
-        <CheckCircle2 className="mx-auto mt-6 h-12 w-12 text-rl-purple" />
+        {verificationFailed ? (
+          <AlertCircle className="mx-auto mt-6 h-12 w-12 text-destructive" />
+        ) : (
+          <CheckCircle2 className="mx-auto mt-6 h-12 w-12 text-rl-purple" />
+        )}
         <h1 className="mt-4 text-2xl font-bold text-rl-purple-deep">
-          You're in. Welcome to Fully Resourced.
+          {verificationFailed
+            ? "We couldn't verify your card"
+            : "You're in. Welcome to Fully Resourced."}
         </h1>
-        {existingAccount ? (
+        {verificationFailed ? (
+          <>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Your card's billing details didn't match what your bank has on file, so we couldn't
+              complete your signup. No trial was started and nothing was charged.
+            </p>
+            <Button asChild size="lg" className="mt-6 w-full">
+              <Link to="/30-day-trial">Try a different card</Link>
+            </Button>
+          </>
+        ) : existingAccount ? (
           session ? (
             <>
               <p className="mt-3 text-sm text-muted-foreground">

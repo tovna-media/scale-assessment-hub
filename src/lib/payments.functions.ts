@@ -12,6 +12,7 @@ type StatusResult = {
   cancel_at_period_end: boolean;
   current_period_end: string | null;
   past_due_since: string | null;
+  cardVerificationFailed: boolean;
 };
 
 async function resolveOrCreateCustomer(
@@ -181,6 +182,7 @@ export const getSubscriptionStatus = createServerFn({ method: "GET" })
         cancel_at_period_end: false,
         current_period_end: null,
         past_due_since: null,
+        cardVerificationFailed: await hasRecentCardVerificationFailure(supabase, userId),
       };
     }
     const row = data as {
@@ -206,8 +208,34 @@ export const getSubscriptionStatus = createServerFn({ method: "GET" })
       cancel_at_period_end: row.cancel_at_period_end,
       current_period_end: row.current_period_end,
       past_due_since: row.past_due_since,
+      cardVerificationFailed: active
+        ? false
+        : await hasRecentCardVerificationFailure(supabase, userId),
     };
   });
+
+// A blocked $1 card-verification check never creates a subscriptions row, so
+// the "activating your account" poll page would otherwise spin forever with
+// no way to know the checkout failed. Only surfaced while there's no active
+// subscription, and only for a recent attempt — an old failure shouldn't
+// haunt a member who successfully subscribed some other way later.
+async function hasRecentCardVerificationFailure(
+  supabase: import("@supabase/supabase-js").SupabaseClient<
+    import("@/integrations/supabase/types").Database
+  >,
+  userId: string,
+): Promise<boolean> {
+  const { data } = await supabase
+    .from("card_verifications")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("status", "failed")
+    .gt("created_at", new Date(Date.now() - 30 * 60 * 1000).toISOString())
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return !!data;
+}
 
 // Convenience export used by the "activating" page: same as getSubscriptionStatus
 // but the client polls it. Kept separate in case we later want to add pending-state

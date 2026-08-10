@@ -8,6 +8,8 @@ export type StripeSubscription = StripeObj & {
   id: string
   customer: string
   status: string
+  created?: number
+  default_payment_method?: string | { id: string } | null
   cancel_at_period_end?: boolean
   current_period_start?: number | null
   current_period_end?: number | null
@@ -85,18 +87,186 @@ async function resolveUserId(admin: Admin, sub: StripeSubscription): Promise<str
   return (data as { user_id?: string } | null)?.user_id ?? null
 }
 
+type VerificationOutcome = { ok: true } | { ok: false; reason: string }
+
+// A newly-entered card and a card that was already on the Stripe customer
+// before this subscription existed both show up as sub.default_payment_method
+// — the only signal that distinguishes them is *when* the payment method was
+// created relative to the subscription. A generous window (rather than an
+// exact match) absorbs the few seconds of latency between Checkout attaching
+// the payment method and the subscription object itself being created.
+const NEW_CARD_WINDOW_SECONDS = 10 * 60
+
+/**
+ * $1 authorize-and-cancel card verification, run once per Stripe subscription
+ * the first time it's about to be granted access. Only actually charges
+ * anything (a $1 auth, immediately canceled — never captured, no Stripe fee)
+ * when the payment method looks newly-entered; a card already on file from an
+ * earlier subscription/checkout is treated as already verified.
+ *
+ * Callers race: the synchronous checkout-return resolver and up to three
+ * Stripe webhook event types (checkout.session.completed,
+ * customer.subscription.created/updated) can all reach this for the same
+ * subscription. The stripe_subscription_id UNIQUE constraint on
+ * card_verifications makes the first caller to insert a 'pending' row the
+ * one that actually runs the $1 check; everyone else polls for that row to
+ * resolve instead of running it again.
+ */
+async function ensureCardVerified(
+  admin: Admin,
+  env: StripeEnv,
+  sub: StripeSubscription,
+): Promise<VerificationOutcome> {
+  const { data: existing } = await admin
+    .from('card_verifications')
+    .select('status')
+    .eq('stripe_subscription_id', sub.id)
+    .maybeSingle()
+  const existingStatus = (existing as { status?: string } | null)?.status
+  if (existingStatus === 'passed') return { ok: true }
+  if (existingStatus === 'failed') return { ok: false, reason: 'card verification previously failed' }
+
+  const { createStripeClient } = await import('@/lib/stripe.server')
+  const stripe = createStripeClient(env)
+
+  let pmId = typeof sub.default_payment_method === 'string'
+    ? sub.default_payment_method
+    : sub.default_payment_method?.id
+  if (!pmId && typeof sub.customer === 'string') {
+    // Checkout normally sets the subscription's own default_payment_method,
+    // but fall back to the customer's default so a quirk in how a $0-due
+    // trial gets set up doesn't wrongly block a real signup.
+    const customer = await stripe.customers.retrieve(sub.customer)
+    if (!('deleted' in customer) || !customer.deleted) {
+      const invoiceDefault = customer.invoice_settings?.default_payment_method
+      pmId = typeof invoiceDefault === 'string' ? invoiceDefault : invoiceDefault?.id
+    }
+  }
+  if (!pmId) {
+    // Every checkout in this app requires a card, even for a $0-due trial —
+    // this shouldn't happen. Fail closed rather than grant access we can't verify.
+    console.error('[card-verify] subscription has no default_payment_method', sub.id)
+    return { ok: false, reason: 'no payment method on subscription' }
+  }
+
+  const pm = await stripe.paymentMethods.retrieve(pmId)
+  const isNewCard =
+    typeof sub.created === 'number' && Math.abs(pm.created - sub.created) <= NEW_CARD_WINDOW_SECONDS
+
+  if (!existingStatus && !isNewCard) {
+    // Reused a card Stripe already verified when it was first added — no new
+    // auth needed. Record the decision so this stays a fast cache hit.
+    await admin.from('card_verifications').upsert(
+      {
+        stripe_subscription_id: sub.id,
+        user_id: sub.metadata?.userId ?? null,
+        payment_method_id: pmId,
+        status: 'passed',
+        reason: 'existing card on file',
+        checked_at: new Date().toISOString(),
+      } as never,
+      { onConflict: 'stripe_subscription_id' },
+    )
+    return { ok: true }
+  }
+
+  // Claim the verification atomically: only the first insert for this
+  // subscription id succeeds, so concurrent callers don't double-run the auth.
+  const { error: claimError } = await admin.from('card_verifications').insert({
+    stripe_subscription_id: sub.id,
+    user_id: sub.metadata?.userId ?? null,
+    payment_method_id: pmId,
+    status: 'pending',
+  } as never)
+
+  if (claimError) {
+    // Another caller already claimed (or resolved) it — poll briefly instead
+    // of running a second $1 auth against the same card.
+    for (let attempt = 0; attempt < 15; attempt++) {
+      await new Promise((resolve) => setTimeout(resolve, 400))
+      const { data: row } = await admin
+        .from('card_verifications')
+        .select('status')
+        .eq('stripe_subscription_id', sub.id)
+        .maybeSingle()
+      const status = (row as { status?: string } | null)?.status
+      if (status === 'passed') return { ok: true }
+      if (status === 'failed') return { ok: false, reason: 'card verification previously failed' }
+    }
+    console.error('[card-verify] timed out waiting for concurrent verification', sub.id)
+    return { ok: false, reason: 'verification timed out' }
+  }
+
+  let checks: Record<string, string | null> = { cvc_check: null, address_postal_code_check: null }
+  let failed = false
+  let reason = ''
+  try {
+    const pi = await stripe.paymentIntents.create({
+      amount: 100,
+      currency: 'usd',
+      customer: typeof sub.customer === 'string' ? sub.customer : undefined,
+      payment_method: pmId,
+      capture_method: 'manual',
+      confirm: true,
+      off_session: true,
+      expand: ['latest_charge'],
+    })
+    const charge = (
+      pi as unknown as {
+        latest_charge?: { payment_method_details?: { card?: { checks?: Record<string, string | null> } } }
+      }
+    ).latest_charge
+    const c = charge?.payment_method_details?.card?.checks
+    checks = {
+      cvc_check: c?.cvc_check ?? null,
+      address_postal_code_check: c?.address_postal_code_check ?? null,
+    }
+    // Release the hold — canceling an uncaptured PaymentIntent is free and
+    // never posts a charge to the member's statement.
+    if (pi.status !== 'canceled') {
+      await stripe.paymentIntents.cancel(pi.id).catch((e) => {
+        console.error('[card-verify] failed to cancel $1 auth hold', pi.id, e)
+      })
+    }
+    failed = checks.cvc_check === 'fail' || checks.address_postal_code_check === 'fail'
+    if (failed) {
+      reason = `card checks failed: cvc_check=${checks.cvc_check} address_postal_code_check=${checks.address_postal_code_check}`
+    }
+  } catch (e) {
+    // Couldn't even confirm the $1 auth (declined, needs re-authentication,
+    // etc). We can't verify this card — fail closed.
+    console.error('[card-verify] $1 authorization failed', sub.id, e)
+    failed = true
+    reason = e instanceof Error ? e.message : 'card authorization failed'
+    const piId = (e as { payment_intent?: { id?: string } } | undefined)?.payment_intent?.id
+    if (piId) await stripe.paymentIntents.cancel(piId).catch(() => {})
+  }
+
+  await admin
+    .from('card_verifications')
+    .update({
+      status: failed ? 'failed' : 'passed',
+      checks: checks as never,
+      reason: failed ? reason : null,
+      checked_at: new Date().toISOString(),
+    } as never)
+    .eq('stripe_subscription_id', sub.id)
+
+  return failed ? { ok: false, reason } : { ok: true }
+}
+
 export async function handleSubscriptionUpsert(
   admin: Admin,
   sub: StripeSubscription,
   env: StripeEnv,
   opts?: { skipActivationEmail?: boolean },
-) {
+): Promise<{ blocked: boolean; reason?: string }> {
   const userId = await resolveUserId(admin, sub)
   if (!userId) {
     // No app account yet — checkout.session.completed creates it and re-runs
     // this upsert. Skip quietly instead of failing the event.
     console.warn('[webhook] no userId yet for subscription, deferring', sub.id)
-    return
+    return { blocked: false }
   }
 
   // The account may have been deleted from the admin page (which cancels the
@@ -110,7 +280,7 @@ export async function handleSubscriptionUpsert(
     .maybeSingle()
   if (!profileExists) {
     console.warn('[webhook] user no longer exists, skipping upsert', userId, sub.id)
-    return
+    return { blocked: false }
   }
   const item = sub.items?.data?.[0]
   const periodStart = item?.current_period_start ?? sub.current_period_start
@@ -127,6 +297,26 @@ export async function handleSubscriptionUpsert(
     past_due_since?: string | null
     cancel_at_period_end?: boolean | null
   } | null
+
+  // Card verification only ever needs to run once, the first time this
+  // subscription is about to be granted access (a subscriptions row for it
+  // doesn't exist yet). Later events for the same subscription — renewals,
+  // past_due, cancellation — skip straight through; only the initial
+  // creation is gated.
+  if (!prev && (sub.status === 'active' || sub.status === 'trialing')) {
+    const verification = await ensureCardVerified(admin, env, sub)
+    if (!verification.ok) {
+      console.warn('[webhook] blocking subscription — card verification failed', sub.id, verification.reason)
+      try {
+        const { createStripeClient } = await import('@/lib/stripe.server')
+        const stripe = createStripeClient(env)
+        await stripe.subscriptions.cancel(sub.id)
+      } catch (e) {
+        console.error('[webhook] failed to cancel unverified subscription', sub.id, e)
+      }
+      return { blocked: true, reason: verification.reason }
+    }
+  }
 
   let pastDueSince: string | null = prev?.past_due_since ?? null
   if (sub.status === 'past_due') {
@@ -215,6 +405,8 @@ export async function handleSubscriptionUpsert(
       endsAt: formatDateForEmail(isoFromUnix(periodEnd)),
     })
   }
+
+  return { blocked: false }
 }
 
 export async function handleInvoicePaymentFailed(
@@ -352,7 +544,11 @@ async function findUserIdByEmail(admin: Admin, email: string): Promise<string | 
  * uniqueness check below, so calling this twice for the same checkout is a
  * no-op the second time.
  */
-export async function handleCheckoutCompleted(admin: Admin, session: CheckoutSession, env: StripeEnv) {
+export async function handleCheckoutCompleted(
+  admin: Admin,
+  session: CheckoutSession,
+  env: StripeEnv,
+): Promise<{ blocked: boolean }> {
   const email = session.customer_details?.email?.trim().toLowerCase()
   const subscriptionId = typeof session.subscription === 'string' ? session.subscription : null
   if (!email || !subscriptionId) {
@@ -371,7 +567,7 @@ export async function handleCheckoutCompleted(admin: Admin, session: CheckoutSes
     .maybeSingle()
   if ((existingSub as { user_id?: string } | null)?.user_id) {
     console.log('[webhook] checkout already processed', subscriptionId)
-    return
+    return { blocked: false }
   }
 
   // Find an existing account for this email, otherwise create one.
@@ -423,7 +619,7 @@ export async function handleCheckoutCompleted(admin: Admin, session: CheckoutSes
   // cover it instead — brand-new accounts (once their password is set) and
   // ANY founding checkout (new or existing account) both get founding-access,
   // never both emails.
-  await handleSubscriptionUpsert(
+  const upsertResult = await handleSubscriptionUpsert(
     admin,
     {
       ...sub,
@@ -433,6 +629,19 @@ export async function handleCheckoutCompleted(admin: Admin, session: CheckoutSes
     env,
     { skipActivationEmail: isNewAccount || isFounding },
   )
+  if (upsertResult.blocked) {
+    // Card verification failed: no subscriptions row, no GHL tag, no
+    // create-password token, no welcome email. The account itself (if newly
+    // created) is left in place with no subscription — a retry with a
+    // corrected card reuses it via findUserIdByEmail above.
+    console.log('[webhook] checkout blocked by card verification', {
+      userId,
+      subscriptionId,
+      campaign,
+      reason: upsertResult.reason,
+    })
+    return { blocked: true }
+  }
   console.log('[webhook] access granted', { userId, subscriptionId, campaign })
 
   // Tag in GHL for the specific path they paid through. Fires once per
@@ -487,7 +696,7 @@ export async function handleCheckoutCompleted(admin: Admin, session: CheckoutSes
       console.error('[webhook] password setup token failed', e)
     }
     console.log('[webhook] checkout processed', { userId, isNewAccount, campaign })
-    return
+    return { blocked: false }
   }
 
   // Existing account: they already have a password and can log in normally.
@@ -496,7 +705,7 @@ export async function handleCheckoutCompleted(admin: Admin, session: CheckoutSes
   // already has an account still need a way in.
   if (!isFounding) {
     console.log('[webhook] existing member upgrade, no sign-in email needed', { userId })
-    return
+    return { blocked: false }
   }
   try {
     const appUrl = 'https://app.getfullyresourced.com'
@@ -521,4 +730,5 @@ export async function handleCheckoutCompleted(admin: Admin, session: CheckoutSes
   }
 
   console.log('[webhook] checkout processed', { userId, isNewAccount, campaign })
+  return { blocked: false }
 }

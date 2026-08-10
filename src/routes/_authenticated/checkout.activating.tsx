@@ -1,8 +1,9 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 import { useServerFn } from '@tanstack/react-start';
 import { getSubscriptionStatus, logCheckoutReturn } from '@/lib/payments.functions';
-import { Loader2 } from 'lucide-react';
+import { AlertCircle, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export const Route = createFileRoute('/_authenticated/checkout/activating')({
   head: () => ({ meta: [{ title: 'Activating your account…' }] }),
@@ -17,6 +18,7 @@ function ActivatingPage() {
   const check = useServerFn(getSubscriptionStatus);
   const logReturn = useServerFn(logCheckoutReturn);
   const [waited, setWaited] = useState(0);
+  const [verificationFailed, setVerificationFailed] = useState(false);
   const navigate = useNavigate();
   const loggedRef = useRef(false);
 
@@ -44,6 +46,12 @@ function ActivatingPage() {
           });
           return;
         }
+        // No subscriptions row was ever created because the $1 card check
+        // failed — stop polling, nothing is going to become active.
+        if (status.cardVerificationFailed) {
+          setVerificationFailed(true);
+          return;
+        }
       } catch {
         /* keep polling */
       }
@@ -57,6 +65,23 @@ function ActivatingPage() {
       cancelled = true;
     };
   }, [check, navigate]);
+
+  if (verificationFailed) {
+    return (
+      <main className="mx-auto flex min-h-[60vh] max-w-lg flex-col items-center justify-center px-4 py-16 text-center">
+        <AlertCircle className="h-10 w-10 text-destructive" />
+        <h1 className="mt-6 font-display text-2xl font-semibold">We couldn't verify your card</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Your card's billing details didn't match what your bank has on file, so we couldn't
+          complete your upgrade. Nothing was charged. You can try again with a different card or
+          billing address.
+        </p>
+        <Button asChild size="lg" className="mt-6">
+          <Link to="/dashboard">Back to dashboard</Link>
+        </Button>
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto flex min-h-[60vh] max-w-lg flex-col items-center justify-center px-4 py-16 text-center">

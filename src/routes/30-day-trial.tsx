@@ -204,6 +204,11 @@ function TrialPage() {
 
           {showCheckout ? (
             <div className="mt-5">
+              <p className="mb-3 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+                <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
+                We place a temporary $1 hold to verify your card. It's never charged and is released
+                automatically.
+              </p>
               <StripeEmbeddedCheckout fetchClientSecret={fetchClientSecret} />
             </div>
           ) : (
