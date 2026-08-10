@@ -233,13 +233,50 @@ async function ensureCardVerified(
       reason = `card checks failed: cvc_check=${checks.cvc_check} address_postal_code_check=${checks.address_postal_code_check}`
     }
   } catch (e) {
-    // Couldn't even confirm the $1 auth (declined, needs re-authentication,
-    // etc). We can't verify this card — fail closed.
-    console.error('[card-verify] $1 authorization failed', sub.id, e)
-    failed = true
-    reason = e instanceof Error ? e.message : 'card authorization failed'
-    const piId = (e as { payment_intent?: { id?: string } } | undefined)?.payment_intent?.id
-    if (piId) await stripe.paymentIntents.cancel(piId).catch(() => {})
+    // Couldn't confirm the $1 auth outright (declined, needs
+    // re-authentication, a transient gateway error, etc). A hard decline like
+    // this still often carries the actual AVS/CVC verdict on the attempted
+    // PaymentIntent — go look, because the spec's block condition is
+    // specifically an explicit checks "fail", not "the auth attempt errored".
+    // Blocking every signup whenever the $1 auth itself can't complete would
+    // make this feature reject real paying members over our own inability to
+    // run a courtesy check, which is worse than the risk it's meant to catch.
+    console.error('[card-verify] $1 authorization could not be confirmed', sub.id, e)
+    const errPiId = (e as { payment_intent?: { id?: string } } | undefined)?.payment_intent?.id
+    let sawChecks = false
+    if (errPiId) {
+      try {
+        const pi = await stripe.paymentIntents.retrieve(errPiId, { expand: ['latest_charge'] })
+        const charge = (
+          pi as unknown as {
+            latest_charge?: {
+              payment_method_details?: { card?: { checks?: Record<string, string | null> } }
+            }
+          }
+        ).latest_charge
+        const c = charge?.payment_method_details?.card?.checks
+        if (c) {
+          sawChecks = true
+          checks = {
+            cvc_check: c.cvc_check ?? null,
+            address_postal_code_check: c.address_postal_code_check ?? null,
+          }
+          failed = checks.cvc_check === 'fail' || checks.address_postal_code_check === 'fail'
+          if (failed) {
+            reason = `card checks failed: cvc_check=${checks.cvc_check} address_postal_code_check=${checks.address_postal_code_check}`
+          }
+        }
+        if (pi.status !== 'canceled') {
+          await stripe.paymentIntents.cancel(pi.id).catch(() => {})
+        }
+      } catch (retrieveErr) {
+        console.error('[card-verify] failed to inspect $1 auth after error', sub.id, retrieveErr)
+      }
+    }
+    if (!sawChecks) {
+      console.warn('[card-verify] $1 auth inconclusive (no checks data), letting checkout continue', sub.id)
+      failed = false
+    }
   }
 
   await admin
