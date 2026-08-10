@@ -55,6 +55,25 @@ function priceIdOf(sub: StripeSubscription): string | null {
   return price?.lookup_key ?? price?.metadata?.lovable_external_id ?? price?.id ?? null
 }
 
+/**
+ * True while a brand-new paid signup still hasn't set their password (see
+ * password-setup.functions.ts). Only counts still-valid tokens — once the
+ * 1-hour link expires, the member has to fall back to /forgot-password
+ * instead, and that flow doesn't mark this token used, so an expired row
+ * shouldn't block activation emails forever.
+ */
+async function hasPendingPasswordSetup(admin: Admin, userId: string): Promise<boolean> {
+  const { data } = await admin
+    .from('password_setup_tokens')
+    .select('id')
+    .eq('user_id', userId)
+    .is('used_at', null)
+    .gt('expires_at', new Date().toISOString())
+    .limit(1)
+    .maybeSingle()
+  return !!data
+}
+
 async function resolveUserId(admin: Admin, sub: StripeSubscription): Promise<string | null> {
   if (sub.metadata?.userId) return sub.metadata.userId
   // Fall back to any existing row for this subscription/customer.
@@ -148,8 +167,12 @@ export async function handleSubscriptionUpsert(
       // Brand-new accounts and any founding checkout skip this — those get the
       // paid founding-access email instead (immediately for existing accounts,
       // once the password is set for brand-new ones — see handleCheckoutCompleted).
+      // The pending-token check below is the backstop for that skip: Stripe's own
+      // customer.subscription.created/updated webhook events call this function
+      // directly (see webhook.ts) without the opts flag, and can land after the
+      // account exists but before the member has ever set a password.
       if (!prevStatus || (prevStatus !== 'active' && prevStatus !== 'trialing')) {
-        if (!opts?.skipActivationEmail) {
+        if (!opts?.skipActivationEmail && !(await hasPendingPasswordSetup(admin, userId))) {
           await sendSubscriptionEmail(userId, 'subscription-activated', {})
         }
       } else {
