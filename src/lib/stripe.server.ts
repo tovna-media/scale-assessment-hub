@@ -61,7 +61,7 @@ export async function resolvePrice(stripe: Stripe, plan: PlanId): Promise<Stripe
 // Founding-member discount: first month free, applied server-side so it can't
 // be spoofed. This coupon is pre-created in Stripe (same id in test + live) —
 // resolved by id only, never created here, so its terms are never guessed.
-const FOUNDING_COUPON_ID = "FUgqCeaS";
+const FOUNDING_COUPON_ID = "H71tjKh3";
 
 export async function getFoundingCoupon(stripe: Stripe): Promise<string | null> {
   try {
