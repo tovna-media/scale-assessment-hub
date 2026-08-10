@@ -340,18 +340,37 @@ export async function handleSubscriptionUpsert(
   // doesn't exist yet). Later events for the same subscription — renewals,
   // past_due, cancellation — skip straight through; only the initial
   // creation is gated.
-  if (!prev && (sub.status === 'active' || sub.status === 'trialing')) {
-    const verification = await ensureCardVerified(admin, env, sub)
-    if (!verification.ok) {
-      console.warn('[webhook] blocking subscription — card verification failed', sub.id, verification.reason)
-      try {
-        const { createStripeClient } = await import('@/lib/stripe.server')
-        const stripe = createStripeClient(env)
-        await stripe.subscriptions.cancel(sub.id)
-      } catch (e) {
-        console.error('[webhook] failed to cancel unverified subscription', sub.id, e)
+  if (!prev) {
+    if (sub.status === 'active' || sub.status === 'trialing') {
+      const verification = await ensureCardVerified(admin, env, sub)
+      if (!verification.ok) {
+        console.warn('[webhook] blocking subscription — card verification failed', sub.id, verification.reason)
+        try {
+          const { createStripeClient } = await import('@/lib/stripe.server')
+          const stripe = createStripeClient(env)
+          await stripe.subscriptions.cancel(sub.id)
+        } catch (e) {
+          console.error('[webhook] failed to cancel unverified subscription', sub.id, e)
+        }
+        return { blocked: true, reason: verification.reason }
       }
-      return { blocked: true, reason: verification.reason }
+    } else {
+      // No subscriptions row exists yet, and this event isn't granting
+      // access. If it's a customer.subscription.deleted echo of our own
+      // forced cancellation above (failed card verification), there's
+      // nothing to legitimately cancel or notify about — access was never
+      // recorded as granted, so running the cancellation-notice logic below
+      // would send a real member-canceled email and GHL tag for a signup
+      // that never actually went through.
+      const { data: verificationRow } = await admin
+        .from('card_verifications')
+        .select('status')
+        .eq('stripe_subscription_id', sub.id)
+        .maybeSingle()
+      if ((verificationRow as { status?: string } | null)?.status === 'failed') {
+        console.log('[webhook] ignoring event for card-verification-failed subscription', sub.id, sub.status)
+        return { blocked: true, reason: 'card verification previously failed' }
+      }
     }
   }
 
