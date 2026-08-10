@@ -410,16 +410,21 @@ export async function handleSubscriptionUpsert(
       })
       // Send activation email only on the first transition into active (from a
       // non-active prior state). invoice.payment_succeeded handles ongoing renewals.
-      // Brand-new accounts and any founding checkout skip this — those get the
-      // paid founding-access email instead (immediately for existing accounts,
-      // once the password is set for brand-new ones — see handleCheckoutCompleted).
-      // The pending-token check below is the backstop for that skip: Stripe's own
-      // customer.subscription.created/updated webhook events call this function
-      // directly (see webhook.ts) without the opts flag, and can land after the
-      // account exists but before the member has ever set a password.
+      // One paid-activation email everywhere (founding-access) — brand-new
+      // accounts get it once their password is set instead (see
+      // handleCheckoutCompleted), and any founding/30-day-trial checkout
+      // (new or existing account) gets it from handleCheckoutCompleted's own
+      // sign-in-email step, so both skip here to avoid a duplicate.
+      // The pending-token check below is the backstop for the new-account
+      // skip: Stripe's own customer.subscription.created/updated webhook
+      // events call this function directly (see webhook.ts) without the
+      // opts flag, and can land after the account exists but before the
+      // member has ever set a password.
       if (!prevStatus || (prevStatus !== 'active' && prevStatus !== 'trialing')) {
         if (!opts?.skipActivationEmail && !(await hasPendingPasswordSetup(admin, userId))) {
-          await sendSubscriptionEmail(userId, 'subscription-activated', {})
+          await sendSubscriptionEmail(userId, 'founding-access', {
+            signInUrl: 'https://app.getfullyresourced.com/dashboard',
+          })
         }
       } else {
         // Same-account plan change while active — treat as update
@@ -522,7 +527,7 @@ export async function handleInvoicePaymentSucceeded(
   const r = row as { user_id?: string; price_id?: string | null } | null
   if (!r?.user_id) return
   // Skip the first invoice (billing_reason === 'subscription_create') — the
-  // subscription-activated email already covers that. Send for renewals only.
+  // paid-activation email already covers that. Send for renewals only.
   if (invoice.billing_reason && invoice.billing_reason === 'subscription_create') return
   const amount =
     typeof invoice.amount_paid === 'number' && invoice.currency
@@ -539,7 +544,7 @@ export async function handleInvoicePaymentSucceeded(
 async function sendSubscriptionEmail(
   userId: string,
   templateName:
-    | 'subscription-activated'
+    | 'founding-access'
     | 'subscription-canceled'
     | 'subscription-updated'
     | 'payment-succeeded',
