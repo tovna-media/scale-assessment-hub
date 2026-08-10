@@ -143,6 +143,24 @@ export type Database = {
         }
         Relationships: []
       }
+      checkout_completion_claims: {
+        Row: {
+          claimed_at: string
+          id: string
+          stripe_subscription_id: string
+        }
+        Insert: {
+          claimed_at?: string
+          id?: string
+          stripe_subscription_id: string
+        }
+        Update: {
+          claimed_at?: string
+          id?: string
+          stripe_subscription_id?: string
+        }
+        Relationships: []
+      }
       coach_notes: {
         Row: {
           assessee_id: string

@@ -623,6 +623,66 @@ async function findUserIdByEmail(admin: Admin, email: string): Promise<string | 
   return null
 }
 
+const CLAIM_WAIT_MS = 20_000
+const CLAIM_POLL_INTERVAL_MS = 500
+
+/**
+ * Claims exclusive rights to resolve one checkout (account creation, password
+ * token, access grant) for a given Stripe subscription id. The synchronous
+ * checkout-return resolver and the checkout.session.completed webhook both
+ * call handleCheckoutCompleted independently for the same real-world signup,
+ * and can race within the same second — without this, a losing caller could
+ * fail to create the (already-created-by-the-winner) account, fall back to
+ * treating a brand-new signup as an existing member, and send the paid
+ * "membership is active" email before any password was ever set.
+ *
+ * Losers wait for the winner's result instead of redoing the work. If the
+ * winner never finishes (crashed, timed out) the claim is stolen after
+ * CLAIM_WAIT_MS so one bad run can't permanently wedge a signup.
+ */
+type ClaimResult = { status: 'won'; claimId: string } | { status: 'done' } | { status: 'blocked' }
+
+async function resolveCheckoutClaim(admin: Admin, subscriptionId: string): Promise<ClaimResult> {
+  const { data: claimed, error: claimError } = await admin
+    .from('checkout_completion_claims')
+    .insert({ stripe_subscription_id: subscriptionId } as never)
+    .select('id')
+    .single()
+  if (!claimError && claimed) return { status: 'won', claimId: (claimed as { id: string }).id }
+
+  const deadline = Date.now() + CLAIM_WAIT_MS
+  while (Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, CLAIM_POLL_INTERVAL_MS))
+    const { data: sub } = await admin
+      .from('subscriptions')
+      .select('user_id')
+      .eq('stripe_subscription_id', subscriptionId)
+      .maybeSingle()
+    if ((sub as { user_id?: string } | null)?.user_id) return { status: 'done' }
+    const { data: verification } = await admin
+      .from('card_verifications')
+      .select('status')
+      .eq('stripe_subscription_id', subscriptionId)
+      .maybeSingle()
+    if ((verification as { status?: string } | null)?.status === 'failed') return { status: 'blocked' }
+  }
+
+  // The original claimant appears to have crashed or hung — steal the claim
+  // rather than deleting-by-subscription-id here too, since that original
+  // caller's own eventual `finally` cleanup could otherwise delete *our*
+  // fresh claim row instead of the stale one it actually owned, letting a
+  // third caller sneak in during that gap.
+  console.warn('[webhook] stale checkout-completion claim, taking over', subscriptionId)
+  await admin.from('checkout_completion_claims').delete().eq('stripe_subscription_id', subscriptionId)
+  const { data: retried, error: retryError } = await admin
+    .from('checkout_completion_claims')
+    .insert({ stripe_subscription_id: subscriptionId } as never)
+    .select('id')
+    .single()
+  if (retryError || !retried) return { status: 'blocked' }
+  return { status: 'won', claimId: (retried as { id: string }).id }
+}
+
 /**
  * Subscription checkout completed: Stripe collected the email, we create (or
  * attach) the app account here so nobody ever fills out a signup form. Shared by
@@ -635,7 +695,8 @@ async function findUserIdByEmail(admin: Admin, email: string): Promise<string | 
  * return page for a synchronous, no-wait redirect (see
  * checkout-resolve.functions.ts). Both share the same `subscriptions` row
  * uniqueness check below, so calling this twice for the same checkout is a
- * no-op the second time.
+ * no-op the second time — and resolveCheckoutClaim serializes the two calls
+ * so the second one only ever sees that finished state, never a half-done one.
  */
 export async function handleCheckoutCompleted(
   admin: Admin,
@@ -662,6 +723,31 @@ export async function handleCheckoutCompleted(
     console.log('[webhook] checkout already processed', subscriptionId)
     return { blocked: false }
   }
+
+  const claim = await resolveCheckoutClaim(admin, subscriptionId)
+  if (claim.status === 'done') {
+    console.log('[webhook] checkout completed by a concurrent caller', subscriptionId)
+    return { blocked: false }
+  }
+  if (claim.status === 'blocked') {
+    console.log('[webhook] checkout blocked by a concurrent caller', subscriptionId)
+    return { blocked: true }
+  }
+
+  try {
+    return await completeCheckout(admin, session, env, { email, subscriptionId, isFounding, campaign })
+  } finally {
+    await admin.from('checkout_completion_claims').delete().eq('id', claim.claimId)
+  }
+}
+
+async function completeCheckout(
+  admin: Admin,
+  session: CheckoutSession,
+  env: StripeEnv,
+  ctx: { email: string; subscriptionId: string; isFounding: boolean; campaign: string },
+): Promise<{ blocked: boolean }> {
+  const { email, subscriptionId, isFounding, campaign } = ctx
 
   // Find an existing account for this email, otherwise create one.
   // Signed-in upgrades carry the userId in session metadata; trust that first.
