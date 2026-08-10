@@ -68,7 +68,7 @@ export const createSubscriptionCheckout = createServerFn({ method: "POST" })
       const stripe = createStripeClient(data.environment);
 
       const price = await resolvePrice(stripe, data.plan);
-      const coupon = data.founding ? await getFoundingCoupon(stripe) : null;
+      const coupon = data.founding ? await getFoundingCoupon(stripe, data.environment) : null;
 
       const { userId, supabase } = context;
       const {

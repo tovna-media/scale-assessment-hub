@@ -24,7 +24,7 @@ export const createFoundingCheckout = createServerFn({ method: "POST" })
         await import("@/lib/stripe.server");
       const stripe = createStripeClient(data.environment);
       const price = await resolvePrice(stripe, "monthly");
-      const coupon = await getFoundingCoupon(stripe);
+      const coupon = await getFoundingCoupon(stripe, data.environment);
 
       const session = await stripe.checkout.sessions.create({
         line_items: [{ price: price.id, quantity: 1 }],
