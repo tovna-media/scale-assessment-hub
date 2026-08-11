@@ -32,6 +32,7 @@ import { Route as CoachSettingsRouteImport } from './routes/_coach/settings'
 import { Route as CoachLoginRouteImport } from './routes/coach.login'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as FoundingSuccessRouteImport } from './routes/founding_.success'
+import { Route as OrganizationsSignupRouteImport } from './routes/organizations.signup'
 import { Route as SetPasswordTokenRouteImport } from './routes/set-password.$token'
 import { Route as AuthenticatedAssessmentTypeRouteImport } from './routes/_authenticated/assessment.$type'
 import { Route as AuthenticatedCheckoutActivatingRouteImport } from './routes/_authenticated/checkout.activating'
@@ -172,6 +173,11 @@ const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
 const FoundingSuccessRoute = FoundingSuccessRouteImport.update({
   id: '/founding_/success',
   path: '/founding/success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrganizationsSignupRoute = OrganizationsSignupRouteImport.update({
+  id: '/organizations/signup',
+  path: '/organizations/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SetPasswordTokenRoute = SetPasswordTokenRouteImport.update({
@@ -354,6 +360,7 @@ export interface FileRoutesByFullPath {
   '/coach/login': typeof CoachLoginRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/founding/success': typeof FoundingSuccessRoute
+  '/organizations/signup': typeof OrganizationsSignupRoute
   '/set-password/$token': typeof SetPasswordTokenRoute
   '/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/checkout/activating': typeof AuthenticatedCheckoutActivatingRoute
@@ -404,6 +411,7 @@ export interface FileRoutesByTo {
   '/coach/login': typeof CoachLoginRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/founding/success': typeof FoundingSuccessRoute
+  '/organizations/signup': typeof OrganizationsSignupRoute
   '/set-password/$token': typeof SetPasswordTokenRoute
   '/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/checkout/activating': typeof AuthenticatedCheckoutActivatingRoute
@@ -457,6 +465,7 @@ export interface FileRoutesById {
   '/coach/login': typeof CoachLoginRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/founding_/success': typeof FoundingSuccessRoute
+  '/organizations/signup': typeof OrganizationsSignupRoute
   '/set-password/$token': typeof SetPasswordTokenRoute
   '/_authenticated/assessment/$type': typeof AuthenticatedAssessmentTypeRoute
   '/_authenticated/checkout/activating': typeof AuthenticatedCheckoutActivatingRoute
@@ -509,6 +518,7 @@ export interface FileRouteTypes {
     | '/coach/login'
     | '/email/unsubscribe'
     | '/founding/success'
+    | '/organizations/signup'
     | '/set-password/$token'
     | '/assessment/$type'
     | '/checkout/activating'
@@ -559,6 +569,7 @@ export interface FileRouteTypes {
     | '/coach/login'
     | '/email/unsubscribe'
     | '/founding/success'
+    | '/organizations/signup'
     | '/set-password/$token'
     | '/assessment/$type'
     | '/checkout/activating'
@@ -611,6 +622,7 @@ export interface FileRouteTypes {
     | '/coach/login'
     | '/email/unsubscribe'
     | '/founding_/success'
+    | '/organizations/signup'
     | '/set-password/$token'
     | '/_authenticated/assessment/$type'
     | '/_authenticated/checkout/activating'
@@ -656,6 +668,7 @@ export interface RootRouteChildren {
   CoachLoginRoute: typeof CoachLoginRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   FoundingSuccessRoute: typeof FoundingSuccessRoute
+  OrganizationsSignupRoute: typeof OrganizationsSignupRoute
   SetPasswordTokenRoute: typeof SetPasswordTokenRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicHooksActionRemindersRoute: typeof ApiPublicHooksActionRemindersRoute
@@ -828,6 +841,13 @@ declare module '@tanstack/react-router' {
       path: '/founding/success'
       fullPath: '/founding/success'
       preLoaderRoute: typeof FoundingSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organizations/signup': {
+      id: '/organizations/signup'
+      path: '/organizations/signup'
+      fullPath: '/organizations/signup'
+      preLoaderRoute: typeof OrganizationsSignupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/set-password/$token': {
@@ -1127,6 +1147,7 @@ const rootRouteChildren: RootRouteChildren = {
   CoachLoginRoute: CoachLoginRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   FoundingSuccessRoute: FoundingSuccessRoute,
+  OrganizationsSignupRoute: OrganizationsSignupRoute,
   SetPasswordTokenRoute: SetPasswordTokenRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicHooksActionRemindersRoute: ApiPublicHooksActionRemindersRoute,
