@@ -431,6 +431,84 @@ export type Database = {
         }
         Relationships: []
       }
+      organizations: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          submitter_email: string
+          submitter_full_name: string
+          submitter_password_hash: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          submitter_email: string
+          submitter_full_name: string
+          submitter_password_hash: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          submitter_email?: string
+          submitter_full_name?: string
+          submitter_password_hash?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      organization_members: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          invited_at: string
+          joined_at: string | null
+          organization_id: string
+          profile_id: string | null
+          removed_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          invited_at?: string
+          joined_at?: string | null
+          organization_id: string
+          profile_id?: string | null
+          removed_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          invited_at?: string
+          joined_at?: string | null
+          organization_id?: string
+          profile_id?: string | null
+          removed_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       password_setup_tokens: {
         Row: {
           checkout_session_id: string | null
