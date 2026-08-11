@@ -51,6 +51,7 @@ import { Route as AuthenticatedGuideSection9RouteImport } from './routes/_authen
 import { Route as AuthenticatedPrintAllRouteImport } from './routes/_authenticated/print.all'
 import { Route as AuthenticatedReportSessionIdRouteImport } from './routes/_authenticated/report.$sessionId'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
+import { Route as OrganizationsCheckoutActivatingRouteImport } from './routes/organizations.checkout.activating'
 import { Route as AuthenticatedPrintSectionNumberRouteImport } from './routes/_authenticated/print.section.$number'
 import { Route as CoachCoachAssesseeUserIdRouteImport } from './routes/_coach/coach.assessee.$userId'
 import { Route as ApiPublicHooksActionRemindersRouteImport } from './routes/api/public/hooks/action-reminders'
@@ -285,6 +286,12 @@ const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   path: '/lovable/email/suppression',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrganizationsCheckoutActivatingRoute =
+  OrganizationsCheckoutActivatingRouteImport.update({
+    id: '/organizations/checkout/activating',
+    path: '/organizations/checkout/activating',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedPrintSectionNumberRoute =
   AuthenticatedPrintSectionNumberRouteImport.update({
     id: '/print/section/$number',
@@ -379,6 +386,7 @@ export interface FileRoutesByFullPath {
   '/print/all': typeof AuthenticatedPrintAllRoute
   '/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/organizations/checkout/activating': typeof OrganizationsCheckoutActivatingRoute
   '/print/section/$number': typeof AuthenticatedPrintSectionNumberRoute
   '/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
   '/api/public/hooks/action-reminders': typeof ApiPublicHooksActionRemindersRoute
@@ -430,6 +438,7 @@ export interface FileRoutesByTo {
   '/print/all': typeof AuthenticatedPrintAllRoute
   '/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/organizations/checkout/activating': typeof OrganizationsCheckoutActivatingRoute
   '/print/section/$number': typeof AuthenticatedPrintSectionNumberRoute
   '/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
   '/api/public/hooks/action-reminders': typeof ApiPublicHooksActionRemindersRoute
@@ -484,6 +493,7 @@ export interface FileRoutesById {
   '/_authenticated/print/all': typeof AuthenticatedPrintAllRoute
   '/_authenticated/report/$sessionId': typeof AuthenticatedReportSessionIdRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/organizations/checkout/activating': typeof OrganizationsCheckoutActivatingRoute
   '/_authenticated/print/section/$number': typeof AuthenticatedPrintSectionNumberRoute
   '/_coach/coach/assessee/$userId': typeof CoachCoachAssesseeUserIdRoute
   '/api/public/hooks/action-reminders': typeof ApiPublicHooksActionRemindersRoute
@@ -537,6 +547,7 @@ export interface FileRouteTypes {
     | '/print/all'
     | '/report/$sessionId'
     | '/lovable/email/suppression'
+    | '/organizations/checkout/activating'
     | '/print/section/$number'
     | '/coach/assessee/$userId'
     | '/api/public/hooks/action-reminders'
@@ -588,6 +599,7 @@ export interface FileRouteTypes {
     | '/print/all'
     | '/report/$sessionId'
     | '/lovable/email/suppression'
+    | '/organizations/checkout/activating'
     | '/print/section/$number'
     | '/coach/assessee/$userId'
     | '/api/public/hooks/action-reminders'
@@ -641,6 +653,7 @@ export interface FileRouteTypes {
     | '/_authenticated/print/all'
     | '/_authenticated/report/$sessionId'
     | '/lovable/email/suppression'
+    | '/organizations/checkout/activating'
     | '/_authenticated/print/section/$number'
     | '/_coach/coach/assessee/$userId'
     | '/api/public/hooks/action-reminders'
@@ -671,6 +684,7 @@ export interface RootRouteChildren {
   OrganizationsSignupRoute: typeof OrganizationsSignupRoute
   SetPasswordTokenRoute: typeof SetPasswordTokenRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
+  OrganizationsCheckoutActivatingRoute: typeof OrganizationsCheckoutActivatingRoute
   ApiPublicHooksActionRemindersRoute: typeof ApiPublicHooksActionRemindersRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -976,6 +990,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailSuppressionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/organizations/checkout/activating': {
+      id: '/organizations/checkout/activating'
+      path: '/organizations/checkout/activating'
+      fullPath: '/organizations/checkout/activating'
+      preLoaderRoute: typeof OrganizationsCheckoutActivatingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/print/section/$number': {
       id: '/_authenticated/print/section/$number'
       path: '/print/section/$number'
@@ -1150,6 +1171,7 @@ const rootRouteChildren: RootRouteChildren = {
   OrganizationsSignupRoute: OrganizationsSignupRoute,
   SetPasswordTokenRoute: SetPasswordTokenRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
+  OrganizationsCheckoutActivatingRoute: OrganizationsCheckoutActivatingRoute,
   ApiPublicHooksActionRemindersRoute: ApiPublicHooksActionRemindersRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,

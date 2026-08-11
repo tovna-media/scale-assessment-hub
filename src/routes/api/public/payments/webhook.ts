@@ -9,6 +9,10 @@ import {
   type StripeSubscription,
   type CheckoutSession,
 } from '@/lib/checkout-completion.server';
+import {
+  handleOrgCheckoutCompleted,
+  handleOrgSubscriptionUpsert,
+} from '@/lib/organizations/checkout-completion.server';
 
 export const Route = createFileRoute('/api/public/payments/webhook')({
   server: {
@@ -43,20 +47,24 @@ export const Route = createFileRoute('/api/public/payments/webhook')({
         try {
           switch (event.type) {
             case 'customer.subscription.created':
-            case 'customer.subscription.updated':
-              await handleSubscriptionUpsert(
-                supabaseAdmin,
-                event.data.object as StripeSubscription,
-                env,
-              );
+            case 'customer.subscription.updated': {
+              const sub = event.data.object as StripeSubscription;
+              if (sub.metadata?.organizationId) {
+                await handleOrgSubscriptionUpsert(supabaseAdmin, sub, env);
+              } else {
+                await handleSubscriptionUpsert(supabaseAdmin, sub, env);
+              }
               break;
-            case 'customer.subscription.deleted':
-              await handleSubscriptionUpsert(
-                supabaseAdmin,
-                { ...(event.data.object as StripeSubscription), status: 'canceled' },
-                env,
-              );
+            }
+            case 'customer.subscription.deleted': {
+              const sub = event.data.object as StripeSubscription;
+              if (sub.metadata?.organizationId) {
+                await handleOrgSubscriptionUpsert(supabaseAdmin, { ...sub, status: 'canceled' }, env);
+              } else {
+                await handleSubscriptionUpsert(supabaseAdmin, { ...sub, status: 'canceled' }, env);
+              }
               break;
+            }
             case 'checkout.session.completed': {
               const session = event.data.object as CheckoutSession;
               // Grant access here: this is the event that fires on payment
@@ -67,7 +75,11 @@ export const Route = createFileRoute('/api/public/payments/webhook')({
               // returns. Both share the same idempotency check, so whichever
               // gets there first does the work and the other is a no-op.
               if (session.mode === 'subscription' && session.subscription) {
-                await handleCheckoutCompleted(supabaseAdmin, session, env);
+                if (session.metadata?.organizationId) {
+                  await handleOrgCheckoutCompleted(supabaseAdmin, session, env);
+                } else {
+                  await handleCheckoutCompleted(supabaseAdmin, session, env);
+                }
               } else {
                 console.log('[webhook] checkout session ignored', session.id, session.mode);
               }
