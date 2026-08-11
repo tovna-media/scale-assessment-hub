@@ -7,9 +7,10 @@ import { getSeatTier, type OrgSeatTier } from "@/lib/organizations/seat-pricing"
 // individual monthly price ($97/mo == $97/seat) for the standard tier rather
 // than duplicating it -- same price, same product, just billed at quantity.
 // Test and live mode are separate Stripe accounts, so (like the founding
-// coupon) this id is only valid in the environment it was created in.
+// coupon) each environment has its own price id here.
 const DISCOUNTED_ORG_SEAT_PRICE_ID: Partial<Record<StripeEnv, string>> = {
-  sandbox: "price_1U3KEZKi9kEwbRKQgmwtVgvr",
+  sandbox: "price_1U3KYYGXqp1wttvernLPWIbp",
+  live: "price_1U3KEZKi9kEwbRKQgmwtVgvr",
 };
 
 async function resolveOrgSeatPriceId(
