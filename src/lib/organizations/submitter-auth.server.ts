@@ -6,7 +6,10 @@
 // deploys to, with no native bindings and no new dependency (the same API is
 // already used for token generation in checkout-completion.server.ts).
 
-const PBKDF2_ITERATIONS = 210_000;
+// Cloudflare Workers' crypto.subtle caps PBKDF2 at 100,000 iterations
+// (higher counts throw at runtime) -- this app deploys there, so 100,000 is
+// the ceiling, not just a preference.
+const PBKDF2_ITERATIONS = 100_000;
 const SALT_BYTES = 16;
 const KEY_LENGTH_BITS = 256;
 
