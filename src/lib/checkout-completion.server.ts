@@ -112,7 +112,7 @@ const NEW_CARD_WINDOW_SECONDS = 10 * 60
  * one that actually runs the $1 check; everyone else polls for that row to
  * resolve instead of running it again.
  */
-async function ensureCardVerified(
+export async function ensureCardVerified(
   admin: Admin,
   env: StripeEnv,
   sub: StripeSubscription,
@@ -475,12 +475,19 @@ export async function handleSubscriptionUpsert(
       tag: 'fully resourced cancelled',
       extra: { subscription_id: sub.id },
     })
-    await sendSubscriptionEmail(
-      userId,
-      'subscription-canceled',
-      { endsAt: formatDateForEmail(isoFromUnix(periodEnd)) },
-      sub.id,
-    )
+    // An org merge cancels the member's individual subscription itself (see
+    // handleOrgCheckoutCompleted in organizations/checkout-completion.server.ts)
+    // and sends its own org-specific cancellation email instead — this
+    // stamped metadata flag stops the generic email from also going out for
+    // the same real-world cancellation.
+    if (sub.metadata?.orgMergeCanceled !== '1') {
+      await sendSubscriptionEmail(
+        userId,
+        'subscription-canceled',
+        { endsAt: formatDateForEmail(isoFromUnix(periodEnd)) },
+        sub.id,
+      )
+    }
   }
 
   return { blocked: false }
@@ -600,7 +607,7 @@ async function sendSubscriptionEmail(
 }
 
 /** Resolve an auth user id for an email (profiles first, then the auth admin API). */
-async function findUserIdByEmail(admin: Admin, email: string): Promise<string | null> {
+export async function findUserIdByEmail(admin: Admin, email: string): Promise<string | null> {
   const { data: prof } = await admin
     .from('profiles')
     .select('id')

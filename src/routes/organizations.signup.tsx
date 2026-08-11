@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useRef, useState, type FormEvent } from "react";
+import { useCallback, useMemo, useRef, useState, type FormEvent } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +22,9 @@ import {
   requiresFileUpload,
 } from "@/lib/organizations/seat-pricing";
 import { parseRosterFile, type RosterRow } from "@/lib/organizations/roster-file-parsing";
+import { createOrganizationCheckout } from "@/lib/organizations/checkout.functions";
+import { getStripeEnvironment, isStripeConfigured } from "@/lib/stripe";
+import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
 
 export const Route = createFileRoute("/organizations/signup")({
   head: () => ({
@@ -75,6 +79,58 @@ function OrganizationSignupPage() {
 
   const roster: RosterRow[] = entryMethod === "file" ? fileRows : validOneByOneRows;
   const pricing = useMemo(() => getOrgPricingSummary(roster.length), [roster.length]);
+
+  const [showCheckout, setShowCheckout] = useState(false);
+  const startOrgCheckout = useServerFn(createOrganizationCheckout);
+  const reviewStateRef = useRef({
+    orgName,
+    submitterFullName,
+    submitterEmail,
+    submitterPassword,
+    roster,
+  });
+  reviewStateRef.current = {
+    orgName,
+    submitterFullName,
+    submitterEmail,
+    submitterPassword,
+    roster,
+  };
+
+  // Stable identity: remounting the provider breaks Stripe's embedded form.
+  const fetchClientSecret = useCallback(async () => {
+    const {
+      orgName: name,
+      submitterFullName: fullName,
+      submitterEmail: email,
+      submitterPassword: password,
+      roster: currentRoster,
+    } = reviewStateRef.current;
+    const origin = window.location.origin;
+    const result = await startOrgCheckout({
+      data: {
+        orgName: name,
+        submitterFullName: fullName,
+        submitterEmail: email,
+        submitterPassword: password,
+        roster: currentRoster.map((r) => ({ fullName: r.fullName, email: r.email })),
+        returnUrl: `${origin}/organizations/checkout/activating?session_id={CHECKOUT_SESSION_ID}`,
+        environment: getStripeEnvironment(),
+      },
+    });
+    if ("error" in result && result.error) throw new Error(result.error);
+    const clientSecret = "clientSecret" in result ? result.clientSecret : "";
+    if (!clientSecret) throw new Error("No checkout session returned");
+    return clientSecret;
+  }, [startOrgCheckout]);
+
+  function handleContinueToPayment() {
+    if (!isStripeConfigured()) {
+      toast.error("Payments are not configured yet.");
+      return;
+    }
+    setShowCheckout(true);
+  }
 
   function handleOrgSubmit(e: FormEvent) {
     e.preventDefault();
@@ -495,20 +551,24 @@ function OrganizationSignupPage() {
                 )}
               </div>
 
-              <div className="mt-8 flex gap-3">
-                <Button type="button" variant="outline" onClick={() => setStep("entry")}>
-                  Back
-                </Button>
-                <Button
-                  type="button"
-                  className="flex-1 bg-rl-purple-cta text-white hover:bg-rl-purple-cta/90"
-                  onClick={() =>
-                    toast.message("Payment isn't wired up yet — that's coming in the next update.")
-                  }
-                >
-                  Continue to payment
-                </Button>
-              </div>
+              {showCheckout ? (
+                <div className="mt-8">
+                  <StripeEmbeddedCheckout fetchClientSecret={fetchClientSecret} />
+                </div>
+              ) : (
+                <div className="mt-8 flex gap-3">
+                  <Button type="button" variant="outline" onClick={() => setStep("entry")}>
+                    Back
+                  </Button>
+                  <Button
+                    type="button"
+                    className="flex-1 bg-rl-purple-cta text-white hover:bg-rl-purple-cta/90"
+                    onClick={handleContinueToPayment}
+                  >
+                    Continue to payment
+                  </Button>
+                </div>
+              )}
             </Card>
           )}
 

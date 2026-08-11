@@ -13,7 +13,7 @@ const DISCOUNTED_ORG_SEAT_PRICE_ID: Partial<Record<StripeEnv, string>> = {
   live: "price_1U3KEZKi9kEwbRKQgmwtVgvr",
 };
 
-async function resolveOrgSeatPriceId(
+export async function resolveOrgSeatPriceId(
   stripe: Stripe,
   env: StripeEnv,
   tier: OrgSeatTier,

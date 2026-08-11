@@ -7,6 +7,9 @@ import { template as subscriptionCanceledTemplate } from './subscription-cancele
 import { template as subscriptionUpdatedTemplate } from './subscription-updated'
 import { template as actionReminderTemplate } from './action-reminder'
 import { template as foundingAccessTemplate } from './founding-access'
+import { template as orgInviteTemplate } from './org-invite'
+import { template as orgIndividualSubscriptionCanceledTemplate } from './org-individual-subscription-canceled'
+import { template as orgMemberRemovedTemplate } from './org-member-removed'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -34,4 +37,7 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'subscription-updated': subscriptionUpdatedTemplate,
   'action-reminder': actionReminderTemplate,
   'founding-access': foundingAccessTemplate,
+  'org-invite': orgInviteTemplate,
+  'org-individual-subscription-canceled': orgIndividualSubscriptionCanceledTemplate,
+  'org-member-removed': orgMemberRemovedTemplate,
 }
