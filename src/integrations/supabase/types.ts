@@ -431,42 +431,6 @@ export type Database = {
         }
         Relationships: []
       }
-      organizations: {
-        Row: {
-          created_at: string
-          id: string
-          name: string
-          stripe_customer_id: string | null
-          stripe_subscription_id: string | null
-          submitter_email: string
-          submitter_full_name: string
-          submitter_password_hash: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          name: string
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          submitter_email: string
-          submitter_full_name: string
-          submitter_password_hash: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          name?: string
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          submitter_email?: string
-          submitter_full_name?: string
-          submitter_password_hash?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       organization_members: {
         Row: {
           created_at: string
@@ -505,6 +469,57 @@ export type Database = {
           profile_id?: string | null
           removed_at?: string | null
           status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_members_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_members_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          submitter_email: string
+          submitter_full_name: string
+          submitter_password_hash: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          submitter_email: string
+          submitter_full_name: string
+          submitter_password_hash: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          submitter_email?: string
+          submitter_full_name?: string
+          submitter_password_hash?: string
           updated_at?: string
         }
         Relationships: []
